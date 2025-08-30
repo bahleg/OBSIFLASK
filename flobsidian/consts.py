@@ -1,3 +1,4 @@
 APP_NAME = 'flobsidian'
 
 INDEX_UPDATE_TIME = 3*60
+MESSAGE_LIST_SIZE = 100

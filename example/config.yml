@@ -6,3 +6,8 @@ flask_params:
   port: 8000
   debug: true
   use_reloader: false
+tasks:
+  - cmd: echo "asd"
+    interval: 30
+    vault: example
+    success: "Echo task for test (30 seconds)"

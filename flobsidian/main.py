@@ -25,15 +25,20 @@ from flobsidian.utils import init_logger
 from flobsidian.pages.editor import render_editor
 from flobsidian.pages.renderer import render_renderer, get_markdown
 from flobsidian.pages.save import make_save
+from flobsidian.tasks import run_tasks
 import secrets
 from flobsidian.singleton import Singleton
 from flobsidian.file_index import FileIndex
 from flobsidian.pages.index_tree import render_tree
+from flobsidian.pages.messages import render_messages
 
 
 def run():
     cfg: AppConfig = load_entrypoint_config(AppConfig)
     Singleton.config = cfg
+    for vault in cfg.vaults:
+        Singleton.messages[(vault, None)] = []
+    run_tasks(cfg.tasks)
     logger = init_logger(cfg.log_path, log_level=cfg.log_level)
     logger.debug('initialization')
     for vault in cfg.vaults:
@@ -45,6 +50,12 @@ def run():
                 root_path=Path(__file__).parent)
     Bootstrap5(app)
     app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.bootstrap_theme
+
+
+    @app.template_filter('datetimeformat')
+    def datetimeformat(value):
+        return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
+
 
     @app.route('/edit/<vault>/<path:subpath>')
     def editor(vault, subpath):
@@ -87,6 +98,17 @@ def run():
     def tree(vault):
         Singleton.indices[vault].refresh()
         return render_tree(Singleton.indices[vault], vault)
+
+    @app.route('/messages/<vault>')
+    def messages(vault):
+        unread = request.args.get('unread', default='1')
+        try:
+            unread = int(unread)
+
+        except:
+            logger.warning(f'could not parse unread parameter: {unread}')
+            unread = 1
+        return render_messages(vault, unread)
 
     app.run(**cfg.flask_params)
 
