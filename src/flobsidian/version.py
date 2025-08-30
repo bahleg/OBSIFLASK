@@ -1,4 +1,4 @@
-version_str = '0.0.1'
+version_str = '0.1.0'
 
 
 def get_version(pep_version=True):
