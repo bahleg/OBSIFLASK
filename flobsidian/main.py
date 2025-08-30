@@ -23,6 +23,7 @@ from flobsidian.consts import APP_NAME
 from flobsidian.minihydra import load_entrypoint_config
 from flobsidian.utils import init_logger
 from flobsidian.pages.editor import render_editor
+from flobsidian.pages.index import render_index
 from flobsidian.pages.renderer import render_renderer, get_markdown
 from flobsidian.pages.save import make_save
 from flobsidian.tasks import run_tasks
@@ -51,11 +52,10 @@ def run():
     Bootstrap5(app)
     app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.bootstrap_theme
 
-
     @app.template_filter('datetimeformat')
     def datetimeformat(value):
-        return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
-
+        return datetime.datetime.fromtimestamp(value).strftime(
+            '%Y-%m-%d %H:%M:%S')
 
     @app.route('/edit/<vault>/<path:subpath>')
     def editor(vault, subpath):
@@ -66,6 +66,19 @@ def run():
             return 'Bad path', 404
         return render_editor(vault, subpath, real_path)
 
+
+    @app.route('/editor/<vault>')
+    def editor_root(vault):
+        if vault not in cfg.vaults:
+            return 'Bad vault', 404
+        if cfg.vaults[vault].home_file:
+            return redirect(url_for('editor', vault=vault, subpath = cfg.vaults[vault].home_file))
+        else:
+            first_file = Singleton.indices[vault][0]
+            return redirect(url_for('editor', vault=vault,
+                                     subpath = str(Path(first_file).relative_to(Singleton.indices[vault].path))))
+    
+
     @app.route('/render/<vault>/<path:subpath>')
     def renderer(vault, subpath):
         if vault not in cfg.vaults:
@@ -75,6 +88,17 @@ def run():
             return 'Bad path', 404
         return render_renderer(vault, subpath, real_path)
 
+    @app.route('/render/<vault>')
+    def renderer_root(vault):
+        if vault not in cfg.vaults:
+            return 'Bad vault', 404
+        if cfg.vaults[vault].home_file:
+            return redirect(url_for('renderer', vault=vault, subpath = cfg.vaults[vault].home_file))
+        else:
+            first_file = Singleton.indices[vault][0]
+            return redirect(url_for('renderer', vault=vault,
+                                     subpath = str(Path(first_file).relative_to(Singleton.indices[vault].path))))
+    
     @app.route('/preview/<vault>/<path:subpath>')
     def preview(vault, subpath):
         if vault not in cfg.vaults:
@@ -94,6 +118,11 @@ def run():
         content = data.get('content', '')
         return make_save(real_path, content, Singleton.indices[vault])
 
+    @app.route('/')
+    def index():
+        return render_index()
+
+
     @app.route('/tree/<vault>')
     def tree(vault):
         Singleton.indices[vault].refresh()
@@ -102,13 +131,19 @@ def run():
     @app.route('/messages/<vault>')
     def messages(vault):
         unread = request.args.get('unread', default='1')
+        raw = request.args.get('raw', default='0')
         try:
             unread = int(unread)
-
         except:
             logger.warning(f'could not parse unread parameter: {unread}')
             unread = 1
-        return render_messages(vault, unread)
+    
+        try:
+            raw = int(raw)
+        except:
+            logger.warning(f'could not parse raw parameter: {raw}')
+            raw = 0
+        return render_messages(vault, unread, raw= raw)
 
     app.run(**cfg.flask_params)
 

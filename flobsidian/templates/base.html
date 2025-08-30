@@ -30,18 +30,14 @@
             style="width:420px; transition: width 0.3s; display:flex; flex-direction:column;">
             <div class="p-2 d-flex flex-column h-100">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    {% if home %}
                     {% if page_editor %}
-                    <span class="fs-4"><a href="{{url_for('editor', vault = vault, subpath = home)}}"
+                    <span class="fs-4"><a href="{{url_for('editor_root', vault = vault)}}"
                             class="text-decoration-none">FLOBSIDIAN</a></span>
                     {% else %}
-                    <span class="fs-4"><a href="{{url_for('renderer', vault = vault, subpath = home)}}"
+                    <span class="fs-4"><a href="{{url_for('renderer_root', vault = vault)}}"
                             class="text-decoration-none">FLOBSIDIAN</a></span>
-                    {% endif %}
-                    {% else %}
-                    <span class="fs-4"><a href="" class="text-decoration-none">FLOBSIDIAN</a></span>
-                    {% endif %}
                     <button class="btn btn-sm btn-secondary" id="toggleSidebar">◀</button>
+                    {% endif %}
                 </div>
                 <div class="card p-3 flex-grow-1" style="overflow-y:auto;">
                     {{ navtree|safe }}
@@ -100,6 +96,57 @@
             collapsedBtn.style.display = 'none';
             localStorage.setItem('sidebarCollapsed', 'false');
         });
+    </script>
+
+
+
+    <script>
+        const alertsContainer = document.getElementById('page-content-wrapper');
+        const messagesUrl = "{{ url_for('messages', vault=vault) }}";
+        let lastTimestamp = 0; // чтобы показывать только новые сообщения
+
+        function showAlert(message, type = 'success') {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        <a href='{{messagesUrl}}'>${message}</a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+            alertsContainer.append(wrapper);
+
+            // автоудаление через 5 секунд
+            setTimeout(() => {
+                const alertNode = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
+                alertNode.close();
+            }, 5000);
+        }
+
+        async function fetchMessages() {
+            try {
+                const res = await fetch('{{url_for("messages", vault = vault)}}?raw=1');
+                if (!res.ok) throw new Error('Network error');
+                const data = await res.json();
+
+                for (const msg of data) {
+                    let type = 'success';
+                    if (msg.type === 1) type = 'warning';
+                    else if (msg.type === 2) type = 'danger';
+
+                    showAlert(
+                        msg.message + (msg.user ? `<br><pre>${msg.user}</pre></div>` : ''),
+                        type
+                    );
+                }
+            } catch (err) {
+                console.error('Failed to fetch messages', err);
+            }
+        }
+
+        // первый запрос сразу
+        fetchMessages();
+
+        // опрашиваем каждую секунду
+        setInterval(fetchMessages, 1000);
     </script>
 
 
