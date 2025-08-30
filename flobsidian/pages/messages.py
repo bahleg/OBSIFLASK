@@ -11,5 +11,5 @@ def render_messages(vault, unread, raw = False):
     return render_template('messages.html', home = Singleton.config.vaults[vault].home_file, 
                            messages = messages,
                            navtree=render_tree(Singleton.indices[vault], vault, False),
-                           vault = vault
+                           vault = vault, unread=bool(unread)
                            )
