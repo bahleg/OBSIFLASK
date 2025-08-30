@@ -1,6 +1,6 @@
 vaults: 
   example:
-    full_path: 'example/vault_example'
+    full_path: '/example/vault_example'
     allowed_users: []
 flask_params:
   port: 8000
