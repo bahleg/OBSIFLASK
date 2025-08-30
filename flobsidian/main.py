@@ -30,8 +30,10 @@ from flobsidian.singleton import Singleton
 from flobsidian.file_index import FileIndex
 from flobsidian.pages.index_tree import render_tree
 
+
 def run():
     cfg: AppConfig = load_entrypoint_config(AppConfig)
+    Singleton.config = cfg
     logger = init_logger(cfg.log_path, log_level=cfg.log_level)
     logger.debug('initialization')
     for vault in cfg.vaults:
@@ -80,7 +82,7 @@ def run():
         data = request.get_json()
         content = data.get('content', '')
         return make_save(real_path, content, Singleton.indices[vault])
-    
+
     @app.route('/tree/<vault>')
     def tree(vault):
         Singleton.indices[vault].refresh()

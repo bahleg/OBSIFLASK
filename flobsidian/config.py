@@ -10,6 +10,7 @@ class UserConfig:
 class VaultConfig:
     full_path: str
     allowed_users: list[str]
+    home_file: str  = ''
 
 
 @dataclass

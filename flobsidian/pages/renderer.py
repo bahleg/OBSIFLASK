@@ -16,7 +16,7 @@ def make_link(link, path: Path, index: FileIndex):
     alias = link.group(2)
     name = link.group(1)
 
-    link = None 
+    link = None
     if not alias:
         alias = name
     if '/' in alias:
@@ -27,33 +27,32 @@ def make_link(link, path: Path, index: FileIndex):
     if name in index.get_name_to_path():
         candidate_paths = index.get_name_to_path()[name]
         if path in candidate_paths:
-            link = str(path.relative_to(index.path))+"/"+str(name)
-            
+            link = str(path.relative_to(index.path)) + "/" + str(name)
+
         else:
             first = sorted(candidate_paths)[0]
-            link = str(first.relative_to(index.path))+"/"+str(name)
-            
+            link = str(first.relative_to(index.path)) + "/" + str(name)
+
     elif name + '.md' in index.get_name_to_path():
         candidate_paths = index.get_name_to_path()[name + '.md']
         if path in candidate_paths:
-            link = str(path.relative_to(index.path))+"/"+str(name+'.md')
+            link = str(path.relative_to(index.path)) + "/" + str(name + '.md')
         else:
             first = sorted(candidate_paths)[0]
-            link = str(first.relative_to(index.path))+"/"+str(name+'.md')
+            link = str(first.relative_to(index.path)) + "/" + str(name + '.md')
 
     elif (index.path / Path(name)).exists():
         parent_level = path.parents.index(index.path)
-        
-        link = '../'*parent_level + name 
+
+        link = '../' * parent_level + name
     elif (index.path / Path(name + '.md')).exists():
         parent_level = path.parents.index(index.path)
-        
-        link = '../'*parent_level + name+'.md'
-    
+
+        link = '../' * parent_level + name + '.md'
+
     if link:
         link = parse.quote(link)
         return f'[{alias}]({link})'
-    
 
     return f"???{alias}???"
 
@@ -87,4 +86,6 @@ def render_renderer(vault, path, real_path):
         markdown_text=get_markdown(real_path, Singleton.indices[vault]),
         path=path,
         vault=vault,
-        navtree=render_tree(Singleton.indices[vault], vault, False))
+        navtree=render_tree(Singleton.indices[vault], vault, False),
+        is_editor=False,
+        home=Singleton.config.vaults[vault].home_file)

@@ -23,45 +23,85 @@
 <body>
 
 
+    <div class="d-flex" id="wrapper" style="height:100vh; overflow:hidden;">
 
-    <div class="d-flex" id="navbar" style="height: 100%;">
-
-        <div class="d-flex flex-column flex-shrink-0 p-3" style="width: 420px;">
-            <a href="" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto  text-decoration-none">
-                <svg class="bi me-2" width="40" height="32">
-                    <use xlink:href="#bootstrap" />
-                </svg>
-                <span class="fs-4">FLOBSIDIAN</span>
-            </a>
-
-            <br />
-            {{navtree|safe}}
-
-
-
+        <!-- Sidebar -->
+        <div id="sidebar" class="bg-light border-end"
+            style="width:420px; transition: width 0.3s; display:flex; flex-direction:column;">
+            <div class="p-2 d-flex flex-column h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    {% if home %}
+                    {% if page_editor %}
+                    <span class="fs-4"><a href="{{url_for('editor', vault = vault, subpath = home)}}"
+                            class="text-decoration-none">FLOBSIDIAN</a></span>
+                    {% else %}
+                    <span class="fs-4"><a href="{{url_for('renderer', vault = vault, subpath = home)}}"
+                            class="text-decoration-none">FLOBSIDIAN</a></span>
+                    {% endif %}
+                    {% else %}
+                    <span class="fs-4"><a href="" class="text-decoration-none">FLOBSIDIAN</a></span>
+                    {% endif %}
+                    <button class="btn btn-sm btn-secondary" id="toggleSidebar">◀</button>
+                </div>
+                <div class="card p-3 flex-grow-1" style="overflow-y:auto;">
+                    {{ navtree|safe }}
+                </div>
+            </div>
         </div>
 
-        <main class="container" style="margin-left: 5%; margin-top: 15px;">
+        <!-- Collapsed sidebar button -->
+        <div id="sidebarCollapsedBtn"
+            style="width:30px; cursor:pointer; display:none; align-items:center; justify-content:center; background:#f8f9fa; border-right:1px solid #ddd;">
+            ▶
+        </div>
 
+        <!-- Main content -->
+        <div id="page-content" class="flex-grow-1 p-3" style="overflow:auto;">
             <div id="page-content-wrapper">
                 {{ render_messages(container=False, dismissible=True, dismiss_animate=True) }}
             </div>
-
 
             {% block content %}{% endblock %}
 
             {% block footer %}
             <footer class="text-center">
-
                 bahleg, 2025
                 <hr />
-
-                {% endblock %}
             </footer>
-
-        </main>
+            {% endblock %}
+        </div>
 
     </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const collapsedBtn = document.getElementById('sidebarCollapsedBtn');
+
+        // Проверяем состояние при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            const collapsed = localStorage.getItem('sidebarCollapsed');
+            if (collapsed === 'true') {
+                sidebar.style.display = 'none';
+                collapsedBtn.style.display = 'flex';
+            }
+        });
+
+        // Сворачивание
+        toggleBtn.addEventListener('click', () => {
+            sidebar.style.display = 'none';
+            collapsedBtn.style.display = 'flex';
+            localStorage.setItem('sidebarCollapsed', 'true');
+        });
+
+        // Разворачивание
+        collapsedBtn.addEventListener('click', () => {
+            sidebar.style.display = 'flex';
+            collapsedBtn.style.display = 'none';
+            localStorage.setItem('sidebarCollapsed', 'false');
+        });
+    </script>
+
 
 
     {{ bootstrap.load_js() }}

@@ -12,4 +12,5 @@ def render_editor(vault, path, real_path):
                            path=path,
                            vault=vault,
                            markdown_html = markdown,  
-                            navtree = render_tree(Singleton.indices[vault], vault, False))
+                            navtree = render_tree(Singleton.indices[vault], vault, True), 
+                            is_editor = True, home = Singleton.config.vaults[vault].home_file)

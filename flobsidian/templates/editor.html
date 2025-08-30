@@ -10,18 +10,31 @@
     margin: 0;
   }
 
-  #container {
+#container {
     display: flex;
-    height: 100%;
+    height: calc(100vh - 80px); /* под футер/заголовок */
     width: 100%;
-  }
+    border: 1px solid #ccc;
+}
 
-  #editor {
+/* Редактор слева */
+#editor {
     font-family: monospace;
     height: 100%;
-    width: 100%;
-    border-right: 1px solid #ddd;
-  }
+    width: 50%; /* стартовая ширина редактора */
+    min-width: 640px; /* чтобы не сжимался слишком сильно */
+    border-right: 3px solid #888; /* разделительная линия */
+    padding: 10px;
+    resize: horizontal; /* пользователь может растягивать */
+    overflow: auto;
+}
+
+/* Превью справа */
+#preview {
+    flex-grow: 1;
+    padding: 10px;
+    overflow: auto;
+}
 
 
   #flo-toggle-btn {
@@ -69,8 +82,8 @@
 </style>
 
 
-<a id="flo-toggle-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}">🔎</a>
-<a id="flo-save-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}">💾</a>
+<a id="flo-toggle-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
+<a id="flo-save-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-floppy"></i></a>
 
 
 <div id="container">
