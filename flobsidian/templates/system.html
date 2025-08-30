@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>System</h1>
+<h2>Active jobs</h2>
+{% if jobs %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Project/Corpus</th>
+      <th scope="col">Job type</th>
+      <th scope="col">User</th>
+      <th scope="col">Status</th>
+      <th scope="col">Stop</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for i in range(jobs|length) %}
+    <tr>
+
+      <td> {{jobs[i]['pretty_project']}}</td>
+      <td> {{jobs[i]['task']}}</td>
+      <td> {{jobs[i]['user']}}</td>
+      <td> {{jobs[i]['status']}}</td>
+      <td><a class="btn btn-sm btn-primary" {%if jobs[i]['project'] %}
+          href="{{url_for('system_status', project=jobs[i]['project'], task = jobs[i]['real_task'])}}">Stop job</a>
+        {% else %}
+        href="{{url_for('system_status', task = jobs[i]['real_task'])}}">Stop job</a>
+        {%endif %}
+      </td>
+      </td>
+
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
+{% else %}
+No jobs found
+{% endif %}
+<hr />
+
+<h2>Resource usage</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Job</th>
+      <th scope="col">CPU, %</th>
+      <th scope="col">RAM, MB</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for k,v in resources.items() %}
+    <td>{{k}}</td>
+    <td>{{(v['cpu'])}}</td>
+    <td>{{(v['mem'])}}</td>
+
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
+<hr />
+
+<a class="h2" data-bs-toggle="collapse" href="#collapseFrontend" role="button" aria-expanded="false"
+  aria-controls="collapseFrontend">
+  Frontend
+</a>
+
+<div class="collapse" id="collapseFrontend">
+  <div class="card card-body">
+
+    Frontend version: {{frontend_v}}.
+
+    Showing last 100 log messages: front.
+
+    <textarea class="form-control" rows="100" readonly>{{logs}}</textarea>
+
+    Showing last 100 log messages: front-api.
+
+    <textarea class="form-control" rows="100" readonly>{{logs_api}}</textarea>
+
+
+  </div>
+</div>
+
+<br />
+
+<br />
+
+<br />
+<a class="h2" data-bs-toggle="collapse" href="#collapseBackend" role="button" aria-expanded="false"
+  aria-controls="collapseBackend">
+  Backend
+</a>
+
+<div class="collapse" id="collapseBackend">
+  <div class="card card-body">
+
+    Backend version: {{backend_v}}.
+
+    Showing last 100 log messages: back.
+
+    <textarea class="form-control" rows="100" readonly>{{back_logs}}</textarea>
+
+    Showing last 100 log messages: back-api.
+
+    <textarea class="form-control" rows="100" readonly>{{back_logs_api}}</textarea>
+
+  </div>
+</div>
+
+<!-- making navbar active-->
+<script>
+  document.getElementById("nav-system").classList.add("active")
+</script>
+
+  <script>
+    window.history.replaceState(null, '', window.location.pathname); 
+  </script>
+
+{% endblock %}

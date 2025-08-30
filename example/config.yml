@@ -1,0 +1,8 @@
+vaults: 
+  example:
+    full_path: 'example/vault_example'
+    allowed_users: []
+flask_params:
+  port: 8000
+  debug: true
+  use_reloader: false

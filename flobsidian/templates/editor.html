@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Editor: {{path}}</h1>
+
+<style>
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
+
+  #container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+
+  #editor {
+    font-family: monospace;
+    height: 100%;
+    width: 100%;
+    border-right: 1px solid #ddd;
+  }
+
+
+  #flo-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    /* убираем подчёркивание */
+    display: inline-block;
+    /* чтобы padding работал корректно */
+  }
+
+  #flo-toggle-btn:hover {
+    background: #555;
+    /* эффект при наведении */
+  }
+
+
+  #flo-save-btn {
+    position: fixed;
+    top: 20px;
+    right: 70px;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    /* убираем подчёркивание */
+    display: inline-block;
+    /* чтобы padding работал корректно */
+  }
+
+  #flo-save-btn:hover {
+    background: #555;
+    /* эффект при наведении */
+  }
+</style>
+
+
+<a id="flo-toggle-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}">🔎</a>
+<a id="flo-save-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}">💾</a>
+
+
+<div id="container">
+  <textarea id="editor" class="form-control">{{markdown_text}}</textarea>
+  <div id="preview">{{markdown_html|safe}}</div>
+</div>
+
+
+<script>
+  const editor = document.getElementById('editor');
+  const saveBtn = document.getElementById('flo-save-btn');
+  const alertPlaceholder = document.getElementById('page-content-wrapper');
+
+  let saveTimeout = null;
+  const SAVE_DELAY = 10000;
+  let isDirty = false;
+
+  // функция для показа алерта
+  function showAlert(message, type = 'success') {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+    alertPlaceholder.append(wrapper);
+
+    // автоудаление через 5 секунд
+    setTimeout(() => {
+      const alertNode = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
+      alertNode.close();
+    }, 5000);
+  }
+
+
+  // функция сохранения
+  function saveDocument() {
+    const content = editor.value;
+    fetch('{{url_for("save_file", vault=vault, subpath=path)}}', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    })
+      .then(res => {
+        if (res.ok) {
+          isDirty = false;
+          showAlert('Saved successfully!', 'success');
+          // 2️⃣ Загружаем актуальный Markdown с сервера
+          return fetch('{{ url_for("preview", vault=vault, subpath=path) }}');
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.content !== undefined) {
+          preview.innerHTML = data.content;
+        } else {
+          showAlert('Error: server did not return content', 'danger');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showAlert('Error saving file', 'danger');
+      });
+  }
+
+  // автосохранение через N секунд после ввода
+  editor.addEventListener('input', () => {
+    isDirty = true;
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(saveDocument, SAVE_DELAY);
+  });
+
+  // ручная кнопка 💾
+  saveBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // чтобы не перезагружалась страница
+    saveDocument();
+  });
+
+  // предупреждение при уходе со страницы
+  window.addEventListener('beforeunload', (e) => {
+    if (isDirty) {
+
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+</script>
+
+{% endblock %}

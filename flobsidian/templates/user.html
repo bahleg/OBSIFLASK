@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% from 'functions.html' import render_projects %}
+{% block content %}
+
+<h1>User: {{current_user[0]}} </h1>
+
+<h2>Project statistics</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Project</th>
+      <th scope="col">Dictionary computation time</th>
+      <th scope="col">Coarse computation time</th>
+      <th scope="col">Refine computation time</th>
+      <th scope="col">Full processing computation time</th>
+      <th scope="col">Overall computation time </th>
+      <th scope="col">≈Manual annotation speed </th>
+      <th scope="col"># Annotated sentences</th>
+
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for project, vals in stats.items() %}
+    <tr>
+      <td>{{project}}</td>
+      <td>{{vals['dictionary']}}</td>
+      <td>{{vals['coarse']}}</td>
+      <td>{{vals['refine']}}</td>
+      <td>{{vals['full']}}</td>
+      <td>{{vals['overall']}}</td>
+      <td>{{vals['manual']}}</td>
+      <td>{{vals['sentences']}}</td>
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
+<hr/>
+<h2>Change user settings</h2>
+{{ render_form(user_form) }}
+
+<!-- making navbar active-->
+<script>
+  document.getElementById("nav-user").classList.add("active")
+</script>
+
+{% endblock %}

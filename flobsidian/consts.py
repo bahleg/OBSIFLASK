@@ -1,0 +1,3 @@
+APP_NAME = 'flobsidian'
+
+INDEX_UPDATE_TIME = 3*60

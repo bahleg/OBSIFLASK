@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% from 'functions.html' import render_projects %}
+{% block content %}
+
+<h1>Log in</h1>
+{{ render_form(form) }}
+
+<!-- making navbar active-->
+<script>
+  document.getElementById("nav-login").classList.add("active")
+</script>
+
+{% endblock %}
+
+
+

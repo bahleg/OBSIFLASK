@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Showing: {{path}}</h1>
+
+<style>
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
+
+  #container {
+    height: 100%;
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    /* прокрутка, если контента больше */
+  }
+
+  #flo-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    /* убираем подчёркивание */
+    display: inline-block;
+    /* чтобы padding работал корректно */
+  }
+
+  #flo-toggle-btn:hover {
+    background: #555;
+    /* эффект при наведении */
+  }
+</style>
+
+<a id="flo-toggle-btn" href="{{url_for('editor', vault = vault, subpath = path)}}">🖉</a>
+
+<div id="container">
+  {{ markdown_text|safe }}
+</div>
+
+{% endblock %}

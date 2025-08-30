@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% from 'functions.html' import render_projects %}
+{% block content %}
+
+
+<h1>Root panel</h1>
+<h2> New user create</h2>
+{{render_form(new_user_form)}}
+
+<br/>
+<h2> Users</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+
+      <th scope="col">User</th>
+      <th scope="col"> Role </th>
+      <th scope="col"> Actions </th>
+
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for user in users["users"] %}
+    <tr>
+      <td>{{user["username"]}}</td>
+
+      {% if user["is_root"] %}
+
+      <td>Root</td>
+      {% else %}
+      <td>User</td>
+      {% endif %}
+      <td>
+        {% if user["is_root"] %}
+        <a href="{{url_for('root', user_to_change_rights=user['username'])}}">Drop root rights</a>
+        {% else %}
+        <a href="{{url_for('root', user_to_change_rights=user['username'])}}">Grant root rights</a>
+        {% endif %}
+        <a href="{{url_for('root', user_to_change_pass=user['username'])}}">Drop password</a>
+
+        <a href="{{url_for('root', user_to_delete=user['username'])}}">Delete user</a>
+
+
+      </td>
+    </tr>
+
+    {% endfor %}
+
+  </tbody>
+</table>
+
+<!-- making navbar active-->
+<script>
+  document.getElementById("nav-root").classList.add("active")
+</script>
+
+
+
+{% endblock %}
