@@ -1,6 +1,7 @@
 {% from 'bootstrap5/utils.html' import render_messages %}
 <!DOCTYPE html>
 <html lang="en">
+<link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
 
 <head>
     <meta charset="utf-8">
@@ -29,7 +30,13 @@
 
 <body>
     <div class="container">
-        <h1 class="text-center">FLOBSIDIAN</h1>
+        <h1 class="text-center d-flex align-items-center justify-content-center gap-2">
+            <img src="{{ url_for('static', filename='logo.png') }}"
+     alt="Logo"
+     style="height: 1.5em; width: 1.5em; border-radius: 50%; background-color: var(--bs-body-color); padding: 2px;">
+
+            FLOBSIDIAN
+        </h1>
         <h2 class="mb-4">Available Vaults</h2>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">

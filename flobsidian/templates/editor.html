@@ -11,41 +11,51 @@
     margin: 0;
   }
 
-#container {
+  #container {
     display: flex;
-    height: calc(100vh - 80px); /* под футер/заголовок */
+    height: calc(100vh - 80px);
+    /* под футер/заголовок */
     width: 100%;
     border: 1px solid #ccc;
-}
+  }
 
-/* Редактор слева */
-#editor {
+  /* Редактор слева */
+  #editor {
     font-family: monospace;
     height: 100%;
-    width: 50%; /* стартовая ширина редактора */
-    min-width: 1024px; /* чтобы не сжимался слишком сильно */
-    border-right: 3px solid #888; /* разделительная линия */
+    width: 50%;
+    /* стартовая ширина редактора */
+    min-width: 1024px;
+    /* чтобы не сжимался слишком сильно */
+    border-right: 3px solid #888;
+    /* разделительная линия */
     padding: 10px;
-    resize: horizontal; /* пользователь может растягивать */
+    resize: horizontal;
+    /* пользователь может растягивать */
     overflow: auto;
-}
-.EasyMDEContainer {
+  }
+
+  .EasyMDEContainer {
     font-family: monospace;
     height: 100%;
-    width: 50%; /* стартовая ширина редактора */
-    min-width: 640px; /* чтобы не сжимался слишком сильно */
-    border-right: 3px solid #888; /* разделительная линия */
+    width: 50%;
+    /* стартовая ширина редактора */
+    min-width: 640px;
+    /* чтобы не сжимался слишком сильно */
+    border-right: 3px solid #888;
+    /* разделительная линия */
     padding: 10px;
-    resize: horizontal; /* пользователь может растягивать */
+    resize: horizontal;
+    /* пользователь может растягивать */
     overflow: auto;
-}
+  }
 
-/* Превью справа */
-#preview {
+  /* Превью справа */
+  #preview {
     flex-grow: 1;
     padding: 10px;
     overflow: auto;
-}
+  }
 
 
   #flo-toggle-btn {
@@ -98,20 +108,23 @@
 <a id="flo-toggle-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
 <a id="flo-save-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-floppy"></i></a>
 <style>
-@media (max-width: 767.98px) {
-  #flo-toggle-btn,
-  #flo-save-btn {
-    padding: 4px 6px;
-    font-size: 14px;
-    top: auto;
-    bottom: 15px;  /* переносим вниз */
-    right: 15px;
-  }
+  @media (max-width: 767.98px) {
 
-  #flo-save-btn {
-    right: 60px; /* чуть левее toggle */
+    #flo-toggle-btn,
+    #flo-save-btn {
+      padding: 4px 6px;
+      font-size: 14px;
+      top: auto;
+      bottom: 15px;
+      /* переносим вниз */
+      right: 15px;
+    }
+
+    #flo-save-btn {
+      right: 60px;
+      /* чуть левее toggle */
+    }
   }
-}
 </style>
 
 <div id="container">
@@ -119,14 +132,13 @@
   <div id="preview" class="d-none d-lg-block">{{markdown_html|safe}}</div>
 </div>
 <style>
-
-@media (max-width: 991.98px) {
-  #editor {
-    width: 100% !important;
-    min-width: auto;
-    border-right: none;
+  @media (max-width: 991.98px) {
+    #editor {
+      width: 100% !important;
+      min-width: auto;
+      border-right: none;
+    }
   }
-}
 </style>
 
 
@@ -135,7 +147,7 @@
 <script>
   const editor = document.getElementById('editor');
   const save_status = document.getElementById('save-status');
-  
+
   const saveBtn = document.getElementById('flo-save-btn');
   const alertPlaceholder = document.getElementById('page-content-wrapper');
 
@@ -173,8 +185,6 @@
         if (res.ok) {
           isDirty = false;
           save_status.innerText = '(saved)'
-          showAlert('Saved successfully!', 'success');
-          // 2️⃣ Загружаем актуальный Markdown с сервера
           return fetch('{{ url_for("preview", vault=vault, subpath=path) }}');
         }
       })
@@ -188,7 +198,7 @@
       })
       .catch(err => {
         console.error(err);
-        showAlert('Error saving file', 'danger');
+
       });
   }
 

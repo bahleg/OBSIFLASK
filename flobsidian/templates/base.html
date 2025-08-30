@@ -4,7 +4,7 @@
 {% from 'bootstrap5/table.html' import render_table %}
 <!DOCTYPE html>
 
-<link rel="shortcut icon" href="">
+<link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
 
 <html lang="en">
 
@@ -125,7 +125,7 @@
 
     <script>
         const alertsContainer = document.getElementById('page-content-wrapper');
-        const messagesUrl = "{{ url_for('messages', vault=vault) }}";
+        const messagesUrl = "{{ url_for('messages', vault=vault) }}?unread=0";
         let lastTimestamp = 0; // чтобы показывать только новые сообщения
 
         function showAlert(message, type = 'success') {

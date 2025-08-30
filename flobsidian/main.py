@@ -32,6 +32,7 @@ from flobsidian.singleton import Singleton
 from flobsidian.file_index import FileIndex
 from flobsidian.pages.index_tree import render_tree
 from flobsidian.pages.messages import render_messages
+from flobsidian.messages import add_message
 
 
 def run():
@@ -116,7 +117,7 @@ def run():
         real_path = Path(cfg.vaults[vault].full_path) / subpath
         data = request.get_json()
         content = data.get('content', '')
-        return make_save(real_path, content, Singleton.indices[vault])
+        return make_save(real_path, content, Singleton.indices[vault], vault)
 
     @app.route('/')
     def index():
