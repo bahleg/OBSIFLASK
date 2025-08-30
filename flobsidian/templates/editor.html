@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1>Editor: {{path}}</h1>
+<div id="save-status">(saved)</div>
 
 <style>
   html,
@@ -133,6 +134,8 @@
 
 <script>
   const editor = document.getElementById('editor');
+  const save_status = document.getElementById('save-status');
+  
   const saveBtn = document.getElementById('flo-save-btn');
   const alertPlaceholder = document.getElementById('page-content-wrapper');
 
@@ -169,6 +172,7 @@
       .then(res => {
         if (res.ok) {
           isDirty = false;
+          save_status.innerText = '(saved)'
           showAlert('Saved successfully!', 'success');
           // 2️⃣ Загружаем актуальный Markdown с сервера
           return fetch('{{ url_for("preview", vault=vault, subpath=path) }}');
@@ -191,6 +195,7 @@
   // автосохранение через N секунд после ввода
   editor.addEventListener('input', () => {
     isDirty = true;
+    save_status.innerText = '(unsaved)'
     if (saveTimeout) clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveDocument, SAVE_DELAY);
   });
