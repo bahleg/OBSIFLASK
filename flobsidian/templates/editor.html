@@ -28,6 +28,16 @@
     resize: horizontal; /* пользователь может растягивать */
     overflow: auto;
 }
+.EasyMDEContainer {
+    font-family: monospace;
+    height: 100%;
+    width: 50%; /* стартовая ширина редактора */
+    min-width: 640px; /* чтобы не сжимался слишком сильно */
+    border-right: 3px solid #888; /* разделительная линия */
+    padding: 10px;
+    resize: horizontal; /* пользователь может растягивать */
+    overflow: auto;
+}
 
 /* Превью справа */
 #preview {
@@ -59,6 +69,8 @@
   }
 
 
+
+
   #flo-save-btn {
     position: fixed;
     top: 20px;
@@ -84,12 +96,39 @@
 
 <a id="flo-toggle-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
 <a id="flo-save-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-floppy"></i></a>
+<style>
+@media (max-width: 767.98px) {
+  #flo-toggle-btn,
+  #flo-save-btn {
+    padding: 4px 6px;
+    font-size: 14px;
+    top: auto;
+    bottom: 15px;  /* переносим вниз */
+    right: 15px;
+  }
 
+  #flo-save-btn {
+    right: 60px; /* чуть левее toggle */
+  }
+}
+</style>
 
 <div id="container">
   <textarea id="editor" class="form-control">{{markdown_text}}</textarea>
-  <div id="preview">{{markdown_html|safe}}</div>
+  <div id="preview" class="d-none d-lg-block">{{markdown_html|safe}}</div>
 </div>
+<style>
+
+@media (max-width: 991.98px) {
+  #editor {
+    width: 100% !important;
+    min-width: auto;
+    border-right: none;
+  }
+}
+</style>
+
+
 
 
 <script>
