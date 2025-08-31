@@ -6,7 +6,7 @@ from flobsidian.singleton import Singleton
 from flobsidian.file_index import FileIndex
 from pathlib import Path
 from urllib import parse
-
+from flobsidian.utils import logger
 re_tag_extra = re.compile(r'!\[\[([^\]]+)\]\]')
 wikilink = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
 
@@ -53,7 +53,8 @@ def make_link(link, path: Path, index: FileIndex):
     if link:
         link = parse.quote(link)
         return f'[{alias}]({link})'
-
+    logger.warning(f'link with [[ {name} |{alias} ]] not found')
+    #print (index.get_name_to_path())
     return f"???{alias}???"
 
 

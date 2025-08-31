@@ -11,6 +11,7 @@ class VaultConfig:
     full_path: str
     allowed_users: list[str]
     home_file: str = ''
+    ignore_hidden_dirs: bool = True
 
 
 @dataclass
