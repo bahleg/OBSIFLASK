@@ -6,11 +6,15 @@ from flask import url_for
 from flobsidian.singleton import Singleton
 
 
-def build_tree(file_paths):
+def build_tree(file_paths, base_path):
     tree = {}
     for path in file_paths:
         node = tree
         for parent in path.parents[::-1]:
+            if not parent.is_relative_to(base_path):
+                continue
+            if parent == base_path:
+                continue
             if parent not in node:
                 node[parent] = {}
             node = node[parent]
@@ -25,7 +29,7 @@ def render_tree(tree, vault, edit=False, level=0):
     rel_path = Singleton.indices[vault].path
 
     if isinstance(tree, FileIndex):
-        tree = build_tree(tree)
+        tree = build_tree(tree, tree.path)
     html = f"<ul class=\"list-unstyled\" style=\"padding-left:{level * 3}px;\">"
     for name, child in tree.items():
         if child:  # папка
