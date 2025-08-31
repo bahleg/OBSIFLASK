@@ -40,13 +40,19 @@
                     {% endif %}
                     <button class="btn btn-sm btn-secondary" id="toggleSidebar">◀</button>
                 </div>
-                <p>
-                    <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#navtreeCollapse"
-                        role="button" aria-expanded="true" aria-controls="navtreeCollapse">
-                        File tree
-                    </a>
-                </p>
+                
 
+
+                <div class="btn-group">
+                    <a href="{{url_for('index')}}" class="btn btn-primary" title="Vault index">
+                        <i class="bi bi-display"></i>
+                    </a>
+                    <a href="{{url_for('messages', vault=vault)}}?unread=0" class="btn btn-primary" title="Vault chat">
+                        <i class="bi bi-chat-right-text"></i>
+                    </a>
+                </div>
+
+                </p>
 
                 <div class="collapse show" id="navtreeCollapse">
                     <div class="card p-3 flex-grow-1 mb-2" style="max-height: 480px;  overflow-y:auto;">
@@ -54,12 +60,6 @@
                     </div>
 
 
-                </div>
-                <!-- Плитки / кнопки -->
-                <div class="d-grid gap-2">
-                    <a href="{{url_for('messages', vault=vault)}}?unread=0" class="btn btn-primary">
-                        <i class="bi bi-display"></i>
-                    </a>
                 </div>
 
 
