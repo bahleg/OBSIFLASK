@@ -2,7 +2,7 @@ from threading import Lock
 import time
 from dataclasses import dataclass, asdict
 from flobsidian.singleton import Singleton
-from flobsidian.consts import MESSAGE_LIST_SIZE, MESSAGE_UNREAD_MAX
+from flobsidian.consts import MESSAGE_LIST_SIZE
 
 types = {0: 'info', 1: 'warning', 2: 'error'}
 _lock = Lock()
@@ -35,11 +35,16 @@ def add_message(message: str,
                 key=lambda x: (x.is_read, -x.time))[:MESSAGE_LIST_SIZE]
 
 
-def get_messages(vault, user=None, consider_read=True, unread=True):
+def get_messages(vault,
+                 user=None,
+                 consider_read=True,
+                 unread=True,
+                 ):
     try:
         result = Singleton.messages[(vault, user)]
         if unread:
-            result = [r for r in result if not r.is_read][:MESSAGE_UNREAD_MAX]
+            result = [r for r in result if not r.is_read]
+
         return result
     finally:
         if consider_read:

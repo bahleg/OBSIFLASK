@@ -36,7 +36,7 @@
                     {% else %}
                     <span class="fs-4"><a href="{{url_for('renderer_root', vault = vault)}}"
                             class="text-decoration-none">FLOBSIDIAN</a></span>
-                    
+
                     {% endif %}
                     <button class="btn btn-sm btn-secondary" id="toggleSidebar">◀</button>
                 </div>
@@ -83,12 +83,13 @@
             {% block content %}{% endblock %}
 
             {% block footer %}
-             <hr />
+            <hr />
             <footer class="text-center">
                 <a href="https://github.com/bahleg/flobsidian">bahleg</a>, 2025
-                <br/>
-                <a href="https://github.com/bahleg/flobsidian/blob/main/changelog.md">v. {{injected_vars["version"]}}</a>
-               
+                <br />
+                <a href="https://github.com/bahleg/flobsidian/blob/main/changelog.md">v.
+                    {{injected_vars["version"]}}</a>
+
             </footer>
             {% endblock %}
         </div>
@@ -149,19 +150,23 @@
 
         async function fetchMessages() {
             try {
+                let cnt = 0
                 const res = await fetch('{{url_for("messages", vault = vault)}}?raw=1');
                 if (!res.ok) throw new Error('Network error');
                 const data = await res.json();
 
                 for (const msg of data) {
-                    let type = 'success';
-                    if (msg.type === 1) type = 'warning';
-                    else if (msg.type === 2) type = 'danger';
+                    cnt += 1
+                    if (cnt <= 3) {  // only first 3, don't spam
+                        let type = 'success';
+                        if (msg.type === 1) type = 'warning';
+                        else if (msg.type === 2) type = 'danger';
 
-                    showAlert(
-                        msg.message + (msg.user ? `<br><pre>${msg.user}</pre></div>` : ''),
-                        type
-                    );
+                        showAlert(
+                            msg.message + (msg.user ? `<br><pre>${msg.user}</pre></div>` : ''),
+                            type
+                        );
+                    }
                 }
             } catch (err) {
                 console.error('Failed to fetch messages', err);

@@ -161,7 +161,6 @@ def run():
             logger.warning(f'could not parse raw parameter: {raw}')
             raw = 0
         return render_messages(vault, unread, raw=raw)
-
     app.run(**cfg.flask_params)
 
 
