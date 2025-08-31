@@ -15,6 +15,7 @@ from flobsidian.config import AppConfig
 from flobsidian.minihydra import load_entrypoint_config
 from flobsidian.utils import init_logger
 from flobsidian.pages.editor import render_editor
+from flobsidian.pages.file import get_file as page_get_file
 from flobsidian.pages.index import render_index
 from flobsidian.pages.renderer import render_renderer, get_markdown
 from flobsidian.pages.save import make_save
@@ -126,6 +127,14 @@ def run():
         data = request.get_json()
         content = data.get('content', '')
         return make_save(real_path, content, Singleton.indices[vault], vault)
+
+    @app.route('/file/<vault>/<path:subpath>')
+    def get_file(vault, subpath):
+        if vault not in cfg.vaults:
+            return 'Bad vault', 404
+        real_path = Path(cfg.vaults[vault].full_path).absolute() / subpath
+        return page_get_file(real_path)
+
 
     @app.route('/')
     def index():

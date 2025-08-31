@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, redirect, url_for
 import mistune
 import re
 from flobsidian.pages.index_tree import render_tree
@@ -81,6 +81,8 @@ def get_markdown(real_path, index):
 
 
 def render_renderer(vault, path, real_path):
+    if not str(path).endswith('.md'):
+        return redirect(url_for('get_file', vault=vault, subpath=path))
     return render_template(
         'renderer.html',
         markdown_text=get_markdown(real_path, Singleton.indices[vault]),
