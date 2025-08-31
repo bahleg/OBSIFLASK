@@ -1,0 +1,5 @@
+# v. 0.0.*
+initial version
+
+# v. 0.1.*
+Implemented basic functionality: editor, rendering, nav. tree, tasks and messages

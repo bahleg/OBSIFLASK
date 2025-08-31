@@ -1,6 +1,6 @@
 from pathlib import Path
 import datetime
-
+import logging
 from flask import Flask
 from flask import redirect, url_for
 from os.path import abspath
@@ -32,6 +32,8 @@ def run():
         Singleton.messages[(vault, None)] = []
     run_tasks(cfg.tasks)
     logger = init_logger(cfg.log_path, log_level=cfg.log_level)
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
     logger.debug('initialization')
     for vault in cfg.vaults:
         Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path)
@@ -42,6 +44,10 @@ def run():
                 root_path=Path(__file__).parent)
     Bootstrap5(app)
     app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.bootstrap_theme
+
+    @app.context_processor
+    def inject_service_vars():
+        return {'injected_vars': Singleton.injected_vars_jinja}
 
     @app.template_filter('datetimeformat')
     def datetimeformat(value):
@@ -57,18 +63,23 @@ def run():
             return 'Bad path', 404
         return render_editor(vault, subpath, real_path)
 
-
     @app.route('/editor/<vault>')
     def editor_root(vault):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
         if cfg.vaults[vault].home_file:
-            return redirect(url_for('editor', vault=vault, subpath = cfg.vaults[vault].home_file))
+            return redirect(
+                url_for('editor',
+                        vault=vault,
+                        subpath=cfg.vaults[vault].home_file))
         else:
             first_file = Singleton.indices[vault][0]
-            return redirect(url_for('editor', vault=vault,
-                                     subpath = str(Path(first_file).relative_to(Singleton.indices[vault].path))))
-    
+            return redirect(
+                url_for('editor',
+                        vault=vault,
+                        subpath=str(
+                            Path(first_file).relative_to(
+                                Singleton.indices[vault].path))))
 
     @app.route('/render/<vault>/<path:subpath>')
     def renderer(vault, subpath):
@@ -84,12 +95,19 @@ def run():
         if vault not in cfg.vaults:
             return 'Bad vault', 404
         if cfg.vaults[vault].home_file:
-            return redirect(url_for('renderer', vault=vault, subpath = cfg.vaults[vault].home_file))
+            return redirect(
+                url_for('renderer',
+                        vault=vault,
+                        subpath=cfg.vaults[vault].home_file))
         else:
             first_file = Singleton.indices[vault][0]
-            return redirect(url_for('renderer', vault=vault,
-                                     subpath = str(Path(first_file).relative_to(Singleton.indices[vault].path))))
-    
+            return redirect(
+                url_for('renderer',
+                        vault=vault,
+                        subpath=str(
+                            Path(first_file).relative_to(
+                                Singleton.indices[vault].path))))
+
     @app.route('/preview/<vault>/<path:subpath>')
     def preview(vault, subpath):
         if vault not in cfg.vaults:
@@ -113,7 +131,6 @@ def run():
     def index():
         return render_index()
 
-
     @app.route('/tree/<vault>')
     def tree(vault):
         Singleton.indices[vault].refresh()
@@ -128,13 +145,13 @@ def run():
         except:
             logger.warning(f'could not parse unread parameter: {unread}')
             unread = 1
-    
+
         try:
             raw = int(raw)
         except:
             logger.warning(f'could not parse raw parameter: {raw}')
             raw = 0
-        return render_messages(vault, unread, raw= raw)
+        return render_messages(vault, unread, raw=raw)
 
     app.run(**cfg.flask_params)
 

@@ -2,7 +2,7 @@ vaults:
   example:
     full_path: '/example/vault_example'
     allowed_users: []
-    home_file: 'index.md'
+    home_file: 'readme.md'
 flask_params:
   port: 8000
   debug: true
