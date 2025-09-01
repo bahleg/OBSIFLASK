@@ -14,7 +14,7 @@ wikilink = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
 def make_link(link, path: Path, index: FileIndex):
     path = Path(path)
     alias = link.group(2)
-    name = link.group(1)
+    name = link.group(1).strip()
 
     link = None
     if not alias:
@@ -24,6 +24,7 @@ def make_link(link, path: Path, index: FileIndex):
     if '.md' in alias:
         alias = alias.replace('.md')
 
+    # local first
     if name in index.get_name_to_path():
         candidate_paths = index.get_name_to_path()[name]
         if path in candidate_paths:
@@ -32,7 +33,7 @@ def make_link(link, path: Path, index: FileIndex):
         else:
             first = sorted(candidate_paths)[0]
             link = str(first.relative_to(index.path)) + "/" + str(name)
-
+    # local + md
     elif name + '.md' in index.get_name_to_path():
         candidate_paths = index.get_name_to_path()[name + '.md']
         if path in candidate_paths:
@@ -40,11 +41,12 @@ def make_link(link, path: Path, index: FileIndex):
         else:
             first = sorted(candidate_paths)[0]
             link = str(first.relative_to(index.path)) + "/" + str(name + '.md')
-
+    # full
     elif (index.path / Path(name)).exists():
         parent_level = path.parents.index(index.path)
 
         link = '../' * parent_level + name
+    # full + md
     elif (index.path / Path(name + '.md')).exists():
         parent_level = path.parents.index(index.path)
 
@@ -54,7 +56,6 @@ def make_link(link, path: Path, index: FileIndex):
         link = parse.quote(link)
         return f'[{alias}]({link})'
     logger.warning(f'link with [[ {name} |{alias} ]] not found')
-    #print (index.get_name_to_path())
     return f"???{alias}???"
 
 
