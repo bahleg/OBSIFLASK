@@ -7,10 +7,28 @@ from flobsidian.file_index import FileIndex
 from pathlib import Path
 from urllib import parse
 from flobsidian.utils import logger
+import frontmatter
 re_tag_extra = re.compile(r'!\[\[([^\]]+)\]\]')
 wikilink = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
 
 
+
+def parse_frontmatter(text, name):
+    try:
+        metadata, content = frontmatter.parse(text)
+        
+        if len(metadata) > 0:
+            buf = ['---\n', '### Properties\n']
+            for k,v in metadata.items():
+                buf.append(f' * **{k}**: {v}\n')
+            buf.append('---')
+            content = ''.join(buf) + content
+        return content
+    except Exception as e:
+        logger.error(f'Could not parse frontmatter at {name}: {e}')
+        return text
+
+        
 def make_link(link, path: Path, index: FileIndex):
     path = Path(path)
     alias = link.group(2)
@@ -60,6 +78,8 @@ def make_link(link, path: Path, index: FileIndex):
 
 
 def pre_parse(text, full_path, index):
+    text = parse_frontmatter(text, Path(full_path).name)
+
     text = re_tag_extra.sub(r'<img src="\1" style="max-width:100%;">', text)
     offset = 0
     matches = wikilink.finditer(text)
