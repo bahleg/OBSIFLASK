@@ -8,18 +8,33 @@ from pathlib import Path
 from urllib import parse
 from flobsidian.utils import logger
 import frontmatter
+from markupsafe import Markup
+
 re_tag_extra = re.compile(r'!\[\[([^\]]+)\]\]')
 wikilink = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
 
+
+def plugin_mermaid(md):
+    if not isinstance(md.renderer, mistune.HTMLRenderer):
+        return
+
+    orig_block_code = md.renderer.block_code
+
+    def block_code(code, info=None):
+        if info == "mermaid":
+            return f'<div class="mermaid">{Markup.escape(code)}</div>'
+        return orig_block_code(code, info)
+
+    md.renderer.block_code = block_code
 
 
 def parse_frontmatter(text, name):
     try:
         metadata, content = frontmatter.parse(text)
-        
+
         if len(metadata) > 0:
             buf = ['---\n', '### Properties\n']
-            for k,v in metadata.items():
+            for k, v in metadata.items():
                 buf.append(f' * **{k}**: {v}\n')
             buf.append('---')
             content = ''.join(buf) + content
@@ -28,7 +43,7 @@ def parse_frontmatter(text, name):
         logger.error(f'Could not parse frontmatter at {name}: {e}')
         return text
 
-        
+
 def make_link(link, path: Path, index: FileIndex):
     path = Path(path)
     alias = link.group(2)
@@ -80,6 +95,7 @@ def make_link(link, path: Path, index: FileIndex):
 def pre_parse(text, full_path, index):
     text = parse_frontmatter(text, Path(full_path).name)
 
+
     text = re_tag_extra.sub(r'<img src="\1" style="max-width:100%;">', text)
     offset = 0
     matches = wikilink.finditer(text)
@@ -97,7 +113,7 @@ def get_markdown(real_path, index):
     with open(real_path) as inp:
         text = inp.read()
     markdown = mistune.create_markdown(
-        escape=False, plugins=['table', 'strikethrough', 'task_lists'])
+        escape=False, plugins=['table', 'strikethrough', 'task_lists', plugin_mermaid])
     html = markdown(pre_parse(text, real_path, index))
     return html
 
