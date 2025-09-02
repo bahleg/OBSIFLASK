@@ -1,12 +1,13 @@
 vaults: 
   example:
-    full_path: '/example/vault_example'
+    full_path: '../example/vault_example'
     allowed_users: []
     home_file: 'readme.md'
 flask_params:
   port: 8000
   debug: true
   use_reloader: false
+  host: 0.0.0.0
 tasks:
   - cmd: echo "asd"
     interval: 30

@@ -45,6 +45,7 @@ def parse_frontmatter(text, name):
 
 
 def make_link(link, path: Path, index: FileIndex):
+
     path = Path(path)
     alias = link.group(2)
     name = link.group(1).strip()
@@ -76,12 +77,12 @@ def make_link(link, path: Path, index: FileIndex):
             link = str(first.relative_to(index.path)) + "/" + str(name + '.md')
     # full
     elif (index.path / Path(name)).exists():
-        parent_level = path.parents.index(index.path)
+        parent_level = path.absolute().parents.index(index.path)
 
         link = '../' * parent_level + name
     # full + md
     elif (index.path / Path(name + '.md')).exists():
-        parent_level = path.parents.index(index.path)
+        parent_level = path.absolute().parents.index(index.path)
 
         link = '../' * parent_level + name + '.md'
 
@@ -94,7 +95,6 @@ def make_link(link, path: Path, index: FileIndex):
 
 def pre_parse(text, full_path, index):
     text = parse_frontmatter(text, Path(full_path).name)
-
 
     text = re_tag_extra.sub(r'<img src="\1" style="max-width:100%;">', text)
     offset = 0
@@ -113,7 +113,8 @@ def get_markdown(real_path, index):
     with open(real_path) as inp:
         text = inp.read()
     markdown = mistune.create_markdown(
-        escape=False, plugins=['table', 'strikethrough', 'task_lists', plugin_mermaid])
+        escape=False,
+        plugins=['table', 'strikethrough', 'task_lists', plugin_mermaid])
     html = markdown(pre_parse(text, real_path, index))
     return html
 

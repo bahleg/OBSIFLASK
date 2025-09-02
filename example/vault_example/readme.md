@@ -25,4 +25,4 @@ This is my first page
 11
 1
 
-Хуй врагам кубани!
+![[logo.png]]
