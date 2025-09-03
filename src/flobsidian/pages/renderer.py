@@ -120,6 +120,8 @@ def get_markdown(real_path, index):
 
 
 def render_renderer(vault, path, real_path):
+    if str(path).endswith('.excalidraw'):
+        return redirect(url_for('excalidraw', vault=vault, subpath=path))
     if not str(path).endswith('.md'):
         return redirect(url_for('get_file', vault=vault, subpath=path))
     return render_template(
