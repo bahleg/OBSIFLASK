@@ -7,6 +7,9 @@
 
 <h1>Index of /{{ subpath }}</h1>
 <ul>
+    {% if parent_url %}
+    <span class="folder"><a href="{{parent_url}}">..</a></span>
+    {% endif %}
     {% for item in folders %}
     <li>
         <span class="folder">📁 <a href="{{url_for('get_folder', subpath=item[0], vault=vault)}}">{{ item[1] }}</a></span>

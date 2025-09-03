@@ -11,9 +11,12 @@ def render_tree(tree, vault, edit=False, level=0):
 
     if isinstance(tree, FileIndex):
         tree = tree.get_tree()
+        root = True
+    else:
+        root = False
 
     html = f"<ul class=\"list-unstyled\" style=\"padding-left:{level * 3}px;\">"
-    root = True
+    
     for name, child in tree.items():
         if child:  # папка
             if root:
@@ -23,6 +26,7 @@ def render_tree(tree, vault, edit=False, level=0):
                 url = url_for('get_folder',
                             vault=vault,
                             subpath=name.relative_to(rel_path))
+            
 
             html += f"<li class=\"mb-1\"> <span class=\"fw-bold\"><a class=\"text-decoration-none\" href=\"{url}\">📁 {name.name}{render_tree(child, vault, edit, level=level+1)}</a></span></li>"
         else:  # файл

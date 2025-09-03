@@ -22,6 +22,14 @@ def render_folder(vault, subpath):
             files.append((str(f.relative_to(abspath)), f.name))
         else:
             folders.append((str(f.relative_to(abspath)), f.name))
+    parent = Path(abspath / subpath).parent
+    if parent == abspath:
+        parent_url = url_for('get_folder_root', vault=vault)
+    elif abspath in list(target.parents):
+        parent_url = url_for('get_folder', subpath = parent.relative_to(abspath), vault=vault)
+    else:
+        parent_url = None 
+    
         
     return render_template('folder.html',
                            subpath=subpath,
@@ -29,4 +37,4 @@ def render_folder(vault, subpath):
                            files=files,
                            folders=folders,
                            home=Singleton.config.vaults[vault].home_file,
-                           vault=vault)
+                           vault=vault, parent_url = parent_url)
