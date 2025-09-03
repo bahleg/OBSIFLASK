@@ -25,6 +25,7 @@ from flobsidian.file_index import FileIndex
 from flobsidian.pages.index_tree import render_tree
 from flobsidian.pages.messages import render_messages
 from flobsidian.pages.excalidraw import render_excalidraw
+from flobsidian.pages.folder import render_folder
 
 def run():
     cfg: AppConfig = load_entrypoint_config(AppConfig)
@@ -144,6 +145,21 @@ def run():
             return 'Bad vault', 404
         real_path = Path(cfg.vaults[vault].full_path).absolute() / subpath
         return page_get_file(real_path)
+
+    @app.route('/folder/<vault>/<path:subpath>')
+    def get_folder(vault, subpath):
+        if vault not in cfg.vaults:
+            return 'Bad vault', 404
+        return render_folder(vault, subpath)
+
+
+
+    @app.route('/folder/<vault>')
+    def get_folder_root(vault):
+        if vault not in cfg.vaults:
+            return 'Bad vault', 404
+        return render_folder(vault, '.')
+
 
     @app.route('/static/<path:subpath>')
     def get_static(vault, subpath):

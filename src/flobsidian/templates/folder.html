@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<meta charset="UTF-8">
+
+<h1>Index of /{{ subpath }}</h1>
+<ul>
+    {% for item in folders %}
+    <li>
+        <span class="folder">📁 <a href="{{url_for('get_folder', subpath=item[0], vault=vault)}}">{{ item[1] }}</a></span>
+    </li>
+    {% endfor %}
+
+
+    {% for item in files %}
+    <li>
+        <span class="file">📄 <a href="{{url_for('renderer', subpath=item[0], vault=vault)}}">{{ item[1] }}</a></span>
+    </li>
+    {% endfor %}
+
+</ul>
+</body>
+
+{% endblock %}
