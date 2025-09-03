@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Editor: {{path}}</h1>
+<div id="save-status">(saved)</div>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='excalidraw/excalidraw.css') }}">
+  <script>
+    window.EXCALIDRAW_ASSET_PATH = "{{ url_for('static', filename='excalidraw/assets/') }}";
+  </script>
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@18.2.0",
+      "react-dom": "https://esm.sh/react-dom@18.2.0",
+      "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime"
+    }
+  }
+  </script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    #app {
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+    #save-status {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.8);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-family: sans-serif;
+    }
+  </style>
+
+  <div id="app"></div>
+  <div id="save-status">(saved)</div>
+
+  <script type="module">
+    import React from "https://esm.sh/react@18.2.0";
+    import ReactDOM from "https://esm.sh/react-dom@18.2.0/client";
+    import { Excalidraw } from "https://esm.sh/@excalidraw/excalidraw@0.18.0?deps=react@18.2.0,react-dom@18.2.0";
+
+    const initialData = {{ excalidraw_json|safe }};
+    const SAVE_DELAY = 10000; // 10 секунд
+    let isDirty = false;
+    let saveTimeout = null;
+    let currentData = initialData;
+
+    function showSaveStatus(text) {
+      document.getElementById('save-status').innerText = text;
+    }
+
+    // some problems with saving excalidraw raw data. possible version mismatch
+    function sanitizeExcalidrawData(data) {
+    return {
+      ...data,
+      appState: {
+        ...data.appState,
+        collaborators: Array.isArray(data.appState?.collaborators)
+                      ? data.appState.collaborators
+                      : [],
+      },
+      elements: data.elements || [],
+    };
+  }
+
+
+
+    function saveDocument() {
+      
+      fetch('{{ url_for("save_file", vault=vault, subpath=path) }}', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: JSON.stringify(sanitizeExcalidrawData(currentData)) })
+      })
+      .then(res => {
+        if (res.ok) {
+          isDirty = false;
+          showSaveStatus('(saved)');
+        } else {
+          showSaveStatus('(error saving)');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showSaveStatus('(error saving)');
+      });
+    }
+
+    function App() {
+      return React.createElement("div", { style: { width: "100%", height: "100%" } },
+        React.createElement(Excalidraw, {
+          initialData: initialData,
+          style: { width: "100%", height: "100%" },
+          onChange: (elements, appState) => {
+            currentData = { type: "excalidraw", version: 2, source: "flask", elements, appState };
+            isDirty = true;
+            showSaveStatus('(unsaved)');
+
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveDocument, SAVE_DELAY);
+          }
+        })
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("app"));
+    root.render(React.createElement(App));
+
+    // Предупреждение при уходе со страницы
+    window.addEventListener("beforeunload", (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  </script>
+
+
+{% endblock %}

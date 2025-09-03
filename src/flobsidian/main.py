@@ -24,7 +24,7 @@ from flobsidian.singleton import Singleton
 from flobsidian.file_index import FileIndex
 from flobsidian.pages.index_tree import render_tree
 from flobsidian.pages.messages import render_messages
-
+from flobsidian.pages.excalidraw import render_excalidraw
 
 def run():
     cfg: AppConfig = load_entrypoint_config(AppConfig)
@@ -82,6 +82,16 @@ def run():
                             Path(first_file).relative_to(
                                 Singleton.indices[vault].path))))
 
+    @app.route('/excalidraw/<vault>/<path:subpath>')
+    def excalidraw(vault, subpath):
+        if vault not in cfg.vaults:
+            return 'Bad vault', 404
+        real_path = Path(cfg.vaults[vault].full_path) / subpath
+        if not (real_path).exists():
+            return 'Bad path', 404
+        return render_excalidraw(vault, subpath, real_path)
+
+
     @app.route('/render/<vault>/<path:subpath>')
     def renderer(vault, subpath):
         if vault not in cfg.vaults:
@@ -135,6 +145,12 @@ def run():
         real_path = Path(cfg.vaults[vault].full_path).absolute() / subpath
         return page_get_file(real_path)
 
+    @app.route('/static/<path:subpath>')
+    def get_static(vault, subpath):
+        if vault not in cfg.vaults:
+            return 'Bad vault', 404
+        real_path = (Path(__name__).parent/'static').absolute() / subpath
+        return page_get_file(real_path)
 
     @app.route('/')
     def index():

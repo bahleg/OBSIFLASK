@@ -14,7 +14,7 @@ def render_tree(tree, vault, edit=False, level=0):
 
     if isinstance(tree, FileIndex):
         tree = tree.get_tree()
- 
+
         
 
     html = f"<ul class=\"list-unstyled\" style=\"padding-left:{level * 3}px;\">"

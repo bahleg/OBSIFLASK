@@ -46,7 +46,7 @@ class FileIndex:
     def refresh(self):
         self._files = list(self.path.glob('**/*'))
         self._files = [f for f in self._files
-                       if not '/.' in str(f)]  # ignore hidden
+                       if not '/.' in str(f.resolve())]  # ignore hidden
         self._file_set = set(self._files)
         
         self._name_to_path = {}
@@ -70,6 +70,7 @@ class FileIndex:
     def check_refresh(self):
         if time.time() - self.last_time > INDEX_UPDATE_TIME:
             self.refresh()
+         
 
     def __getitem__(self, index):
         self.check_refresh()
