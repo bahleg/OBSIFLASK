@@ -4,6 +4,7 @@ from flobsidian.consts import INDEX_UPDATE_TIME
 
 
 class FileIndex:
+
     def __init__(self, path):
         self.path = Path(path).absolute()
         self._name_to_path = {}
@@ -15,7 +16,7 @@ class FileIndex:
     def get_tree(self):
         self.check_refresh()
         return self._tree
-    
+
     def build_tree(self):
         abspath = Path(self.path)
         tree = {}
@@ -26,29 +27,28 @@ class FileIndex:
                 if not is_rel:
                     continue
 
-                if parent == abspath:
-                    continue
-                
+                #if parent == abspath:
+                #    continue
+
                 if parent not in node:
                     node[parent] = {}
                 node = node[parent]
 
-            
             is_dir = path.is_dir()
             if not is_dir:
-            
+
                 node[path] = None
             else:
-                
+
                 node[path] = {}
         self._tree = tree
-        
+
     def refresh(self):
         self._files = list(self.path.glob('**/*'))
         self._files = [f for f in self._files
                        if not '/.' in str(f.resolve())]  # ignore hidden
         self._file_set = set(self._files)
-        
+
         self._name_to_path = {}
         for file in self._files:
             is_dir = file.is_dir()
@@ -60,8 +60,6 @@ class FileIndex:
         self.last_time = time.time()
         self.tree = self.build_tree()
 
-                
-
     def add_file(self, full_path):
         self._files.append(full_path)
         shortname = str(Path(full_path).name)
@@ -70,7 +68,6 @@ class FileIndex:
     def check_refresh(self):
         if time.time() - self.last_time > INDEX_UPDATE_TIME:
             self.refresh()
-         
 
     def __getitem__(self, index):
         self.check_refresh()
