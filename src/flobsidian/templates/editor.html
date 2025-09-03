@@ -80,6 +80,29 @@
   }
 
 
+    #flo-download-btn {
+    position: fixed;
+    top: 20px;
+    right: 120px;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    /* убираем подчёркивание */
+    display: inline-block;
+    /* чтобы padding работал корректно */
+  }
+
+  #flo-download-btn:hover {
+    background: #555;
+    /* эффект при наведении */
+  }
+
+
+
 
 
   #flo-save-btn {
@@ -104,9 +127,10 @@
   }
 </style>
 
-
+<a id="flo-download-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i class="bi bi-download"></i></a>
 <a id="flo-toggle-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
 <a id="flo-save-btn" href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-floppy"></i></a>
+
 <style>
   @media (max-width: 767.98px) {
 
