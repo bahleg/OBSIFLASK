@@ -77,22 +77,12 @@ def make_link(link, path: Path, index: FileIndex):
 
     # full
     elif (index.path / Path(name)).exists():
-        if path.resolve() == index.path:
-            parent_level = 0
-        else:
-            parent_level = path.resolve().parents.index(index.path)
-        link = '../' * (
-            parent_level +
-            1) + name  #+1, because we are in the md file, not in the directory
+        link = str((index.path / Path(name)).relative_to(path.resolve()))
+        
     # full + md
     elif (index.path / Path(name + '.md')).exists():
-        if path.resolve() == index.path:
-            parent_level = 0
-        else:
-            parent_level = path.resolve().parents.index(index.path)
-        link = '../' * (
-            parent_level + 1
-        ) + name + '.md'  #+1, because we are in the md file, not in the directory
+        link = str((index.path / Path(name + '.md')).relative_to(path.resolve()))
+        
 
     if link:
         link = parse.quote(link)

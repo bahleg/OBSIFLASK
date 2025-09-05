@@ -48,8 +48,9 @@ def run():
                 root_path=Path(__file__).parent)
     Bootstrap5(app)
 
-    app.config['SECRET_KEY'] = uuid.uuid4().hex
-    CSRFProtect(app)
+    #app.config['SECRET_KEY'] = uuid.uuid4().hex
+    #CSRFProtect(app)
+    app.config['WTF_CSRF_ENABLED'] = False
     app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.bootstrap_theme
 
     @app.context_processor
