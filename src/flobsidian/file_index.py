@@ -63,6 +63,8 @@ class FileIndex:
     def add_file(self, full_path):
         self._files.append(full_path)
         shortname = str(Path(full_path).name)
+        if shortname not in self._name_to_path:
+            self._name_to_path[shortname] = set()
         self._name_to_path[shortname].add(Path(full_path).parent)
         self.build_tree()
 

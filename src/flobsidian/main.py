@@ -200,7 +200,7 @@ def run():
         return render_messages(vault, unread, raw=raw)
     
 
-    @app.route('/fileop/<vault>')
+    @app.route('/fileop/<vault>', methods=['GET', 'POST'])
     def fileop(vault):
         return render_fileop(vault)
     
