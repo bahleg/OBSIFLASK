@@ -10,6 +10,7 @@ This is my first page
 [yandex.ru](yandex.ru)
 
 [[readme]]
+[[folder1/folder2/test.md| nested test file1]]
 
 1. One
 2. Two
