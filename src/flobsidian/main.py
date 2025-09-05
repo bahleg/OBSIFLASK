@@ -7,7 +7,8 @@ from os.path import abspath
 from flask_bootstrap import Bootstrap5
 from flask import request, redirect
 from flask import Flask, request, jsonify
-
+from flask_wtf.csrf import CSRFProtect
+import uuid
 from flask_bootstrap import Bootstrap5
 
 # from toolbox.front_flask.download import download, download_shared as download_shared_back
@@ -26,6 +27,7 @@ from flobsidian.pages.index_tree import render_tree
 from flobsidian.pages.messages import render_messages
 from flobsidian.pages.excalidraw import render_excalidraw
 from flobsidian.pages.folder import render_folder
+from flobsidian.pages.fileop import render_fileop
 
 def run():
     cfg: AppConfig = load_entrypoint_config(AppConfig)
@@ -45,6 +47,9 @@ def run():
                 template_folder=abspath(Path(__file__).parent / "templates"),
                 root_path=Path(__file__).parent)
     Bootstrap5(app)
+
+    app.config['SECRET_KEY'] = uuid.uuid4().hex
+    CSRFProtect(app)
     app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.bootstrap_theme
 
     @app.context_processor
@@ -193,8 +198,13 @@ def run():
             logger.warning(f'could not parse raw parameter: {raw}')
             raw = 0
         return render_messages(vault, unread, raw=raw)
-    app.run(**cfg.flask_params)
+    
 
+    @app.route('/fileop/<vault>')
+    def fileop(vault):
+        return render_fileop(vault)
+    
+    app.run(**cfg.flask_params)
 
 if __name__ == "__main__":
     run()
