@@ -5,14 +5,24 @@ from flobsidian.consts import INDEX_UPDATE_TIME
 
 class FileIndex:
 
-    def __init__(self, path):
+    def __init__(self, path, template_dir):
         self.path = Path(path).resolve()
+        if template_dir is not None:
+            self.template_dir = self.path / template_dir
+        else:
+            self.template_dir = None
+        self.templates = []
         self._name_to_path = {}
         self._files = []
         self.last_time = -1
         self._file_set = set()
         self._tree = {}
+        self._templates = []
 
+    def get_templates(self):
+        self.check_refresh()
+        return self._templates
+    
     def get_tree(self):
         self.check_refresh()
         return self._tree
@@ -44,6 +54,8 @@ class FileIndex:
         self._tree = tree
 
     def refresh(self):
+        if self.template_dir:
+            self._templates = list(self.template_dir.glob('*md'))
         self._files = list(self.path.glob('**/*'))
         self._files = [f for f in self._files
                        if not '/.' in str(f.resolve())]  # ignore hidden

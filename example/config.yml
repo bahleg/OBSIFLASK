@@ -3,6 +3,7 @@ vaults:
     full_path: '../example/vault_example'
     allowed_users: []
     home_file: 'readme.md'
+    template_dir: templates
 flask_params:
   port: 8000
   debug: true

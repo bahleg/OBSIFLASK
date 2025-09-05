@@ -12,6 +12,7 @@ class VaultConfig:
     allowed_users: list[str]
     home_file: str = ''
     ignore_hidden_dirs: bool = True
+    template_dir: str | None = None
 
 
 @dataclass

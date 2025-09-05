@@ -3,9 +3,7 @@
 <h1>File operations</h1>
 
 <style>
-
-
-#flo-back-btn {
+  #flo-back-btn {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -25,31 +23,37 @@
     background: #555;
     /* эффект при наведении */
   }
-
-
 </style>
 
-<a id="flo-back-btn" href=""  title="Go back"><i class="bi bi-skip-backward-fill"></i></a>
+<a id="flo-back-btn" href="{{back_url}}" title="Go back"><i class="bi bi-skip-backward-fill"></i></a>
 
 {{ render_form(form) }}
 
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const opSelect = document.getElementById("operation");
-  const destWrapper = document.getElementById("dst").parentElement;
+  document.addEventListener("DOMContentLoaded", function () {
+    const opSelect = document.getElementById("operation");
 
-  function toggleDestination() {
-    if (opSelect.value === "copy" || opSelect.value === "move") {
-      destWrapper.style.display = "block";
-    } else {
-      destWrapper.style.display = "none";
+    const templateList = document.getElementById("template").parentElement;
+    const destWrapper = document.getElementById("destination").parentElement;
+
+    function toggleDestination() {
+      if (opSelect.value === "new") {
+        templateList.style.display = "block";
+      }
+      else {
+        templateList.style.display = "none";
+      }
+      if (opSelect.value === "copy" || opSelect.value === "move") {
+        destWrapper.style.display = "block";
+      } else {
+        destWrapper.style.display = "none";
+      }
     }
-  }
 
-  // при загрузке и при изменении
-  toggleDestination();
-  opSelect.addEventListener("change", toggleDestination);
-});
+    // при загрузке и при изменении
+    toggleDestination();
+    opSelect.addEventListener("change", toggleDestination);
+  });
 </script>
 {% endblock %}

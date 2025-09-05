@@ -40,7 +40,7 @@ def run():
     log.setLevel(logging.ERROR)
     logger.debug('initialization')
     for vault in cfg.vaults:
-        Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path)
+        Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path, cfg.vaults[vault].template_dir)
 
     logger.debug('starting app')
     app = Flask(__name__,

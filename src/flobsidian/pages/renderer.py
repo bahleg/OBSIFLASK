@@ -136,4 +136,4 @@ def render_renderer(vault, path, real_path):
         vault=vault,
         navtree=render_tree(Singleton.indices[vault], vault, False),
         is_editor=False,
-        home=Singleton.config.vaults[vault].home_file)
+        home=Singleton.config.vaults[vault].home_file, curdir = Path(path).parent, curfile=path)

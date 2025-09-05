@@ -37,4 +37,4 @@ def render_folder(vault, subpath):
                            files=files,
                            folders=folders,
                            home=Singleton.config.vaults[vault].home_file,
-                           vault=vault, parent_url = parent_url)
+                           vault=vault, parent_url = parent_url, curdir = subpath)

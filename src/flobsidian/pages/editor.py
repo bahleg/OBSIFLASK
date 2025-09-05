@@ -1,3 +1,4 @@
+from pathlib import Path
 from flask import render_template, redirect, url_for
 from flobsidian.pages.renderer import get_markdown
 from flobsidian.pages.index_tree import render_tree
@@ -24,4 +25,6 @@ def render_editor(vault, path, real_path):
                            navtree=render_tree(Singleton.indices[vault], vault,
                                                True),
                            page_editor=True,
-                           home=Singleton.config.vaults[vault].home_file)
+                           home=Singleton.config.vaults[vault].home_file,
+                           curdir=Path(path).parent,
+                           curfile=path)
