@@ -9,6 +9,7 @@ from flobsidian.utils import logger
 
 def thread_wrapper(task: Task):
     while True:
+        time.sleep(task.interval)
         stderr = ''
         msg = task.success
         type = 0
@@ -30,7 +31,7 @@ def thread_wrapper(task: Task):
             msg = task.error
             type = 2
         add_message(msg, type, task.vault, stderr)
-        time.sleep(task.interval)
+        
 
 
 def run_tasks(tasks: list[Task]):
