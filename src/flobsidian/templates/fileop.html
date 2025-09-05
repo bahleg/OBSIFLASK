@@ -33,27 +33,27 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const opSelect = document.getElementById("operation");
-
     const templateList = document.getElementById("template").parentElement;
     const destWrapper = document.getElementById("destination").parentElement;
+    const formEl = document.querySelector("form");
 
     function toggleDestination() {
-      if (opSelect.value === "new") {
-        templateList.style.display = "block";
-      }
-      else {
-        templateList.style.display = "none";
-      }
-      if (opSelect.value === "copy" || opSelect.value === "move") {
-        destWrapper.style.display = "block";
-      } else {
-        destWrapper.style.display = "none";
-      }
+      templateList.style.display = (opSelect.value === "new") ? "block" : "none";
+      destWrapper.style.display = (opSelect.value === "copy" || opSelect.value === "move") ? "block" : "none";
     }
 
-    // при загрузке и при изменении
     toggleDestination();
     opSelect.addEventListener("change", toggleDestination);
+
+    // Подтверждение при удалении
+    formEl.addEventListener("submit", function (e) {
+      if (opSelect.value === "delete") {
+        const confirmed = confirm("Are you sure you want to delete this file/folder?");
+        if (!confirmed) {
+          e.preventDefault(); // отменяем сабмит
+        }
+      }
+    });
   });
 </script>
 {% endblock %}

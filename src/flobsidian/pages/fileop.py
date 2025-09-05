@@ -20,8 +20,9 @@ class FileOpForm(FlaskForm):
                                      ('copy', '🗐 Copy file'),
                                      ('move', '➜ Move file')])
     target = StringField('Target file', validators=[DataRequired()])
-    template = SelectField('Template to use',
-                           choices=[('0_no', '× No template (empty file)')])
+    template = SelectField('File type/Template to use',
+                           choices=[('0_no', '📄 empty file'),
+                                    ('1_dir', ('📁 New folder'))])
     destination = StringField('Destination')
     ok = SubmitField()
 
@@ -39,9 +40,6 @@ class FileOpForm(FlaskForm):
             self.target.errors.append(
                 'Cannot manipulate file outside the vault')
             return False
-        if target.is_dir():
-            self.target.errors.append('Must be file, not a directory')
-
         if self.operation.data == 'new':
             if target.exists():
                 self.target.errors.append('File already exists')
@@ -56,8 +54,12 @@ class FileOpForm(FlaskForm):
             dst = (Singleton.indices[self.vault].path /
                    Path(self.destination.data)).resolve()
             if not dst.is_relative_to(Singleton.indices[self.vault].path):
-                self.dst.errors.append(
+                self.destination.errors.append(
                     'Cannot manipulate file outside the vault')
+                return False
+            if target.is_dir() and (dst.exists() and not dst.is_dir()):
+                self.destination.errors.append(
+                    'Cannot copy/move directory to file')
                 return False
 
         return True
@@ -69,6 +71,8 @@ def create_file_op(vault, form: FileOpForm):
         path.parent.mkdir(parents=True, exist_ok=True)
         if form.template.data.startswith('0_'):
             path.touch()
+        elif form.template.data.startswith('1_'):
+            path.mkdir(parents=True)
         else:
             template_name = form.template.data.split('_', 1)[1]
             found = False
@@ -94,13 +98,16 @@ def create_file_op(vault, form: FileOpForm):
 def delete_file_op(vault, form: FileOpForm):
     try:
         path = Singleton.indices[vault].path / Path(form.target.data)
-        path.unlink()
+        if path.is_dir():
+            shutil.rmtree(path)
+        else:
+            path.unlink()
         Singleton.indices[vault].refresh()
         add_message(f'File {form.target.data} deleted', 0, vault)
 
     except Exception as e:
         logger.error(f'problem during file deletion {path.name}: {e}')
-        add_message(f'Could not create file {form.target.data}',
+        add_message(f'Could not delete file {form.target.data}',
                     type=2,
                     vault=vault,
                     details=repr(e))
@@ -114,8 +121,15 @@ def copy_move_file(vault, form: FileOpForm, copy):
     try:
         path = Singleton.indices[vault].path / Path(form.target.data)
         dst = Singleton.indices[vault].path / Path(form.destination.data)
+        if path.is_dir():
+            dst.mkdir(parents=True, exist_ok=True)
+        else:
+            dst.parent.mkdir(parents=True, exist_ok=True)
         if copy:
-            shutil.copy(path, dst)
+            if path.is_dir():
+                shutil.copytree(path, dst)
+            else:
+                shutil.copy(path, dst)
         else:
             shutil.move(path, dst)
 
@@ -128,7 +142,7 @@ def copy_move_file(vault, form: FileOpForm, copy):
                     type=2,
                     vault=vault,
                     details=repr(e))
-        return False 
+        return False
 
 
 def render_fileop(vault):
@@ -166,16 +180,20 @@ def render_fileop(vault):
                     url_for('editor', vault=vault, subpath=form.target.data))
         if form.operation.data == 'delete':
             delete_file_op(vault, form)
-        elif form.operation.data  == 'copy':
+        elif form.operation.data == 'copy':
             if copy_move_file(vault, form, True):
                 return redirect(
-                    url_for('editor', vault=vault, subpath=form.destination.data))
+                    url_for('editor',
+                            vault=vault,
+                            subpath=form.destination.data))
 
-        elif form.operation.data  == 'move':
+        elif form.operation.data == 'move':
             if copy_move_file(vault, form, False):
                 return redirect(
-                    url_for('editor', vault=vault, subpath=form.destination.data))
-            
+                    url_for('editor',
+                            vault=vault,
+                            subpath=form.destination.data))
+
         return redirect(back_url)
 
     return render_template('fileop.html',

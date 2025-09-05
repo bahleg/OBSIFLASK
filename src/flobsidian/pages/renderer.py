@@ -58,39 +58,42 @@ def make_link(link, path: Path, index: FileIndex):
         alias = alias.replace('.md')
     # local first
     if name in index.get_name_to_path():
-        candidate_paths = index.get_name_to_path()[name]    
+        candidate_paths = index.get_name_to_path()[name]
         if path in candidate_paths:
             link = str(path.relative_to(path)) + "/" + str(name)
         else:
             first = sorted(candidate_paths)[0]
             link = str(first.relative_to(path)) + "/" + str(name)
-        
+
     # local + md
     elif name + '.md' in index.get_name_to_path():
         candidate_paths = index.get_name_to_path()[name + '.md']
         if path in candidate_paths:
             link = str(path.relative_to(path)) + "/" + str(name + '.md')
-            
-            
+
         else:
             first = sorted(candidate_paths)[0]
             link = str(first.relative_to(path)) + "/" + str(name + '.md')
-        
+
     # full
     elif (index.path / Path(name)).exists():
         if path.resolve() == index.path:
             parent_level = 0
         else:
             parent_level = path.resolve().parents.index(index.path)
-        link = '../' * (parent_level+1) + name #+1, because we are in the md file, not in the directory
+        link = '../' * (
+            parent_level +
+            1) + name  #+1, because we are in the md file, not in the directory
     # full + md
     elif (index.path / Path(name + '.md')).exists():
         if path.resolve() == index.path:
             parent_level = 0
         else:
             parent_level = path.resolve().parents.index(index.path)
-        link = '../' * (parent_level+1) + name + '.md' #+1, because we are in the md file, not in the directory
-        
+        link = '../' * (
+            parent_level + 1
+        ) + name + '.md'  #+1, because we are in the md file, not in the directory
+
     if link:
         link = parse.quote(link)
         return f'[{alias}]({link})'
@@ -127,6 +130,8 @@ def get_markdown(real_path, index):
 def render_renderer(vault, path, real_path):
     if str(path).endswith('.excalidraw'):
         return redirect(url_for('excalidraw', vault=vault, subpath=path))
+    if Path(real_path).exists() and Path(real_path).is_dir():
+        return redirect(url_for('get_folder', vault=vault, subpath=path))
     if not str(path).endswith('.md'):
         return redirect(url_for('get_file', vault=vault, subpath=path))
     return render_template(
@@ -136,4 +141,6 @@ def render_renderer(vault, path, real_path):
         vault=vault,
         navtree=render_tree(Singleton.indices[vault], vault, False),
         is_editor=False,
-        home=Singleton.config.vaults[vault].home_file, curdir = Path(path).parent, curfile=path)
+        home=Singleton.config.vaults[vault].home_file,
+        curdir=Path(path).parent,
+        curfile=path)
