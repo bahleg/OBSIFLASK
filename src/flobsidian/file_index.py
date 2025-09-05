@@ -56,6 +56,7 @@ class FileIndex:
     def refresh(self):
         if self.template_dir:
             self._templates = list(self.template_dir.glob('*md'))
+            
         self._files = list(self.path.glob('**/*'))
         self._files = [f for f in self._files
                        if not '/.' in str(f.resolve())]  # ignore hidden
