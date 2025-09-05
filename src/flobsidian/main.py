@@ -60,7 +60,7 @@ def run():
     def editor(vault, subpath):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
-        real_path = Path(cfg.vaults[vault].full_path) / subpath
+        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
             return 'Bad path', 404
         return render_editor(vault, subpath, real_path)
@@ -87,7 +87,7 @@ def run():
     def excalidraw(vault, subpath):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
-        real_path = Path(cfg.vaults[vault].full_path) / subpath
+        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
             return 'Bad path', 404
         return render_excalidraw(vault, subpath, real_path)
@@ -97,7 +97,7 @@ def run():
     def renderer(vault, subpath):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
-        real_path = Path(cfg.vaults[vault].full_path) / subpath
+        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
             return 'Bad path', 404
         return render_renderer(vault, subpath, real_path)
@@ -124,7 +124,7 @@ def run():
     def preview(vault, subpath):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
-        real_path = Path(cfg.vaults[vault].full_path) / subpath
+        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
             return 'Bad path', 404
         markdown = get_markdown(real_path, Singleton.indices[vault])
@@ -134,7 +134,7 @@ def run():
     def save_file(vault, subpath):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
-        real_path = Path(cfg.vaults[vault].full_path) / subpath
+        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         data = request.get_json()
         content = data.get('content', '')
         return make_save(real_path, content, Singleton.indices[vault], vault)

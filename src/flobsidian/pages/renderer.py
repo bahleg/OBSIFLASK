@@ -36,7 +36,7 @@ def parse_frontmatter(text, name):
             buf = ['---\n', '### Properties\n']
             for k, v in metadata.items():
                 buf.append(f' * **{k}**: {v}\n')
-            buf.append('---')
+            buf.append('---\n')
             content = ''.join(buf) + content
         return content
     except Exception as e:
@@ -45,10 +45,9 @@ def parse_frontmatter(text, name):
 
 
 def make_link(link, path: Path, index: FileIndex):
-
-    path = Path(path)
     alias = link.group(2)
     name = link.group(1).strip()
+    path = path.parent
 
     link = None
     if not alias:
@@ -57,35 +56,41 @@ def make_link(link, path: Path, index: FileIndex):
         alias = alias.split('/')[-1]
     if '.md' in alias:
         alias = alias.replace('.md')
-
     # local first
     if name in index.get_name_to_path():
-        candidate_paths = index.get_name_to_path()[name]
+        candidate_paths = index.get_name_to_path()[name]    
         if path in candidate_paths:
-            link = str(path.relative_to(index.path)) + "/" + str(name)
-
+            link = str(path.relative_to(path)) + "/" + str(name)
         else:
             first = sorted(candidate_paths)[0]
-            link = str(first.relative_to(index.path)) + "/" + str(name)
+            link = str(first.relative_to(path)) + "/" + str(name)
+        
     # local + md
     elif name + '.md' in index.get_name_to_path():
         candidate_paths = index.get_name_to_path()[name + '.md']
         if path in candidate_paths:
-            link = str(path.relative_to(index.path)) + "/" + str(name + '.md')
+            link = str(path.relative_to(path)) + "/" + str(name + '.md')
+            
+            
         else:
             first = sorted(candidate_paths)[0]
-            link = str(first.relative_to(index.path)) + "/" + str(name + '.md')
+            link = str(first.relative_to(path)) + "/" + str(name + '.md')
+        
     # full
     elif (index.path / Path(name)).exists():
-        parent_level = path.absolute().parents.index(index.path)
-
-        link = '../' * parent_level + name
+        if path.resolve() == index.path:
+            parent_level = 0
+        else:
+            parent_level = path.resolve().parents.index(index.path)
+        link = '../' * (parent_level+1) + name #+1, because we are in the md file, not in the directory
     # full + md
     elif (index.path / Path(name + '.md')).exists():
-        parent_level = path.absolute().parents.index(index.path)
-
-        link = '../' * parent_level + name + '.md'
-
+        if path.resolve() == index.path:
+            parent_level = 0
+        else:
+            parent_level = path.resolve().parents.index(index.path)
+        link = '../' * (parent_level+1) + name + '.md' #+1, because we are in the md file, not in the directory
+        
     if link:
         link = parse.quote(link)
         return f'[{alias}]({link})'

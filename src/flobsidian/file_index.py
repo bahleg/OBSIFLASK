@@ -6,7 +6,7 @@ from flobsidian.consts import INDEX_UPDATE_TIME
 class FileIndex:
 
     def __init__(self, path):
-        self.path = Path(path).absolute()
+        self.path = Path(path).resolve()
         self._name_to_path = {}
         self._files = []
         self.last_time = -1
@@ -64,6 +64,7 @@ class FileIndex:
         self._files.append(full_path)
         shortname = str(Path(full_path).name)
         self._name_to_path[shortname].add(Path(full_path).parent)
+        self.build_tree()
 
     def check_refresh(self):
         if time.time() - self.last_time > INDEX_UPDATE_TIME:
