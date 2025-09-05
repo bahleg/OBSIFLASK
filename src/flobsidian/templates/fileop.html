@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>File operations</h1>
+
+<style>
+
+
+#flo-back-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    /* убираем подчёркивание */
+    display: inline-block;
+    /* чтобы padding работал корректно */
+  }
+
+  #flo-back-btn:hover {
+    background: #555;
+    /* эффект при наведении */
+  }
+
+
+</style>
+
+<a id="flo-back-btn" href=""  title="Go back"><i class="bi bi-skip-backward-fill"></i></a>
+
+{{ render_form(form) }}
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const opSelect = document.getElementById("operation");
+  const destWrapper = document.getElementById("dst").parentElement;
+
+  function toggleDestination() {
+    if (opSelect.value === "copy" || opSelect.value === "move") {
+      destWrapper.style.display = "block";
+    } else {
+      destWrapper.style.display = "none";
+    }
+  }
+
+  // при загрузке и при изменении
+  toggleDestination();
+  opSelect.addEventListener("change", toggleDestination);
+});
+</script>
+{% endblock %}
