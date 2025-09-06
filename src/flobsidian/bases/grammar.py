@@ -59,7 +59,17 @@ def containsAny(val, *args):
 def isEmpty(val):
     return len(val) == 0
 
+def startsWith(val,  *args):
+    if len(args) != 1:
+        raise ValueError('startsWith requires 1 argument')
+    return str(val).startswith(str(args[0]))
 
+def hasTag(val, *args):
+    if len(args) != 1:
+        raise ValueError('hasTag requires 1 argument')
+    tag = args[0].lstrip('#')
+    return tag in val.get_prop(['tags'])
+    
 @v_args(inline=True)
 class FilterTransformer(Transformer):
 
@@ -97,6 +107,12 @@ class FilterTransformer(Transformer):
                                            [a(ctx) for a in method_args])
         elif method_name == "isEmpty":
             return lambda ctx: isEmpty(attr(ctx))
+        elif method_name == 'startsWith':
+            return lambda ctx: startsWith(attr(ctx), *
+                                           [a(ctx) for a in method_args])
+        elif method_name == 'hasTag':
+            return lambda ctx: hasTag(attr(ctx), *
+                                           [a(ctx) for a in method_args])
         else:
             raise ValueError(f"Unknown method {method_name}")
 

@@ -57,6 +57,12 @@ class FileInfo:
                     return f"<a href=\"{url}\">{self.path}</a>"
                 return str(self.path)
         elif len(args) == 1:
+            if args[0] == 'file':
+                if render:
+                    return (self.path)
+                return self 
+            
+            
             self.get_internal_data()
             return self.frontmatter.get(args[0], '')
 

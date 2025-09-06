@@ -51,6 +51,7 @@ def get_messages(
     consider_read=True,
     unread=True,
 ):
+    result = []
     try:
         result = Singleton.messages[(vault, user)]
         if unread:

@@ -66,25 +66,47 @@ def parse_embedding(text, full_path, index: FileIndex, vault):
     matches = re_tag_embed.finditer(text)
     offset = 0
     buf = []
-    for m in matches:
+    for m_id, m in enumerate(matches):
         buf.append(text[offset:m.span()[0]])
         path = m.group(1)
-        link_path = index.resolve_wikilink(path, full_path, False)
+        link_path = full_path.parent / index.resolve_wikilink(
+            path, full_path, False)
+        link_path = link_path.relative_to(index.path)
         if link_path is not None:
-            if '.' in path and path.split('.')[-1] in {'png', 'bmp', 'jpg', 'jpeg'}:
-                link_path = url_for('get_file', vault=vault, subpath = link_path)
+            if '.' in path and path.split('.')[-1] in {
+                    'png', 'bmp', 'jpg', 'jpeg'
+            }:
+                link_path = url_for('get_file', vault=vault, subpath=link_path)
                 buf.append(f'<img src="{link_path}" style="max-width:100%;">')
             elif '.' in path and path.split('.')[-1] in {'base'}:
-                link_path = url_for('base', vault=vault, subpath = link_path)
-                buf.append(f'<iframe src="{link_path}?raw=1"  style="width:95%; height:100%; border:none;"></iframe>')
+                link_path = url_for('base', vault=vault, subpath=link_path)
+                id_name = 'embed_' + str(m_id)
+                buf.append(
+                    f'<iframe id={id_name} src="{link_path}?raw=1"  style="width:95%; border:none;"></iframe>'
+                )
+                buf.append("""
+                           <script>
+function resizeIframe_#() {
+    const iframe = document.getElementById('#');
+    try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        iframe.style.height = doc.body.scrollHeight + 'px';
+    } catch (e) {
+        console.warn("Невозможно получить доступ к iframe (cross-origin)");
+    }
+}
+document.getElementById('#').addEventListener('load', resizeIframe_#);</script>
+                           
+                           """.replace('#', id_name))
             else:
-                link_path = url_for('get_file', vault=vault, subpath = link_path)
+                link_path = url_for('get_file', vault=vault, subpath=link_path)
                 buf.append(f'[{path}]({link_path})')
         else:
             buf.append(f'???{path}???')
         offset = m.span()[1]
     buf.append(text[offset:])
     return ''.join(buf)
+
 
 def pre_parse(text, full_path, index, vault):
     text = parse_frontmatter(text, Path(full_path).name)
@@ -120,13 +142,15 @@ def render_renderer(vault, path, real_path):
         return redirect(url_for('get_folder', vault=vault, subpath=path))
     if not str(path).endswith('.md'):
         return redirect(url_for('get_file', vault=vault, subpath=path))
-    return render_template(
-        'renderer.html',
-        markdown_text=get_markdown(real_path, Singleton.indices[vault], vault),
-        path=path,
-        vault=vault,
-        navtree=render_tree(Singleton.indices[vault], vault, False),
-        is_editor=False,
-        home=Singleton.config.vaults[vault].home_file,
-        curdir=Path(path).parent,
-        curfile=path)
+    return render_template('renderer.html',
+                           markdown_text=get_markdown(real_path,
+                                                      Singleton.indices[vault],
+                                                      vault),
+                           path=path,
+                           vault=vault,
+                           navtree=render_tree(Singleton.indices[vault], vault,
+                                               False),
+                           is_editor=False,
+                           home=Singleton.config.vaults[vault].home_file,
+                           curdir=Path(path).parent,
+                           curfile=path)

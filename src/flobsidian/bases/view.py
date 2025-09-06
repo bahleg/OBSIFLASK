@@ -7,6 +7,12 @@ import pandas as pd
 from flobsidian.consts import MaxViewErrors
 
 
+def convert_field(x):
+    if not isinstance(x, (int, float, str, bool)):
+        return str(x)
+    else:
+        return x 
+    
 class View:
 
     def __init__(self, formulas, properties):
@@ -51,7 +57,7 @@ class View:
                         problems.append(
                             f'could not infer value {r} from {f.path}: {e}')
                         value = ''
-                result[-1][prop_name] = value
+                result[-1][prop_name] = convert_field(value)
 
 
         if problems:
@@ -91,8 +97,8 @@ class View:
                 asc.append(True)
                 logger.warning('using defualt sorting')
 
-        if len(columns_to_sort) > 0:
-            df = df.sort_values(columns_to_sort, ascending=asc)
-        else:
-            add_message('The view is not sorted', 1, vault)
+            if len(columns_to_sort) > 0:
+                df = df.sort_values(columns_to_sort, ascending=asc)
+            else:
+                add_message('The view is not sorted', 1, vault)
         return df.to_dict(orient="records")

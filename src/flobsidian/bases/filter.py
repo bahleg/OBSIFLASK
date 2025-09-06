@@ -3,6 +3,9 @@ import re
 from flobsidian.bases.grammar import FilterTransformer, grammar
 from lark import Lark
 from flobsidian.bases.file_info import FileInfo
+from functools import partial
+from flobsidian.singleton import Singleton
+from flobsidian.messages import add_message
 
 filter_binary_op = re.compile('([^\s]+)\s+([^\s]+)\s+([^\s]+)')
 
@@ -47,9 +50,25 @@ class FieldFilter:
 
     def __init__(self, expr):
         self.parser = Lark(grammar, start="start", parser="lalr")
-        self.func = FilterTransformer().transform(self.parser.parse(expr))
+        self.exception = None
+        self.expr = expr
+        try:
+            self.func = FilterTransformer().transform(self.parser.parse(expr))
+        except Exception as e:
+            self.exception = e
 
     def check(self, file: FileInfo):
+        if self.exception:
+            if Singleton.config.vaults[
+                    file.vault].base_config.error_on_field_parse:
+                raise self.exception
+            else:
+                add_message(
+                    f'Error during filter parsing with experssion {self.expr}. Ignoring filter',
+                    type=1,
+                    vault=file.vault,
+                    details=repr(self.exception))
+                return True
         return self.func(file)
 
 
