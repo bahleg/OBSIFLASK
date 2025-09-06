@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, render_template_string
+from flask import render_template, redirect, url_for, render_template_string, request
 import mistune
 import re
 from flobsidian.singleton import Singleton
@@ -21,8 +21,10 @@ def render_base_view(vault, subpath, real_path, view=None):
     if view is None:
         key = list(base.views.keys())[0]
     result = base.views[key].make_view(vault)
-
-    return render_template('base_table_view.html',
+    template_path = 'bases/table_view.html'
+    if request.args.get('raw'):
+        template_path = 'bases/table_view_raw.html'
+    return render_template(template_path,
                            table=result,
                            navtree=render_tree(Singleton.indices[vault], vault,
                                                False),

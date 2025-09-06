@@ -1,0 +1,27 @@
+{% macro render_table_view(table) %}
+// получаем данные из Jinja
+  const data = {{ table | safe }};
+
+  let table;  // объявляем переменную в верхнем скоупе
+
+  if (data.length === 0) {
+    document.getElementById("base-table").innerHTML = "No data";
+  } else {
+    const columns = Object.keys(data[0]).map(k => {
+      return {
+        title: k.charAt(0).toUpperCase() + k.slice(1),
+        field: k,
+        headerFilter: "input",
+        formatter: k === 'file_name' ? "html" : undefined
+      };
+    });
+
+    table = new Tabulator("#base-table", {
+      layout: "fitColumns",
+      pagination: "local",
+      paginationSize: 100,
+      columns: columns,
+      data: data,
+    });
+  }
+{% endmacro %}

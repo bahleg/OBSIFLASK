@@ -16,7 +16,7 @@ def render_editor(vault, path, real_path):
         text = None
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))
-    markdown = get_markdown(real_path, Singleton.indices[vault])
+    markdown = get_markdown(real_path, Singleton.indices[vault], vault)
     return render_template('editor.html',
                            markdown_text=text,
                            path=path,

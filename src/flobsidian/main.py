@@ -144,7 +144,7 @@ def run():
         real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
             return 'Bad path', 404
-        markdown = get_markdown(real_path, Singleton.indices[vault])
+        markdown = get_markdown(real_path, Singleton.indices[vault], vault)
         return jsonify({'content': markdown})
 
     @app.route('/save/<vault>/<path:subpath>', methods=['PUT'])

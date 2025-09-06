@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% from 'bases/shared.html' import render_table_view %}
 {% block content %}
 <h1>Base: {{path}}</h1>
 <link href="https://unpkg.com/tabulator-tables@5.6.0/dist/css/tabulator.min.css" rel="stylesheet">
@@ -101,31 +101,7 @@
 
 
 <script>
-  // получаем данные из Jinja
-  const data = {{ table | safe }};
-
-  let table;  // объявляем переменную в верхнем скоупе
-
-  if (data.length === 0) {
-    document.getElementById("base-table").innerHTML = "No data";
-  } else {
-    const columns = Object.keys(data[0]).map(k => {
-      return {
-        title: k.charAt(0).toUpperCase() + k.slice(1),
-        field: k,
-        headerFilter: "input",
-        formatter: k === 'file_name' ? "html" : undefined
-      };
-    });
-
-    table = new Tabulator("#base-table", {
-      layout: "fitColumns",
-      pagination: "local",
-      paginationSize: 100,
-      columns: columns,
-      data: data,
-    });
-  }
+  { { render_table_view(table) } }
 
   // вешаем обработчик только если таблица существует
   document.getElementById("flo-table-btn").addEventListener("click", () => {

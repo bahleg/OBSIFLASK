@@ -10,7 +10,7 @@ from flobsidian.utils import logger
 import frontmatter
 from markupsafe import Markup
 
-re_tag_extra = re.compile(r'!\[\[([^\]]+)\]\]')
+re_tag_embed = re.compile(r'!\[\[([^\]]+)\]\]')
 wikilink = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
 
 
@@ -62,10 +62,33 @@ def make_link(link, path: Path, index: FileIndex):
     return f"???{alias}???"
 
 
-def pre_parse(text, full_path, index):
-    text = parse_frontmatter(text, Path(full_path).name)
+def parse_embedding(text, full_path, index: FileIndex, vault):
+    matches = re_tag_embed.finditer(text)
+    offset = 0
+    buf = []
+    for m in matches:
+        buf.append(text[offset:m.span()[0]])
+        path = m.group(1)
+        link_path = index.resolve_wikilink(path, full_path, False)
+        if link_path is not None:
+            if '.' in path and path.split('.')[-1] in {'png', 'bmp', 'jpg', 'jpeg'}:
+                link_path = url_for('get_file', vault=vault, subpath = link_path)
+                buf.append(f'<img src="{link_path}" style="max-width:100%;">')
+            elif '.' in path and path.split('.')[-1] in {'base'}:
+                link_path = url_for('base', vault=vault, subpath = link_path)
+                buf.append(f'<iframe src="{link_path}?raw=1"  style="width:95%; height:100%; border:none;"></iframe>')
+            else:
+                link_path = url_for('get_file', vault=vault, subpath = link_path)
+                buf.append(f'[{path}]({link_path})')
+        else:
+            buf.append(f'???{path}???')
+        offset = m.span()[1]
+    buf.append(text[offset:])
+    return ''.join(buf)
 
-    text = re_tag_extra.sub(r'<img src="\1" style="max-width:100%;">', text)
+def pre_parse(text, full_path, index, vault):
+    text = parse_frontmatter(text, Path(full_path).name)
+    text = parse_embedding(text, full_path, index, vault)
     offset = 0
     matches = wikilink.finditer(text)
     buf = []
@@ -78,13 +101,13 @@ def pre_parse(text, full_path, index):
     return ''.join(buf)
 
 
-def get_markdown(real_path, index):
+def get_markdown(real_path, index, vault):
     with open(real_path) as inp:
         text = inp.read()
     markdown = mistune.create_markdown(
         escape=False,
         plugins=['table', 'strikethrough', 'task_lists', plugin_mermaid])
-    html = markdown(pre_parse(text, real_path, index))
+    html = markdown(pre_parse(text, real_path, index, vault))
     return html
 
 
@@ -99,7 +122,7 @@ def render_renderer(vault, path, real_path):
         return redirect(url_for('get_file', vault=vault, subpath=path))
     return render_template(
         'renderer.html',
-        markdown_text=get_markdown(real_path, Singleton.indices[vault]),
+        markdown_text=get_markdown(real_path, Singleton.indices[vault], vault),
         path=path,
         vault=vault,
         navtree=render_tree(Singleton.indices[vault], vault, False),
