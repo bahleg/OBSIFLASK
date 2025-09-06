@@ -43,7 +43,6 @@ class View:
                     else:
                         value = f.get_prop(prop, render=True)
                 except Exception as e:
-                    raise e
                     if Singleton.config.vaults[
                             vault].base_config.error_on_field_parse:
                         raise ValueError(
