@@ -21,6 +21,7 @@ setup(
     package_data={
         "flobsidian": [
             "templates/*.html",
+             "templates/*/*.html",
             "static/*.*",
         ],
     },
