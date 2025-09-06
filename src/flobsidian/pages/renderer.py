@@ -47,45 +47,16 @@ def parse_frontmatter(text, name):
 def make_link(link, path: Path, index: FileIndex):
     alias = link.group(2)
     name = link.group(1).strip()
-    path = path.parent
-
-    link = None
     if not alias:
         alias = name
     if '/' in alias:
         alias = alias.split('/')[-1]
     if '.md' in alias:
         alias = alias.replace('.md')
-    # local first
-    if name in index.get_name_to_path():
-        candidate_paths = index.get_name_to_path()[name]
-        if path in candidate_paths:
-            link = str(path.relative_to(path)) + "/" + str(name)
-        else:
-            first = sorted(candidate_paths)[0]
-            link = str(first.relative_to(path)) + "/" + str(name)
 
-    # local + md
-    elif name + '.md' in index.get_name_to_path():
-        candidate_paths = index.get_name_to_path()[name + '.md']
-        if path in candidate_paths:
-            link = str(path.relative_to(path)) + "/" + str(name + '.md')
-
-        else:
-            first = sorted(candidate_paths)[0]
-            link = str(first.relative_to(path)) + "/" + str(name + '.md')
-
-    # full
-    elif (index.path / Path(name)).exists():
-        link = str((index.path / Path(name)).relative_to(path.resolve()))
-        
-    # full + md
-    elif (index.path / Path(name + '.md')).exists():
-        link = str((index.path / Path(name + '.md')).relative_to(path.resolve()))
-        
+    link = index.resolve_wikilink(name, path, True)
 
     if link:
-        link = parse.quote(link)
         return f'[{alias}]({link})'
     logger.warning(f'link with [[ {name} |{alias} ]] not found')
     return f"???{alias}???"
