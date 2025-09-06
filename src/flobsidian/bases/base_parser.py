@@ -1,0 +1,72 @@
+from omegaconf import OmegaConf
+from pathlib import Path
+from flobsidian.singleton import Singleton
+from flobsidian.bases.view import View
+from flobsidian.bases.filter import Filter, FilterAnd, FilterOr, FieldFilter, TrivialFilter
+from flobsidian.utils import logger
+from flobsidian.messages import add_message
+
+
+
+class Base:
+
+    def __init__(self):
+        self.formulas = {}
+        self.properties = {}
+        self.views: dict[str, View] = {}
+
+
+def parse_filter(filter_dict: dict, vault):
+    if isinstance(filter_dict, str):
+        result = FieldFilter(filter_dict)
+        return result
+    if len(filter_dict) > 1:
+        if Singleton.config.vaults[vault].base_config.error_on_yaml_parse:
+            raise NotImplementedError(
+                f'unsupported filter format: {filter_dict}')
+        else:
+            key = list(filter_dict.keys())[0]
+            add_message(
+                f'unsupported filter format: {filter_dict}. Using only first key',
+                1, vault)
+    else:
+        key = list(filter_dict.keys())[0]
+    if key == 'and':
+        return FilterAnd([parse_filter(f, vault) for f in filter_dict['and']])
+    elif key == 'or':
+        return FilterOr([parse_filter(f, vault) for f in filter_dict['or']])
+    else:
+        if Singleton.config.vaults[vault].base_config.error_on_yaml_parse:
+            raise NotImplementedError(f'unsupported filter key: \"{key}\"')
+        else:
+            add_message(f'unsupported filter key: \"{key}\". Disabling.', 1,
+                        vault)
+            return TrivialFilter()
+
+
+def parse_view(view: dict, vault: str):
+    result = View()
+    result.type = view['type']
+    if result.type not in ['table']:
+        if Singleton.config.vaults[vault].base_config.error_on_yaml_parse:
+            raise NotImplementedError(f'unsupported view type: {result.type}')
+        else:
+            add_message(
+                f'unsupported view type: {result.type}. Changing to table', 1,
+                vault)
+            result.type = 'table'
+    result.name = view['name']
+    if 'filters' in view:
+        result.filter = parse_filter(view['filters'], vault)
+    else:
+        result.filter = TrivialFilter()
+    result.order = view['order']
+    return result
+
+
+def parse_base(real_path, vault) -> Base:
+    base = Base()
+    yaml = OmegaConf.load(real_path)
+    for view in yaml.get('views', []):
+        base.views[view['name']] = parse_view(view, vault)
+    return base

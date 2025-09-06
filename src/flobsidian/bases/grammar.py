@@ -15,7 +15,7 @@ grammar = r"""
 
 attr: NAME ("." NAME)?    -> attr 
 
-method: attr "." NAME "(" [args] ")"
+?method: NAME ("." NAME)* "(" [args] ")"
 
 comparison: value OP value
 
@@ -32,10 +32,19 @@ STRING: /"[^"]*"/
 %ignore " "
 """
 
+
 # Реализация методов
-def contains(val, arg): return arg in val
-def containsAny(val, *args): return any(a in val for a in args)
-def isEmpty(val): return len(val) == 0
+def contains(val, arg):
+    return arg in val
+
+
+def containsAny(val, *args):
+    return any(a in val for a in args)
+
+
+def isEmpty(val):
+    return len(val) == 0
+
 
 @v_args(inline=True)
 class FilterTransformer(Transformer):
@@ -46,40 +55,55 @@ class FilterTransformer(Transformer):
     def string(self, tok):
         return lambda ctx: ast.literal_eval(tok)
 
-    def attr(self, *parts):
-        names = [str(p) for p in parts]
-        return lambda ctx: ctx[names[0]][names[1]] if len(names) == 2 else ctx[names[0]]
-
-    def method(self, obj_func, method_name, *args):
-        method_name = str(method_name)
-        args_funcs = list(args)
-        if args and isinstance(args[0], Tree) and args[0].data == "args":
-            args_funcs = args[0].children
-        else:
-            args_funcs = list(args)
-        
-
-        
+    def method(self, *args):
+        names = []
+        method_args = []
+        for a in args:
+            if a is None:  # empty args
+                continue
+            if isinstance(a, Tree) and a.data == 'args':
+                args_funcs = a.children
+                method_args.extend(args_funcs)
+            elif a.type == 'NAME':
+                names.append(str(a))
+        method_name = str(names[-1])
+        attr = lambda ctx: ctx.get_prop(names[:-1])
         if method_name == "contains":
-            return lambda ctx: contains(obj_func(ctx), *[a(ctx) for a in args_funcs])
+            return lambda ctx: contains(attr(ctx), *
+                                        [a(ctx) for a in method_args])
         elif method_name == "containsAny":
-            return lambda ctx: containsAny(obj_func(ctx), *[a(ctx) for a in args_funcs])
+            return lambda ctx: containsAny(attr(ctx), *
+                                           [a(ctx) for a in method_args])
         elif method_name == "isEmpty":
-            return lambda ctx: isEmpty(obj_func(ctx))
+            return lambda ctx: isEmpty(attr(ctx))
         else:
             raise ValueError(f"Unknown method {method_name}")
 
-    def comparison(self, left_func, op, right_func):
+    def comparison(self, left_func_or_tree, op, right_func_or_tree):
+        if isinstance(left_func_or_tree, Tree):
+            left_names = left_func_or_tree.children
+            left_func = lambda ctx: ctx.get_prop(left_names)
+        else:
+            left_func = left_func_or_tree
+    
+
+        if isinstance(right_func_or_tree, Tree):
+            right_names = right_func_or_tree.children
+            right_func = lambda ctx: ctx.get_prop(right_names)
+        else:
+            right_func = right_func_or_tree
+    
+
         op = str(op)
         ops = {
-            "==": lambda a,b: a==b,
-            "!=": lambda a,b: a!=b,
-            "<": lambda a,b: a<b,
-            "<=": lambda a,b: a<=b,
-            ">": lambda a,b: a>b,
-            ">=": lambda a,b: a>=b,
-            "in": lambda a,b: a in b,
-            "not in": lambda a,b: a not in b
+            "==": lambda a, b: a == b,
+            "!=": lambda a, b: a != b,
+            "<": lambda a, b: a < b,
+            "<=": lambda a, b: a <= b,
+            ">": lambda a, b: a > b,
+            ">=": lambda a, b: a >= b,
+            "in": lambda a, b: a in b,
+            "not in": lambda a, b: a not in b
         }
         if op not in ops:
             raise ValueError(f"Unsupported op {op}")
@@ -94,23 +118,27 @@ class FilterTransformer(Transformer):
     def or_(self, a, b):
         return lambda ctx: a(ctx) or b(ctx)
 
+
 # Пример использования
 if __name__ == "__main__":
     parser = Lark(grammar, start="start", parser="lalr")
 
     filters = [
         'file.folder.contains("many_digits")',
-        'file.tags.containsAny("even", "odd")',
-        'file.ext == "md"',
-        'file.name == file.ext',
-        '!file.tags.contains("odd")',
+        'file.tags.containsAny("even", "odd")', 'file.ext == "md"',
+        'file.name == file.ext', '!file.tags.contains("odd")',
         '(file.ext == "md" and file.name != "txt") or file.size > 100',
-        '"even" in file.tags',
-        '"odd" not in file.tags'
+        '"even" in file.tags', '"odd" not in file.tags'
     ]
 
     ctx = {
-        "file": {"folder": "many_digits_folder", "tags": ["even"], "ext": "md", "name": "md", "size": 123}
+        "file": {
+            "folder": "many_digits_folder",
+            "tags": ["even"],
+            "ext": "md",
+            "name": "md",
+            "size": 123
+        }
     }
 
     for f in filters:

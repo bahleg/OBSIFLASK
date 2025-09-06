@@ -28,6 +28,8 @@ from flobsidian.pages.messages import render_messages
 from flobsidian.pages.excalidraw import render_excalidraw
 from flobsidian.pages.folder import render_folder
 from flobsidian.pages.fileop import render_fileop
+from flobsidian.pages.base import render_base
+
 
 def run():
     cfg: AppConfig = load_entrypoint_config(AppConfig)
@@ -40,7 +42,8 @@ def run():
     log.setLevel(logging.ERROR)
     logger.debug('initialization')
     for vault in cfg.vaults:
-        Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path, cfg.vaults[vault].template_dir)
+        Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
+                                             cfg.vaults[vault].template_dir)
 
     logger.debug('starting app')
     app = Flask(__name__,
@@ -98,8 +101,7 @@ def run():
             return 'Bad path', 404
         return render_excalidraw(vault, subpath, real_path)
 
-
-    @app.route('/render/<vault>/<path:subpath>')
+    @app.route('/renderer/<vault>/<path:subpath>')
     def renderer(vault, subpath):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
@@ -107,6 +109,15 @@ def run():
         if not (real_path).exists():
             return 'Bad path', 404
         return render_renderer(vault, subpath, real_path)
+
+    @app.route('/base/<vault>/<path:subpath>')
+    def base(vault, subpath):
+        if vault not in cfg.vaults:
+            return 'Bad vault', 404
+        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
+        if not (real_path).exists():
+            return 'Bad path', 404
+        return render_base(vault, subpath, real_path)
 
     @app.route('/render/<vault>')
     def renderer_root(vault):
@@ -158,20 +169,17 @@ def run():
             return 'Bad vault', 404
         return render_folder(vault, subpath)
 
-
-
     @app.route('/folder/<vault>')
     def get_folder_root(vault):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
         return render_folder(vault, '.')
 
-
     @app.route('/static/<path:subpath>')
     def get_static(vault, subpath):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
-        real_path = (Path(__name__).parent/'static').absolute() / subpath
+        real_path = (Path(__name__).parent / 'static').absolute() / subpath
         return page_get_file(real_path)
 
     @app.route('/')
@@ -199,13 +207,13 @@ def run():
             logger.warning(f'could not parse raw parameter: {raw}')
             raw = 0
         return render_messages(vault, unread, raw=raw)
-    
 
     @app.route('/fileop/<vault>', methods=['GET', 'POST'])
     def fileop(vault):
         return render_fileop(vault)
-    
+
     app.run(**cfg.flask_params)
+
 
 if __name__ == "__main__":
     run()

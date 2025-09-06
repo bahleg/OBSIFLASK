@@ -6,6 +6,13 @@ class UserConfig:
     pass
 
 
+
+@dataclass
+class BaseConfig:
+    error_on_yaml_parse: bool = False
+    error_on_field_parse: bool = False
+
+
 @dataclass
 class VaultConfig:
     full_path: str
@@ -13,6 +20,7 @@ class VaultConfig:
     home_file: str = ''
     ignore_hidden_dirs: bool = True
     template_dir: str | None = None
+    base_config: BaseConfig = field(default_factory=lambda: BaseConfig())
 
 
 @dataclass
@@ -22,6 +30,7 @@ class Task:
     vault: str
     success: str = 'Task finished successfully!'
     error: str = 'Task failed'
+
 
 
 @dataclass
@@ -36,3 +45,4 @@ class AppConfig:
     Log level used for the project: [DEBUG, INFO, WARNING, ERROR]
     """
     log_level: str = 'DEBUG'
+    

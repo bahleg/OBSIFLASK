@@ -9,7 +9,7 @@
             <tr>
                 <th>Time</th>
                 <th>Message</th>
-                <th>User Output</th>
+                <th>Details</th>
                 <th>Vault</th>
             </tr>
         </thead>
@@ -27,7 +27,7 @@
                 <td>{{ msg.time | datetimeformat }}</td>
                 <td>{{ msg.message }}</td>
                 <td>
-                    <pre>{{ msg.user }}</pre>
+                    <pre>{{ msg.details }}</pre>
                 </td>
                 <td>{{ msg.vault }}</td>
             </tr>

@@ -40,19 +40,21 @@
                     {% endif %}
                     <button class="btn btn-sm btn-secondary" id="toggleSidebar">◀</button>
                 </div>
-                
+
 
 
                 <div class="btn-group">
                     <a href="{{url_for('index')}}" class="btn btn-primary" title="Vault index">
                         <i class="bi bi-display"></i>
                     </a>
-                    <a href="{{url_for('messages', vault=vault)}}?unread=0" class="btn btn-primary" title="Vault messages">
+                    <a href="{{url_for('messages', vault=vault)}}?unread=0" class="btn btn-primary"
+                        title="Vault messages">
                         <i class="bi bi-chat-right-text"></i>
                     </a>
 
-                
-                    <a href="{{url_for('fileop', vault=vault)}}?curdir={{curdir}}&curfile={{curfile}}" class="btn btn-primary" title="File operations">
+
+                    <a href="{{url_for('fileop', vault=vault)}}?curdir={{curdir}}&curfile={{curfile}}"
+                        class="btn btn-primary" title="File operations">
                         <i class="bi bi-file-earmark"></i>
                     </a>
                 </div>
@@ -192,10 +194,10 @@
 
 
 
-<script type="module">
-  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-  mermaid.initialize({ startOnLoad: true });
-</script>
+    <script type="module">
+        import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+        mermaid.initialize({ startOnLoad: true });
+    </script>
 
 
 

@@ -1,0 +1,54 @@
+from frontmatter import parse
+from pathlib import Path
+from flobsidian.utils import logger
+
+class FileInfo:
+
+    def __init__(self, path: Path, index_path: Path):
+        self.path = Path(path).resolve().relative_to(index_path.resolve())
+        self.real_path = Path(path).resolve()
+        self.read = False
+        self._tags = None
+        self.frontmatter = {}
+
+    def get_internal_data(self):
+        if self.read:
+            return
+        try:
+            with open(self.real_path) as inp:
+                text = inp.read()
+            try:
+                parsed, _ = parse(text)
+            except:
+                parsed = {}
+            self.frontmatter = parsed
+            tags = parsed.get('tags', [])
+            self.tags = [t.lstrip('#') for t in tags]
+        except Exception as e:
+            self.tags = []
+            self.frontmatter = {}
+            logger.warning(f'could not parse metadata from {self.path}. Ignore it, if the fils is binary')
+        self.read = True
+
+    def get_prop(self, *args):
+        if len(args) != 1:
+            raise NotImplementedError()
+            # args are packed
+        args = args[0]
+        if len(args) > 2:
+            raise NotImplementedError()
+        if len(args) == 2 and args[0] != 'file':
+            raise NotImplementedError()
+        elif len(args) == 2 and args[0] == 'file':
+            if args[1] == 'folder':
+                return str(self.path.parent)
+            elif args[1] == 'ext':
+                return str(self.path.suffix.lstrip('.'))
+            elif args[1] == 'tags':
+                self.get_internal_data()
+                return self.tags
+        elif len(args) == 1:
+            self.get_internal_data()
+            return self.frontmatter.get(args[0], '')
+
+        raise ValueError(f'not found: {args}')

@@ -3,6 +3,7 @@ import time
 from dataclasses import dataclass, asdict
 from flobsidian.singleton import Singleton
 from flobsidian.consts import MESSAGE_LIST_SIZE
+from flobsidian.utils import logger
 
 types = {0: 'info', 1: 'warning', 2: 'error'}
 _lock = Lock()
@@ -23,10 +24,19 @@ def add_message(message: str,
                 type: int,
                 vault: str,
                 details: str = '',
-                user: str | None = None):
+                user: str | None = None, use_log = True ):
     assert type in types
-    msg = Message(message, time.time(), type, vault, details)
-    print('adding message', asdict(msg))
+    if use_log:
+        if type == 0:
+            msg_func = logger.info
+        elif type == 1:
+            msg_func = logger.warning
+        else:
+            msg_func = logger.error
+        msg_func(
+            f'adding message for user: {user} and vault {vault}: {message}. Details: {details}'
+        )
+    msg = Message(message, time.time(), type, vault, user, details)
     Singleton.messages[(vault, user)].append(msg)
     with _lock:
         if len(Singleton.messages[(vault, user)]) > 2 * MESSAGE_LIST_SIZE:
@@ -35,11 +45,12 @@ def add_message(message: str,
                 key=lambda x: (x.is_read, -x.time))[:MESSAGE_LIST_SIZE]
 
 
-def get_messages(vault,
-                 user=None,
-                 consider_read=True,
-                 unread=True,
-                 ):
+def get_messages(
+    vault,
+    user=None,
+    consider_read=True,
+    unread=True,
+):
     try:
         result = Singleton.messages[(vault, user)]
         if unread:

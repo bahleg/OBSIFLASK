@@ -118,6 +118,8 @@ def get_markdown(real_path, index):
 
 
 def render_renderer(vault, path, real_path):
+    if str(path).endswith('.base'):
+        return redirect(url_for('base', vault=vault, subpath=path))
     if str(path).endswith('.excalidraw'):
         return redirect(url_for('excalidraw', vault=vault, subpath=path))
     if Path(real_path).exists() and Path(real_path).is_dir():
