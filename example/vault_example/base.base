@@ -1,0 +1,23 @@
+formulas:
+  form: first * 100 + second * 10 + third
+properties:
+  formula.form:
+    displayName: prop
+views:
+  - type: table
+    name: Table
+    filters:
+      and:
+        - file.folder.contains("many_digits")
+        - file.tags.containsAny("even", "odd")
+        - file.ext == "md"
+        - "!next.isEmpty()"
+    order:
+      - file.name
+      - first
+      - second
+      - next
+      - prev
+      - third
+      - tags
+      - formula.form
