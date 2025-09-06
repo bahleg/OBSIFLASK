@@ -6,6 +6,9 @@ properties:
 views:
   - type: table
     name: Table
+    sort:
+      - property: tags
+        direction: ASC
     filters:
       and:
         - file.folder.contains("many_digits")

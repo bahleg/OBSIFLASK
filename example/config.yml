@@ -4,6 +4,8 @@ vaults:
     allowed_users: []
     home_file: 'readme.md'
     template_dir: templates
+    base_config:
+      error_on_field_parse: false
 flask_params:
   port: 8000
   debug: true
