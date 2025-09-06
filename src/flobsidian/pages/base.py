@@ -20,7 +20,12 @@ def render_base_view(vault, subpath, real_path, view=None):
     base = parse_base(real_path, vault)
     if view is None:
         key = list(base.views.keys())[0]
-    result = base.views[key].make_view(vault)
+    if request.args.get('refresh'):
+        refresh = True 
+    else:
+        refresh = False 
+    
+    result = base.views[key].make_view(vault, force_refresh = refresh)
     template_path = 'bases/table_view.html'
     if request.args.get('raw'):
         template_path = 'bases/table_view_raw.html'

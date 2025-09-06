@@ -11,6 +11,7 @@ class UserConfig:
 class BaseConfig:
     error_on_yaml_parse: bool = False
     error_on_field_parse: bool = False
+    cache_time: int = 3600
 
 
 @dataclass

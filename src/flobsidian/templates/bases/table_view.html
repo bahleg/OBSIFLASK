@@ -24,6 +24,29 @@
     max-height: 100vh;
   }
 
+    #flo-refresh-btn {
+    position: fixed;
+    top: 20px;
+    right: 170px;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    /* убираем подчёркивание */
+    display: inline-block;
+    /* чтобы padding работал корректно */
+  }
+
+  #flo-refresh-btn:hover {
+    background: #555;
+    /* эффект при наведении */
+  }
+
+
+
   #flo-download-btn {
     position: fixed;
     top: 20px;
@@ -94,6 +117,7 @@
   }
 </style>
 
+<a id="flo-refresh-btn" href="{{url_for('base', vault = vault, subpath = path)}}?refresh=1"><i class="bi bi-arrow-clockwise"></i></a>
 <a id="flo-download-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i
     class="bi bi-download"></i></a>
 <a id="flo-toggle-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i class="bi bi-pencil"></i></a>
@@ -112,4 +136,22 @@
     }
   });
 </script>
+
+<script>
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// --- обработка параметра ---
+const myParam = getQueryParam("refresh");
+if (myParam) {
+    
+    // --- убираем параметр из URL ---
+    const url = new URL(window.location);
+    url.searchParams.delete("refresh"); // удаляем
+    window.history.replaceState({}, document.title, url);
+}
+</script>
+
 {% endblock %}

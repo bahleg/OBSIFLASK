@@ -1,3 +1,4 @@
+from threading import Lock
 from omegaconf import OmegaConf
 from pathlib import Path
 from flobsidian.singleton import Singleton
@@ -7,11 +8,12 @@ from flobsidian.utils import logger
 from flobsidian.messages import add_message
 from flobsidian.bases.grammar import FilterTransformer, grammar
 from lark import Lark
-
+from flobsidian.bases.cache import BaseCache
+import time
 
 class Base:
 
-    def __init__(self):
+    def __init__(self, path):
         self.formulas = {}
         self.properties = {}
         self.views: dict[str, View] = {}
@@ -45,8 +47,8 @@ def parse_filter(filter_dict: dict, vault):
             return TrivialFilter()
 
 
-def parse_view(view: dict, vault: str, formulas, properties):
-    result = View(formulas, properties)
+def parse_view(view: dict, vault: str, formulas, properties, base_path):
+    result = View(formulas, properties, base_path)
     result.type = view['type']
     if result.type not in ['table']:
         if Singleton.config.vaults[vault].base_config.error_on_yaml_parse:
@@ -69,7 +71,7 @@ def parse_view(view: dict, vault: str, formulas, properties):
 
 
 def parse_base(real_path, vault) -> Base:
-    base = Base()
+    base = Base(real_path)
     yaml = OmegaConf.load(real_path)
     base.properties = yaml.get('properties', {})
     for key, formula in yaml.get('formulas', {}).items():
@@ -79,5 +81,5 @@ def parse_base(real_path, vault) -> Base:
 
     for view in yaml.get('views', []):
         base.views[view['name']] = parse_view(view, vault, base.formulas,
-                                              base.properties)
+                                              base.properties, real_path)
     return base

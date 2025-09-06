@@ -4,10 +4,6 @@ import re
 filter_binary_op = re.compile('([^\s]+)\s+([^\s]+)\s+([^\s]+)')
 
 
-class Variable:
-    pass
-
-
 class FileInfo:
 
     def __init__(self, path: Path, index_path: Path):

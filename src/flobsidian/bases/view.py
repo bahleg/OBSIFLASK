@@ -5,7 +5,7 @@ from flobsidian.messages import add_message
 from flobsidian.utils import logger
 import pandas as pd
 from flobsidian.consts import MaxViewErrors
-
+from flobsidian.bases.cache import BaseCache
 
 def convert_field(x):
     if not isinstance(x, (int, float, str, bool)):
@@ -14,8 +14,7 @@ def convert_field(x):
         return x 
     
 class View:
-
-    def __init__(self, formulas, properties):
+    def __init__(self, formulas, properties, base_path):
         self.type = ''
         self.name = ''
         self.filter: Filter = None
@@ -23,6 +22,7 @@ class View:
         self.sorts: list[tuple[str, str]] = []
         self.formulas: list = formulas
         self.properties: dict[str, dict] = properties
+        self.base_path = base_path
 
     def gather_files(self, vault):
         files = [f for f in Singleton.indices[vault] if f.is_file()]
@@ -30,7 +30,11 @@ class View:
         files = [f for f in files if self.filter.check(f)]
         return files
 
-    def make_view(self, vault):
+    def make_view(self, vault, force_refresh):
+        if not force_refresh:
+            cached, found_in_cache = BaseCache.get_from_cache(vault, self.base_path, self.name)
+            if found_in_cache:
+                return cached
         files = self.gather_files(vault)
         result = []
         problems = []
@@ -101,4 +105,6 @@ class View:
                 df = df.sort_values(columns_to_sort, ascending=asc)
             else:
                 add_message('The view is not sorted', 1, vault)
-        return df.to_dict(orient="records")
+        result = df.to_dict(orient="records")
+        BaseCache.add_to_cache(vault, self.base_path, self.name, result)
+        return result
