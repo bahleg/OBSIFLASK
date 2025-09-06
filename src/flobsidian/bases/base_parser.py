@@ -7,7 +7,6 @@ from flobsidian.utils import logger
 from flobsidian.messages import add_message
 
 
-
 class Base:
 
     def __init__(self):
@@ -61,6 +60,9 @@ def parse_view(view: dict, vault: str):
     else:
         result.filter = TrivialFilter()
     result.order = view['order']
+    if 'sort' in view:
+        for s in view['sort']:
+            result.sorts.append((s['property'], s['direction']))
     return result
 
 

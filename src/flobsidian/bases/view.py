@@ -14,6 +14,7 @@ class View:
         self.name = ''
         self.filter: Filter = None
         self.order: list[str] = []
+        self.sorts: list[tuple[str, str]] = []
 
     def gather_files(self, vault):
         files = [f for f in Singleton.indices[vault] if f.is_file()]
@@ -57,4 +58,29 @@ class View:
                         '\n'.join(problems),
                         use_log=use_log)
         df = pd.DataFrame(result)
+        if len(df) > 0:
+            columns_to_sort = []
+            asc = []
+            for s in self.sorts:
+                s = s[0].replace('.', '_'), s[1]
+                if s[0] not in df.columns or s[1] not in ['ASC', 'DESC']:
+                    if Singleton.config.vaults[
+                            vault].base_config.error_on_yaml_parse:
+                        raise ValueError(f'Bad value for sorting: {s}')
+                    else:
+                        add_message(f'problems with sorting: {s}. Skipping', 1,
+                                    vault)
+                        continue
+                columns_to_sort.append(s[0])
+                asc.append(s[1] == 'ASC')
+            if len(columns_to_sort) == 0:
+                column = df.columns[0]
+                columns_to_sort.append(column)
+                asc.append(True)
+                logger.warning('using defualt sorting')
+          
+        if len(columns_to_sort) > 0:
+            df = df.sort_values(columns_to_sort, ascending=asc)
+        else:
+            add_message('The view is not sorted', 1, vault)
         return df.to_dict(orient="records")
