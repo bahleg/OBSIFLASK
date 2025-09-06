@@ -7,27 +7,41 @@ grammar = r"""
 ?expr: expr "and" expr   -> and_
      | expr "or" expr    -> or_
      | "!" expr          -> not_
-     | term
+     | binop
+     | arith
 
-?term: method
-     | comparison
-     | "(" expr ")"
 
-attr: NAME ("." NAME)?    -> attr 
+attr: NAME ("." NAME)*    -> attr 
 
 ?method: NAME ("." NAME)* "(" [args] ")"
 
-comparison: value OP value
+?binop: arith OP arith
+
+?arith: arith "+" term   -> add_
+      | arith "-" term   -> sub_
+      | term
+
+?term: term "*" factor   -> mult_
+     | term "/" factor   -> div_
+     | factor
+
+?factor: method
+       | attr
+       | NUMBER           -> number
+       | STRING           -> string
+       | "(" expr ")"
 
 ?value: attr
       | STRING           -> string
+      | NUMBER           -> number
 
 args: value ("," value)*
 
-OP: "==" | "!=" | "<=" | ">=" | "<" | ">" | "in" | "not in"
+OP: "==" | "!=" | "<=" | ">=" | "<" | ">" | "in" | "not in" 
 
 NAME: /\w+/
 STRING: /"[^"]*"/
+NUMBER: /\d+(\.\d+)?/
 
 %ignore " "
 """
@@ -49,8 +63,15 @@ def isEmpty(val):
 @v_args(inline=True)
 class FilterTransformer(Transformer):
 
+    def attr(self, *attr):
+        return lambda ctx: ctx.get_prop(attr)
+
     def start(self, expr):
         return expr
+
+    def number(self, tok):
+        val = float(tok) if "." in tok else int(tok)
+        return lambda ctx: val
 
     def string(self, tok):
         return lambda ctx: ast.literal_eval(tok)
@@ -79,20 +100,18 @@ class FilterTransformer(Transformer):
         else:
             raise ValueError(f"Unknown method {method_name}")
 
-    def comparison(self, left_func_or_tree, op, right_func_or_tree):
+    def binop(self, left_func_or_tree, op, right_func_or_tree):
         if isinstance(left_func_or_tree, Tree):
             left_names = left_func_or_tree.children
             left_func = lambda ctx: ctx.get_prop(left_names)
         else:
             left_func = left_func_or_tree
-    
 
         if isinstance(right_func_or_tree, Tree):
             right_names = right_func_or_tree.children
             right_func = lambda ctx: ctx.get_prop(right_names)
         else:
             right_func = right_func_or_tree
-    
 
         op = str(op)
         ops = {
@@ -103,7 +122,7 @@ class FilterTransformer(Transformer):
             ">": lambda a, b: a > b,
             ">=": lambda a, b: a >= b,
             "in": lambda a, b: a in b,
-            "not in": lambda a, b: a not in b
+            "not in": lambda a, b: a not in b,
         }
         if op not in ops:
             raise ValueError(f"Unsupported op {op}")
@@ -117,6 +136,18 @@ class FilterTransformer(Transformer):
 
     def or_(self, a, b):
         return lambda ctx: a(ctx) or b(ctx)
+
+    def add_(self, a, b):
+        return lambda ctx: a(ctx) + b(ctx)
+
+    def mult_(self, a, b):
+        return lambda ctx: a(ctx) * b(ctx)
+
+    def sub_(self, a, b):
+        return lambda ctx: a(ctx) - b(ctx)
+
+    def div_(self, a, b):
+        return lambda ctx: a(ctx) / b(ctx)
 
 
 # Пример использования

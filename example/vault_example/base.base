@@ -2,7 +2,7 @@ formulas:
   form: first * 100 + second * 10 + third
 properties:
   formula.form:
-    displayName: prop
+    displayName: mypropr
 views:
   - type: table
     name: Table

@@ -9,12 +9,14 @@ from flobsidian.consts import MaxViewErrors
 
 class View:
 
-    def __init__(self):
+    def __init__(self, formulas, properties):
         self.type = ''
         self.name = ''
         self.filter: Filter = None
         self.order: list[str] = []
         self.sorts: list[tuple[str, str]] = []
+        self.formulas: list = formulas
+        self.properties: dict[str, dict] = properties
 
     def gather_files(self, vault):
         files = [f for f in Singleton.indices[vault] if f.is_file()]
@@ -29,18 +31,29 @@ class View:
         for f in files:
             result.append({})
             for r in self.order:
+                prop_name = r.replace('.', '_')
                 try:
-                    value = f.get_prop(r.split('.'), render=True)
+                    prop = r.split('.')
+                    if r in self.properties and 'displayName' in self.properties[
+                            r]:
+                        prop_name = self.properties[r]['displayName']
+
+                    if prop[0] == 'formula':
+                        value = self.formulas[prop[1]](f)
+                    else:
+                        value = f.get_prop(prop, render=True)
                 except Exception as e:
+                    raise e
                     if Singleton.config.vaults[
                             vault].base_config.error_on_field_parse:
                         raise ValueError(
-                            f'could not find value {r} from {f.path}: {e}')
+                            f'could not infer value {r} from {f.path}: {e}')
                     else:
                         problems.append(
-                            f'could not find value {r} from {f.path}: {e}')
+                            f'could not infer value {r} from {f.path}: {e}')
                         value = ''
-                result[-1][r.replace('.', '_')] = value
+                result[-1][prop_name] = value
+
 
         if problems:
             use_log = True
@@ -78,7 +91,7 @@ class View:
                 columns_to_sort.append(column)
                 asc.append(True)
                 logger.warning('using defualt sorting')
-          
+
         if len(columns_to_sort) > 0:
             df = df.sort_values(columns_to_sort, ascending=asc)
         else:

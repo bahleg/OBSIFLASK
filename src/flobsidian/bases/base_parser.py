@@ -5,6 +5,8 @@ from flobsidian.bases.view import View
 from flobsidian.bases.filter import Filter, FilterAnd, FilterOr, FieldFilter, TrivialFilter
 from flobsidian.utils import logger
 from flobsidian.messages import add_message
+from flobsidian.bases.grammar import FilterTransformer, grammar
+from lark import Lark
 
 
 class Base:
@@ -43,8 +45,8 @@ def parse_filter(filter_dict: dict, vault):
             return TrivialFilter()
 
 
-def parse_view(view: dict, vault: str):
-    result = View()
+def parse_view(view: dict, vault: str, formulas, properties):
+    result = View(formulas, properties)
     result.type = view['type']
     if result.type not in ['table']:
         if Singleton.config.vaults[vault].base_config.error_on_yaml_parse:
@@ -69,6 +71,13 @@ def parse_view(view: dict, vault: str):
 def parse_base(real_path, vault) -> Base:
     base = Base()
     yaml = OmegaConf.load(real_path)
+    base.properties = yaml.get('properties', {})
+    for key, formula in yaml.get('formulas', {}).items():
+        parser = Lark(grammar, start="start", parser="lalr")
+        func = FilterTransformer().transform(parser.parse(formula))
+        base.formulas[key] = func
+
     for view in yaml.get('views', []):
-        base.views[view['name']] = parse_view(view, vault)
+        base.views[view['name']] = parse_view(view, vault, base.formulas,
+                                              base.properties)
     return base
