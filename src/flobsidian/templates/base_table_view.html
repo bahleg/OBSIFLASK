@@ -2,10 +2,10 @@
 
 {% block content %}
 <h1>Base: {{path}}</h1>
-  <link href="https://unpkg.com/tabulator-tables@5.6.0/dist/css/tabulator.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/tabulator-tables@5.6.0/dist/js/tabulator.min.js"></script>
+<link href="https://unpkg.com/tabulator-tables@5.6.0/dist/css/tabulator.min.css" rel="stylesheet">
+<script src="https://unpkg.com/tabulator-tables@5.6.0/dist/js/tabulator.min.js"></script>
 
-  <div id="base-table"></div>
+<div id="base-table"></div>
 
 <style>
   html,
@@ -24,7 +24,7 @@
     max-height: 100vh;
   }
 
-     #flo-download-btn {
+  #flo-download-btn {
     position: fixed;
     top: 20px;
     right: 120px;
@@ -63,16 +63,16 @@
     /* убираем подчёркивание */
     display: inline-block;
     /* чтобы padding работал корректно */
-    border: none; 
+    border: none;
   }
 
   #flo-table-btn:hover {
     background: #555;
     /* эффект при наведении */
-    border: none; 
+    border: none;
   }
 
-    #flo-toggle-btn {
+  #flo-toggle-btn {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -92,10 +92,10 @@
     background: #555;
     /* эффект при наведении */
   }
-
 </style>
 
-<a id="flo-download-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i class="bi bi-download"></i></a>
+<a id="flo-download-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i
+    class="bi bi-download"></i></a>
 <a id="flo-toggle-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i class="bi bi-pencil"></i></a>
 <button id="flo-table-btn"><i class="bi bi-file-earmark-spreadsheet-fill"></i></i></button>
 
@@ -109,16 +109,19 @@
   if (data.length === 0) {
     document.getElementById("base-table").innerHTML = "No data";
   } else {
-    const columns = Object.keys(data[0]).map(k => ({
-      title: k.charAt(0).toUpperCase() + k.slice(1),
-      field: k,
-      headerFilter:"input"
-    }));
+    const columns = Object.keys(data[0]).map(k => {
+      return {
+        title: k.charAt(0).toUpperCase() + k.slice(1),
+        field: k,
+        headerFilter: "input",
+        formatter: k === 'file_name' ? "html" : undefined
+      };
+    });
 
     table = new Tabulator("#base-table", {
-      layout:"fitColumns",
-      pagination:"local",
-      paginationSize:100,
+      layout: "fitColumns",
+      pagination: "local",
+      paginationSize: 100,
       columns: columns,
       data: data,
     });

@@ -1,10 +1,14 @@
+from flask import url_for
 from frontmatter import parse
 from pathlib import Path
 from flobsidian.utils import logger
+from flobsidian.singleton import Singleton
 
 class FileInfo:
 
-    def __init__(self, path: Path, index_path: Path):
+    def __init__(self, path: Path, vault):
+        self.vault = vault 
+        index_path = Singleton.indices[vault].path
         self.path = Path(path).resolve().relative_to(index_path.resolve())
         self.real_path = Path(path).resolve()
         self.read = False
@@ -30,7 +34,7 @@ class FileInfo:
             logger.warning(f'could not parse metadata from {self.path}. Ignore it, if the fils is binary')
         self.read = True
 
-    def get_prop(self, *args):
+    def get_prop(self, *args, render = False):
         if len(args) != 1:
             raise NotImplementedError()
             # args are packed
@@ -47,6 +51,11 @@ class FileInfo:
             elif args[1] == 'tags':
                 self.get_internal_data()
                 return self.tags
+            elif args[1] == 'name':
+                if render:
+                    url = url_for('renderer', subpath=self.path, vault=self.vault)
+                    return f"<a href=\"{url}\">{self.path}</a>"
+                return str(self.path)
         elif len(args) == 1:
             self.get_internal_data()
             return self.frontmatter.get(args[0], '')
