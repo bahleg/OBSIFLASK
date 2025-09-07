@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% from 'bases/shared.html' import render_cards, render_view_list %}
+{% block content %}
+<h1>Base: {{path}}</h1>
+<br/>
+  
+  {{render_view_list(current_view, all_views)}}
+
+<style>
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #app {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+  }
+
+    #flo-refresh-btn {
+    position: fixed;
+    top: 20px;
+    right: 120px;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    /* убираем подчёркивание */
+    display: inline-block;
+    /* чтобы padding работал корректно */
+  }
+
+  #flo-refresh-btn:hover {
+    background: #555;
+    /* эффект при наведении */
+  }
+
+
+
+  #flo-download-btn {
+    position: fixed;
+    top: 20px;
+    right: 70px;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    /* убираем подчёркивание */
+    display: inline-block;
+    /* чтобы padding работал корректно */
+  }
+
+  #flo-download-btn:hover {
+    background: #555;
+    /* эффект при наведении */
+  }
+
+
+
+
+
+
+  #flo-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    /* убираем подчёркивание */
+    display: inline-block;
+    /* чтобы padding работал корректно */
+  }
+
+  #flo-toggle-btn:hover {
+    background: #555;
+    /* эффект при наведении */
+  }
+
+
+ 
+</style>
+
+<a id="flo-refresh-btn" href="{{url_for('base', vault = vault, subpath = path)}}?refresh=1"><i class="bi bi-arrow-clockwise"></i></a>
+<a id="flo-download-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i
+    class="bi bi-download"></i></a>
+<a id="flo-toggle-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i class="bi bi-pencil"></i></a>
+
+{{ render_cards(table, vault)}}
+
+<script>
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// --- обработка параметра ---
+const myParam = getQueryParam("refresh");
+if (myParam) {
+    
+    // --- убираем параметр из URL ---
+    const url = new URL(window.location);
+    url.searchParams.delete("refresh"); // удаляем
+    window.history.replaceState({}, document.title, url);
+}
+</script>
+
+{% endblock %}

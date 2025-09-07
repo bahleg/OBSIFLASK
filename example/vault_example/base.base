@@ -42,4 +42,16 @@ views:
       - next
       - prev
       - third
+  - type: cards
+    name: cards
+    sort:
+      - property: tags
+        direction: ASC
+    filters:
+      and:
+        - file.folder.contains("many_digits")
+        - "!cover.isEmpty()"
+    order:
+      - file.name
+  
 

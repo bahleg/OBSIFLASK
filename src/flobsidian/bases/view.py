@@ -6,6 +6,7 @@ from flobsidian.utils import logger
 import pandas as pd
 from flobsidian.consts import MaxViewErrors
 from flobsidian.bases.cache import BaseCache
+from flobsidian.consts import COVER_KEY
 
 def convert_field(x):
     if not isinstance(x, (int, float, str, bool)):
@@ -42,6 +43,8 @@ class View:
         for r in self.sorts:
             order_list_plus_sort.add(r[0])
         final_order = []
+        if self.type == 'cards':
+            order_list_plus_sort.add(COVER_KEY)
         for f in files:
             result.append({})
             for r in order_list_plus_sort:
@@ -68,7 +71,9 @@ class View:
                 if r in self.order:
                     final_order.append(prop_name)
                 result[-1][prop_name] = convert_field(value)
-
+        
+        if self.type == 'cards' and COVER_KEY not in final_order:
+            final_order.append(COVER_KEY)
 
         if problems:
             use_log = True

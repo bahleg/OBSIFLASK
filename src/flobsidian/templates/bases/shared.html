@@ -1,3 +1,27 @@
+{% macro render_cards(table, vault) %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for card in table %}
+    <div class="col">
+        <div class="card vault-card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-between">
+                {% if 'cover' in card  and card['cover'] %}
+                <img src="{{url_for('get_file', vault=vault, subpath=card['cover'])}}"
+                    style="width:200px; height:200px; object-fit: contain;">
+                {% endif %}
+                {% for key, value in card.items() %}
+                {% if key != 'cover'%}
+                <strong>{{key}}:</strong>{{value|safe}}
+                {% endif %}
+                {% endfor %}
+
+                
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endmacro %}
+
 {% macro render_view_list(current_view, all_views) %}
 {% if all_views|length > 1 %}
 <select id="view-select">

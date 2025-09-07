@@ -50,7 +50,7 @@ def parse_filter(filter_dict: dict, vault):
 def parse_view(view: dict, vault: str, formulas, properties, base_path):
     result = View(formulas, properties, base_path)
     result.type = view['type']
-    if result.type not in ['table']:
+    if result.type not in ['table', 'cards']:
         if Singleton.config.vaults[vault].base_config.error_on_yaml_parse:
             raise NotImplementedError(f'unsupported view type: {result.type}')
         else:

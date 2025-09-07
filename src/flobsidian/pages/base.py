@@ -44,10 +44,16 @@ def render_base_view(vault, subpath, real_path):
         all_views.append((view, url))
 
     result = base.views[key].make_view(vault, force_refresh=refresh)
-    template_path = 'bases/table_view.html'
-    if raw:
-        template_path = 'bases/table_view_raw.html'
-
+    if base.views[key].type == 'cards':
+        template_path = 'bases/card_view.html'
+        if raw:
+            template_path = 'bases/card_view_raw.html'
+    elif base.views[key].type == 'table':
+        template_path = 'bases/table_view.html'
+        if raw:
+            template_path = 'bases/table_view_raw.html'
+    else:
+        raise NotImplementedError(f'Unsupported type: {base.views[key].type}')
     return render_template(template_path,
                            table=result,
                            navtree=render_tree(Singleton.indices[vault], vault,
