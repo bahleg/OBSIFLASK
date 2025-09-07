@@ -1,7 +1,9 @@
+import os
 import time
 from pathlib import Path
 from flobsidian.consts import INDEX_UPDATE_TIME
 from urllib import parse
+
 
 class FileIndex:
 
@@ -22,7 +24,7 @@ class FileIndex:
     def get_templates(self):
         self.check_refresh()
         return self._templates
-    
+
     def get_tree(self):
         self.check_refresh()
         return self._tree
@@ -56,7 +58,7 @@ class FileIndex:
     def refresh(self):
         if self.template_dir:
             self._templates = list(self.template_dir.glob('*md'))
-            
+
         self._files = list(self.path.glob('**/*'))
         self._files = [f for f in self._files
                        if not '/.' in str(f.resolve())]  # ignore hidden
@@ -97,8 +99,12 @@ class FileIndex:
         self.check_refresh()
         return self._name_to_path
 
-
-    def resolve_wikilink(self, name, path: Path, resolve_markdown_without_ext: bool = False, escape=True):
+    def resolve_wikilink(self,
+                         name,
+                         path: Path,
+                         resolve_markdown_without_ext: bool = False,
+                         escape=True,
+                         relative: bool = True):
         if name.startswith('http'):
             return name
         name = name.strip()
@@ -108,31 +114,37 @@ class FileIndex:
         if name in self.get_name_to_path():
             candidate_paths = self.get_name_to_path()[name]
             if path in candidate_paths:
-                link = str(path.relative_to(self.path)) + "/" + str(name)
+                link = (path / name)
             else:
                 first = sorted(candidate_paths)[0]
-                link = str(first.relative_to(self.path)) + "/" + str(name)
+                link = (first / name)
 
         # local + md
-        elif resolve_markdown_without_ext and (name + '.md' in self.get_name_to_path()):
+        elif resolve_markdown_without_ext and (name + '.md'
+                                               in self.get_name_to_path()):
             candidate_paths = self.get_name_to_path()[name + '.md']
             if path in candidate_paths:
-                link = str(path.relative_to(self.path)) + "/" + str(name + '.md')
-
+                link = (path / (name + '.md'))
             else:
                 first = sorted(candidate_paths)[0]
-                link = str(first.relative_to(self.path)) + "/" + str(name + '.md')
-                
+                link = (first / (name + '.md'))
+
         # full
         elif (self.path / Path(name)).exists():
-            link = str((self.path / Path(name)).relative_to(path.resolve()))
-            
+            link = ((self.path / Path(name)))  #.relative_to(path.resolve()))
+
         # full + md
-        elif (resolve_markdown_without_ext and (self.path / Path(name + '.md')).exists()):
-            link = str((self.path / Path(name + '.md')).relative_to(path.resolve()))
+        elif (resolve_markdown_without_ext
+              and (self.path / Path(name + '.md')).exists()):
+            link = ((self.path / Path(name + '.md'))
+                    )  #.relative_to(path.resolve()))
+        if relative:
+            link = str(os.path.relpath(link, path))
+        else:
+            link = str(os.path.relpath(link, self.path))
         if link:
             if escape:
                 return parse.quote(link)
             else:
                 return link
-        return None 
+        return None

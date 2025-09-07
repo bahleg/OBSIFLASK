@@ -4,7 +4,7 @@ from pathlib import Path
 from flobsidian.utils import logger
 from flobsidian.singleton import Singleton
 from flobsidian.messages import add_message
-from flobsidian.consts import COVER_KEY
+from flobsidian.consts import COVER_KEY, wikilink, hashtag
 
 
 class FileInfo:
@@ -15,8 +15,9 @@ class FileInfo:
         self.path = Path(path).resolve().relative_to(index_path.resolve())
         self.real_path = Path(path).resolve()
         self.read = False
-        self._tags = None
+        self._tags = set()
         self.frontmatter = {}
+        self._links = set()
 
     def get_internal_data(self):
         if self.read:
@@ -24,26 +25,40 @@ class FileInfo:
         try:
             with open(self.real_path) as inp:
                 text = inp.read()
+            matches = wikilink.finditer(text)
+
+            for m in matches:
+                link = m.group(1)
+                link = Singleton.indices[self.vault].resolve_wikilink(
+                    link, self.real_path, True, escape=False, relative=False)
+                if link:
+                    self._links.add(link)
+                 
+
+            matches = hashtag.finditer(text)
+
+            for m in matches:
+                tag = m.group().lstrip('#')
+                self._tags.add(tag)
+
             try:
                 parsed, _ = parse(text)
             except:
                 parsed = {}
             self.frontmatter = parsed
             tags = parsed.get('tags', [])
-            self.tags = [t.lstrip('#') for t in tags]
+            self._tags = [t.lstrip('#') for t in tags]
         except Exception as e:
-            self.tags = []
-            self.frontmatter = {}
+
             logger.warning(
-                f'could not parse metadata from {self.path}. Ignore it, if the fils is binary'
+                f'could not parse metadata from {self.path}. Ignore it, if the fils is binary: {e}'
             )
         self.read = True
 
     def handle_cover(self, value):
         value = (self.real_path.parent / value).resolve()
-        
-        value = value.relative_to(
-            Singleton.indices[self.vault].path)
+
+        value = value.relative_to(Singleton.indices[self.vault].path)
         return str(value)
 
     def get_prop(self, *args, render=False):
@@ -64,7 +79,10 @@ class FileInfo:
                 return str(self.path.suffix.lstrip('.'))
             elif args[1] == 'tags':
                 self.get_internal_data()
-                return self.tags
+                return list(self._tags)
+            elif args[1] == 'links':
+                self.get_internal_data()
+                return self._links
             elif args[1] == 'name':
                 if render:
                     url = url_for('renderer',

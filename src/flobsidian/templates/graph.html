@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Global graph</h1>
+
+  <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    #cy { width: 100vw; height: 100vh; display: block; }
+  </style>
+  <div id="cy"></div>
+  <script>
+    const graphData = {{ graph_data | tojson }};
+
+    const elements = [];
+
+    // Узлы
+    graphData.node_labels.forEach((label, i) => {
+      elements.push({
+        data: {
+          id: "n" + i,
+          label: label,
+          size: graphData.node_sizes[i],
+          href: graphData.href[i]
+        }
+      });
+    });
+
+    // Рёбра
+    graphData.forward_edges.forEach(([src, dst]) => {
+      elements.push({
+        data: {
+          id: "e" + src + "_" + dst,
+          source: "n" + src,
+          target: "n" + dst
+        }
+      });
+    });
+
+    const cy = cytoscape({
+      container: document.getElementById('cy'),
+      elements: elements,
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'content': 'data(label)',
+            'text-valign': 'center',
+            'color': '#fff',
+            'background-color': '#0074D9',
+            'width': 'mapData(size, 1, 100, 20, 100)',
+            'height': 'mapData(size, 1, 100, 20, 100)',
+            'font-size': '12px',
+            'cursor': 'pointer'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'width': 2,
+            'line-color': '#aaa',
+            'target-arrow-color': '#aaa',
+            'target-arrow-shape': 'triangle'
+          }
+        }
+      ],
+      layout: { name: 'cose', animate: true }
+    });
+
+    // Клик по ноде → переход по ссылке
+    cy.on('tap', 'node', function(evt){
+      const url = evt.target.data('href');
+      if (url) {
+        window.open(url, "_blank");
+      }
+    });
+  </script>
+{% endblock %}

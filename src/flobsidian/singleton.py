@@ -8,3 +8,4 @@ class Singleton:
     config: AppConfig = None
     messages: dict[tuple[str, str], list["Message"]] = {}
     injected_vars_jinja: dict = {'version': get_version()}
+    graphs: dict[str, "Graph"] = {}

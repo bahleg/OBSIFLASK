@@ -9,6 +9,7 @@ from urllib import parse
 from flobsidian.utils import logger
 import frontmatter
 from markupsafe import Markup
+from flobsidian.consts import wikilink
 
 re_tag_embed = re.compile(r'!\[\[([^\]]+)\]\]')
 wikilink = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")

@@ -29,6 +29,8 @@ from flobsidian.pages.excalidraw import render_excalidraw
 from flobsidian.pages.folder import render_folder
 from flobsidian.pages.fileop import render_fileop
 from flobsidian.pages.base import render_base
+from flobsidian.graph import Graph
+from flobsidian.pages.graph import render_graph
 
 
 def run():
@@ -44,6 +46,8 @@ def run():
     for vault in cfg.vaults:
         Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
                                              cfg.vaults[vault].template_dir)
+        Singleton.graphs[vault] = Graph(vault)
+        
 
     logger.debug('starting app')
     app = Flask(__name__,
@@ -190,6 +194,11 @@ def run():
     def tree(vault):
         Singleton.indices[vault].refresh()
         return render_tree(Singleton.indices[vault], vault)
+
+    @app.route('/graph/<vault>')
+    def graph(vault):
+        return render_graph(vault)
+
 
     @app.route('/messages/<vault>')
     def messages(vault):

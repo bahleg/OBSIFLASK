@@ -53,9 +53,17 @@
                     </a>
 
 
+
+
+                </div>
+                <p></p>
+                <div class="btn-group">
                     <a href="{{url_for('fileop', vault=vault)}}?curdir={{curdir}}&curfile={{curfile}}"
                         class="btn btn-primary" title="File operations">
                         <i class="bi bi-file-earmark"></i>
+                    </a>
+                    <a href="{{url_for('graph', vault=vault)}}" class="btn btn-primary" title="Global graph">
+                        <i class="bi bi-bounding-box-circles"></i>
                     </a>
                 </div>
 
