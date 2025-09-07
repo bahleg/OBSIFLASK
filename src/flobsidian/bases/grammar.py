@@ -7,6 +7,7 @@ grammar = r"""
 ?expr: expr "and" expr   -> and_
      | expr "or" expr    -> or_
      | "!" expr          -> not_
+     | "-" expr          -> neg_
      | binop
      | arith
 
@@ -146,6 +147,9 @@ class FilterTransformer(Transformer):
 
     def not_(self, func):
         return lambda ctx: not func(ctx)
+    
+    def neg_(self, func):
+        return lambda ctx: -func(ctx)
 
     def and_(self, a, b):
         return lambda ctx: a(ctx) and b(ctx)
