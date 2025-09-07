@@ -23,7 +23,7 @@
 <body>
 
   <h3>Base: <a href="{{url_for('base', vault=vault, subpath=path)}}">{{path}}</a></h3>
-  <a href="{{url_for('base', vault=vault, subpath=path)}}?refresh=1">Refresh</a>
+  <a href="{{url_for('base', vault=vault, subpath=path)}}?refresh=1&view={{current_view}}">Refresh</a>
   <br/>
   
   {{render_view_list(current_view, all_views)}}
