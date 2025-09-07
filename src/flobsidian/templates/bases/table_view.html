@@ -128,7 +128,7 @@
   }
 </style>
 
-<a id="flo-refresh-btn" href="{{url_for('base', vault = vault, subpath = path)}}?refresh=1"><i class="bi bi-arrow-clockwise"></i></a>
+<a id="flo-refresh-btn" href="{{url_for('base', vault = vault, subpath = path)}}?refresh=1&view={{current_view}}"><i class="bi bi-arrow-clockwise"></i></a>
 <a id="flo-download-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i
     class="bi bi-download"></i></a>
 <a id="flo-toggle-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i class="bi bi-pencil"></i></a>
