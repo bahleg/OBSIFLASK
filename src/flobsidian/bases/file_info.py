@@ -47,6 +47,8 @@ class FileInfo:
         elif len(args) == 2 and args[0] == 'file':
             if args[1] == 'folder':
                 return str(self.path.parent)
+            elif args[1] == 'path':
+                return (str(self.path))
             elif args[1] == 'ext':
                 return str(self.path.suffix.lstrip('.'))
             elif args[1] == 'tags':

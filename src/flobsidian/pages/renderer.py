@@ -88,7 +88,7 @@ def parse_embedding(text, full_path, index: FileIndex, vault):
                 link_path = url_for('base', vault=vault, subpath=link_path)
                 id_name = 'embed_' + str(m_id)
                 buf.append(
-                    f'<iframe id={id_name} src="{link_path}?raw=1"  style="width:95%; border:none;"></iframe>'
+                    f'<hr/><iframe id={id_name} src="{link_path}?raw=1"  style="width:95%"></iframe><hr/>'
                 )
                 buf.append("""
                            <script>
