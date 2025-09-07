@@ -38,9 +38,13 @@ class View:
         files = self.gather_files(vault)
         result = []
         problems = []
+        order_list_plus_sort = set(self.order)
+        for r in self.sorts:
+            order_list_plus_sort.add(r[0])
+        final_order = []
         for f in files:
             result.append({})
-            for r in self.order:
+            for r in order_list_plus_sort:
                 prop_name = r.replace('.', '_')
                 try:
                     prop = r.split('.')
@@ -61,6 +65,8 @@ class View:
                         problems.append(
                             f'could not infer value {r} from {f.path}: {e}')
                         value = ''
+                if r in self.order:
+                    final_order.append(prop_name)
                 result[-1][prop_name] = convert_field(value)
 
 
@@ -102,9 +108,10 @@ class View:
                 logger.warning('using defualt sorting')
 
             if len(columns_to_sort) > 0:
-                df = df.sort_values(columns_to_sort, ascending=asc)
+                df = df.sort_values(columns_to_sort, ascending=asc, key=lambda col: pd.to_numeric(col, errors="coerce"))
             else:
                 add_message('The view is not sorted', 1, vault)
+        df = df[final_order]
         result = df.to_dict(orient="records")
         BaseCache.add_to_cache(vault, self.base_path, self.name, result)
         return result

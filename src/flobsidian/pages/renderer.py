@@ -69,20 +69,25 @@ def parse_embedding(text, full_path, index: FileIndex, vault):
     for m_id, m in enumerate(matches):
         buf.append(text[offset:m.span()[0]])
         path = m.group(1)
-        link_path = index.resolve_wikilink(
-                path, full_path, False, escape=False)
-        relative_link = str(link_path).startswith('http://') or str(link_path).startswith('https://')
+        link_path = index.resolve_wikilink(path,
+                                           full_path,
+                                           False,
+                                           escape=False)
+        relative_link = str(link_path).startswith('http://') or str(
+            link_path).startswith('https://')
 
         if link_path is not None:
             if not relative_link:
-                link_path = (Path(index.path) / link_path).relative_to(index.path)
-        
+                link_path = (Path(index.path) / link_path).relative_to(
+                    index.path)
 
             if '.' in path and path.split('.')[-1] in {
                     'png', 'bmp', 'jpg', 'jpeg'
             }:
                 if not relative_link:
-                    link_path = url_for('get_file', vault=vault, subpath=link_path)
+                    link_path = url_for('get_file',
+                                        vault=vault,
+                                        subpath=link_path)
                 buf.append(f'<img src="{link_path}" style="max-width:100%;">')
             elif '.' in path and path.split('.')[-1] in {'base'}:
                 link_path = url_for('base', vault=vault, subpath=link_path)
