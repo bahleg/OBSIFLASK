@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, render_template_string, request
+from flask import render_template, redirect, url_for, render_template_string, request, abort
 import mistune
 import re
 from flobsidian.singleton import Singleton
@@ -16,19 +16,38 @@ def render_base(vault, subpath, real_path):
     return render_base_view(vault, subpath, real_path)
 
 
-def render_base_view(vault, subpath, real_path, view=None):
+def render_base_view(vault, subpath, real_path):
     base = parse_base(real_path, vault)
+    view = request.args.get('view')
     if view is None:
         key = list(base.views.keys())[0]
-    if request.args.get('refresh'):
-        refresh = True 
     else:
-        refresh = False 
-    
-    result = base.views[key].make_view(vault, force_refresh = refresh)
-    template_path = 'bases/table_view.html'
+        if view not in base.views.keys():
+            return f'Bad view: {view}', 402
+        key = view
+
+    if request.args.get('refresh'):
+        refresh = True
+    else:
+        refresh = False
+    current_view = key
+    base_url = url_for('base', subpath=subpath, vault=vault)
+    all_views = []
     if request.args.get('raw'):
+        raw = True
+    else:
+        raw = False
+    for view in base.views:
+        url = base_url + '?view=' + view
+        if raw:
+            url = url + '&raw=1'
+        all_views.append((view, url))
+
+    result = base.views[key].make_view(vault, force_refresh=refresh)
+    template_path = 'bases/table_view.html'
+    if raw:
         template_path = 'bases/table_view_raw.html'
+
     return render_template(template_path,
                            table=result,
                            navtree=render_tree(Singleton.indices[vault], vault,
@@ -36,4 +55,8 @@ def render_base_view(vault, subpath, real_path, view=None):
                            is_editor=False,
                            home=Singleton.config.vaults[vault].home_file,
                            curdir=Path(subpath).parent,
-                           curfile=subpath, vault=vault, path=subpath)
+                           curfile=subpath,
+                           vault=vault,
+                           path=subpath,
+                           current_view=current_view,
+                           all_views=all_views)

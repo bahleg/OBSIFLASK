@@ -99,6 +99,8 @@ class FileIndex:
 
 
     def resolve_wikilink(self, name, path: Path, resolve_markdown_without_ext: bool = False, escape=True):
+        if name.startswith('http'):
+            return name
         name = name.strip()
         path = path.parent
         link = None

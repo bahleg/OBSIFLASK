@@ -1,27 +1,45 @@
+{% macro render_view_list(current_view, all_views) %}
+<select id="view-select">
+    {% for view in all_views %}
+    {% if view[0] == current_view %}
+    <option value="{{view[1]}}" selected>Current view: {{view[0]}}</option>
+    {% else %}
+    <option value="{{view[1]}}">{{view[0]}}</option>
+    {% endif %}
+    {% endfor %}
+</select>
+<script>
+    document.getElementById("view-select").addEventListener("change", function () {
+        if (this.value) {
+            window.location.href = this.value;
+        }
+    });
+</script>
+{% endmacro %}
 {% macro render_table_view(table) %}
 // получаем данные из Jinja
-  const data = {{ table | safe }};
+const data = {{ table | safe }};
 
-  let table;  // объявляем переменную в верхнем скоупе
+let table; // объявляем переменную в верхнем скоупе
 
-  if (data.length === 0) {
-    document.getElementById("base-table").innerHTML = "No data";
-  } else {
-    const columns = Object.keys(data[0]).map(k => {
-      return {
-        title: k.charAt(0).toUpperCase() + k.slice(1),
-        field: k,
-        headerFilter: "input",
-        formatter: k === 'file_name' ? "html" : undefined
-      };
-    });
+if (data.length === 0) {
+document.getElementById("base-table").innerHTML = "No data";
+} else {
+const columns = Object.keys(data[0]).map(k => {
+return {
+title: k.charAt(0).toUpperCase() + k.slice(1),
+field: k,
+headerFilter: "input",
+formatter: k === 'file_name' ? "html" : undefined
+};
+});
 
-    table = new Tabulator("#base-table", {
-      layout: "fitColumns",
-      pagination: "local",
-      paginationSize: 100,
-      columns: columns,
-      data: data,
-    });
-  }
+table = new Tabulator("#base-table", {
+layout: "fitColumns",
+pagination: "local",
+paginationSize: 100,
+columns: columns,
+data: data,
+});
+}
 {% endmacro %}

@@ -24,3 +24,22 @@ views:
       - third
       - tags
       - formula.form
+  - type: table
+    name: Table-even
+    sort:
+      - property: tags
+        direction: ASC
+    filters:
+      and:
+        - file.folder.contains("many_digits")
+        - file.tags.contains("even")
+        - file.ext == "md"
+        - "!next.isEmpty()"
+    order:
+      - file.name
+      - first
+      - second
+      - next
+      - prev
+      - third
+
