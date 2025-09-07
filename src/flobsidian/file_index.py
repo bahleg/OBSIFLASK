@@ -98,7 +98,7 @@ class FileIndex:
         return self._name_to_path
 
 
-    def resolve_wikilink(self, name, path: Path, resolve_markdown_without_ext: bool = False):
+    def resolve_wikilink(self, name, path: Path, resolve_markdown_without_ext: bool = False, escape=True):
         name = name.strip()
         path = path.parent
         link = None
@@ -106,21 +106,21 @@ class FileIndex:
         if name in self.get_name_to_path():
             candidate_paths = self.get_name_to_path()[name]
             if path in candidate_paths:
-                link = str(path.relative_to(path)) + "/" + str(name)
+                link = str(path.relative_to(self.path)) + "/" + str(name)
             else:
                 first = sorted(candidate_paths)[0]
-                link = str(first.relative_to(path)) + "/" + str(name)
+                link = str(first.relative_to(self.path)) + "/" + str(name)
 
         # local + md
         elif resolve_markdown_without_ext and (name + '.md' in self.get_name_to_path()):
             candidate_paths = self.get_name_to_path()[name + '.md']
             if path in candidate_paths:
-                link = str(path.relative_to(path)) + "/" + str(name + '.md')
+                link = str(path.relative_to(self.path)) + "/" + str(name + '.md')
 
             else:
                 first = sorted(candidate_paths)[0]
-                link = str(first.relative_to(path)) + "/" + str(name + '.md')
-
+                link = str(first.relative_to(self.path)) + "/" + str(name + '.md')
+                
         # full
         elif (self.path / Path(name)).exists():
             link = str((self.path / Path(name)).relative_to(path.resolve()))
@@ -129,5 +129,8 @@ class FileIndex:
         elif (resolve_markdown_without_ext and (self.path / Path(name + '.md')).exists()):
             link = str((self.path / Path(name + '.md')).relative_to(path.resolve()))
         if link:
-            return parse.quote(link)
+            if escape:
+                return parse.quote(link)
+            else:
+                return link
         return None 

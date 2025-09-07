@@ -71,7 +71,7 @@ def run():
             return 'Bad vault', 404
         real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
-            return 'Bad path', 404
+            return f'Bad path: {subpath}', 404
         return render_editor(vault, subpath, real_path)
 
     @app.route('/editor/<vault>')
@@ -98,7 +98,7 @@ def run():
             return 'Bad vault', 404
         real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
-            return 'Bad path', 404
+            return f'Bad path: {subpath}', 404
         return render_excalidraw(vault, subpath, real_path)
 
     @app.route('/renderer/<vault>/<path:subpath>')
@@ -107,7 +107,7 @@ def run():
             return 'Bad vault', 404
         real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
-            return 'Bad path', 404
+            return f'Bad path: {subpath}', 404
         return render_renderer(vault, subpath, real_path)
 
     @app.route('/base/<vault>/<path:subpath>')
@@ -116,7 +116,7 @@ def run():
             return 'Bad vault', 404
         real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
-            return 'Bad path', 404
+            return f'Bad path: {subpath}', 404
         return render_base(vault, subpath, real_path)
 
     @app.route('/render/<vault>')
@@ -143,7 +143,7 @@ def run():
             return 'Bad vault', 404
         real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
         if not (real_path).exists():
-            return 'Bad path', 404
+            return f'Bad path: {subpath}', 404
         markdown = get_markdown(real_path, Singleton.indices[vault], vault)
         return jsonify({'content': markdown})
 

@@ -69,8 +69,8 @@ def parse_embedding(text, full_path, index: FileIndex, vault):
     for m_id, m in enumerate(matches):
         buf.append(text[offset:m.span()[0]])
         path = m.group(1)
-        link_path = full_path.parent / index.resolve_wikilink(
-            path, full_path, False)
+        link_path = Path(index.path) / index.resolve_wikilink(
+            path, full_path, False, escape=False)
         link_path = link_path.relative_to(index.path)
         if link_path is not None:
             if '.' in path and path.split('.')[-1] in {
