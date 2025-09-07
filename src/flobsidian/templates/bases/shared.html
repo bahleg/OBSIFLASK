@@ -1,4 +1,5 @@
 {% macro render_view_list(current_view, all_views) %}
+{% if all_views|length > 1 %}
 <select id="view-select">
     {% for view in all_views %}
     {% if view[0] == current_view %}
@@ -15,6 +16,7 @@
         }
     });
 </script>
+{% endif %}
 {% endmacro %}
 {% macro render_table_view(table) %}
 // получаем данные из Jinja

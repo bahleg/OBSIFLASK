@@ -3,6 +3,7 @@ from frontmatter import parse
 from pathlib import Path
 from flobsidian.utils import logger
 from flobsidian.singleton import Singleton
+from flobsidian.messages import add_message
 
 class FileInfo:
 
@@ -65,5 +66,9 @@ class FileInfo:
             
             self.get_internal_data()
             return self.frontmatter.get(args[0], '')
-
-        raise ValueError(f'not found: {args}')
+        if Singleton.config.vaults[self.vault].base_config.error_on_field_parse:
+            raise ValueError(f'Field not found: {args}')
+        else:
+            add_message(f'Field not found: {args}. Ignoring it', 1, vault=self.vault)
+            return None
+            

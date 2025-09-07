@@ -76,7 +76,15 @@ def parse_base(real_path, vault) -> Base:
     base.properties = yaml.get('properties', {})
     for key, formula in yaml.get('formulas', {}).items():
         parser = Lark(grammar, start="start", parser="lalr")
-        func = FilterTransformer().transform(parser.parse(formula))
+        try:
+            func = FilterTransformer().transform(parser.parse(formula))
+            
+        except Exception as e:
+            if Singleton.config.vaults[vault].base_config.error_on_field_parse:
+                raise ValueError(f'Problems with formula {formula} parsing: {e}')
+            else:
+                add_message(f'Problems with formula {formula} parsing. Skipping', 1, vault, repr(e))
+                func = lambda x: ''
         base.formulas[key] = func
 
     for view in yaml.get('views', []):
