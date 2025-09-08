@@ -31,10 +31,12 @@ class View:
         self.formulas: list = formulas
         self.properties: dict[str, dict] = properties
         self.base_path = base_path
+        self.global_filter = None 
 
     def gather_files(self, vault):
         files = [f for f in Singleton.indices[vault] if f.is_file()]
         files = [FileInfo(f, vault) for f in files]
+        files = [f for f in files if self.global_filter.check(f)]
         files = [f for f in files if self.filter.check(f)]
         return files
 

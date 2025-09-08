@@ -16,6 +16,7 @@ class Base:
     def __init__(self, path):
         self.formulas = {}
         self.properties = {}
+        self.global_filter: Filter = None
         self.views: dict[str, View] = {}
 
 
@@ -73,6 +74,11 @@ def parse_view(view: dict, vault: str, formulas, properties, base_path):
 def parse_base(real_path, vault) -> Base:
     base = Base(real_path)
     yaml = OmegaConf.load(real_path)
+    if 'filters' in yaml:
+        base.global_filter = parse_filter(yaml['filters'], vault)
+    else:
+        base.global_filter = TrivialFilter()
+
     base.properties = yaml.get('properties', {})
     for key, formula in yaml.get('formulas', {}).items():
         parser = Lark(grammar, start="start", parser="lalr")
@@ -90,4 +96,5 @@ def parse_base(real_path, vault) -> Base:
     for view in yaml.get('views', []):
         base.views[view['name']] = parse_view(view, vault, base.formulas,
                                               base.properties, real_path)
+        base.views[view['name']].global_filter = base.global_filter
     return base
