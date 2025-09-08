@@ -132,7 +132,7 @@ def copy_move_file(vault, form: FileOpForm, copy):
                 shutil.copy(path, dst)
         else:
             shutil.move(path, dst)
-
+        
         Singleton.indices[vault].refresh()
         add_message(f'{op_label} {form.target.data}: successful', 0, vault)
         return True
