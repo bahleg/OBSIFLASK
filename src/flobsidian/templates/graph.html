@@ -2,14 +2,22 @@
 
 {% block content %}
 <h1>Global graph</h1>
-    <a id="flo-refresh-btn" href="{{url_for('graph', vault = vault)}}?refresh=1"><i class="bi bi-arrow-clockwise"></i></a>
+<a id="flo-refresh-btn" href="{{url_for('graph', vault = vault)}}?refresh=1"><i class="bi bi-arrow-clockwise"></i></a>
 
-  <style>
-    body { margin: 0; padding: 0; }
-    #cy { width: 100vw; height: 100vh; display: block; }
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  #cy {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+  }
 
 
-    #flo-refresh-btn {
+  #flo-refresh-btn {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -29,95 +37,128 @@
     background: #555;
     /* эффект при наведении */
   }
+</style>
+<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+
+<div id="cy"></div>
+<script>
+  const root = document.documentElement;
+
+  // Основной фон страницы
+  const bgColor = getComputedStyle(root).getPropertyValue('--bs-body-bg').trim();
+  // Цвет текста
+  const textColor = getComputedStyle(root).getPropertyValue('--bs-body-color').trim();
+
+  const edgeColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-secondary').trim();
+
+  // Цвет кнопок/primary (для нод)
+  const primaryColor = getComputedStyle(root).getPropertyValue('--bs-primary').trim();
 
 
-  </style>
-  <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
-  
-  <div id="cy"></div>
-  <script>
-    const graphData = {{ graph_data | tojson }};
+  const graphData = {{ graph_data | tojson }};
 
-    const elements = [];
+  const elements = [];
 
-    // Узлы
-    graphData.node_labels.forEach((label, i) => {
-      elements.push({
-        data: {
-          id: "n" + i,
-          label: label,
-          size: graphData.node_sizes[i],
-          href: graphData.href[i]
-        }
-      });
-    });
-
-    // Рёбра
-    graphData.forward_edges.forEach(([src, dst]) => {
-      elements.push({
-        data: {
-          id: "e" + src + "_" + dst,
-          source: "n" + src,
-          target: "n" + dst
-        }
-      });
-    });
-
-    const cy = cytoscape({
-      container: document.getElementById('cy'),
-      elements: elements,
-      style: [
-        {
-          selector: 'node',
-          style: {
-            'content': 'data(label)',
-            'text-valign': 'center',
-            'color': '#fff',
-            'background-color': '#0074D9',
-            'width': 'mapData(size, 1, 100, 20, 100)',
-            'height': 'mapData(size, 1, 100, 20, 100)',
-            'font-size': '12px',
-            'cursor': 'pointer'
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'width': 2,
-            'line-color': '#aaa',
-            'target-arrow-color': '#aaa',
-            'target-arrow-shape': 'triangle'
-          }
-        }
-      ],
-      layout: { name: 'cose', animate: true }
-    });
-
-    // Клик по ноде → переход по ссылке
-    cy.on('tap', 'node', function(evt){
-      const url = evt.target.data('href');
-      if (url) {
-        window.open(url, "_blank");
+  // Узлы
+  graphData.node_labels.forEach((label, i) => {
+    elements.push({
+      data: {
+        id: "n" + i,
+        label: label,
+        size: graphData.node_sizes[i],
+        href: graphData.href[i]
       }
     });
-  </script>
+  });
+
+  // Рёбра
+  graphData.forward_edges.forEach(([src, dst]) => {
+    elements.push({
+      data: {
+        id: "e" + src + "_" + dst,
+        source: "n" + src,
+        target: "n" + dst
+      }
+    });
+  });
+
+  const cy = cytoscape({
+    container: document.getElementById('cy'),
+    elements: elements,
+    style: [
+      {
+        selector: 'node',
+        style: {
+          'content': '',                  // нет текста
+          'text-valign': 'center',
+          'color': textColor,           // текст под тему
+        'background-color': primaryColor,  // ноды под тему
+          'width': 'mapData(size, 1, 100, 20, 100)',
+          'height': 'mapData(size, 1, 100, 20, 100)',
+          'font-size': '12px',
+          'cursor': 'pointer'
+        }
+      },
+
+
+      {
+        selector: 'edge',
+        style: {
+          'width': 2,
+          'line-color': edgeColor,
+          'target-arrow-color': edgeColor,
+          'target-arrow-shape': 'triangle'
+        }
+      }
+    ],
+    layout: { name: 'cose', animate: true }
+  });
+
+  // Клик по ноде → переход по ссылке
+  cy.on('tap', 'node', function (evt) {
+    const url = evt.target.data('href');
+    if (url) {
+      window.open(url, "_blank");
+    }
+  });
+
+  cy.on('mouseover', 'node', function (evt) {
+    var node = evt.target;
+    node.style({
+      'content': node.data('label'),
+      'text-valign': 'top',
+      'text-halign': 'center',
+      'text-margin-y': -10
+    });
+  });
+
+  cy.on('mouseout', 'node', function (evt) {
+    var node = evt.target;
+    node.style({
+      'content': ''
+    });
+  });
+
+</script>
 
 
 <script>
-function getQueryParam(name) {
+  function getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(name);
-}
+  }
 
-// --- обработка параметра ---
-const myParam = getQueryParam("refresh");
-if (myParam) {
-    
+  // --- обработка параметра ---
+  const myParam = getQueryParam("refresh");
+  if (myParam) {
+
     // --- убираем параметр из URL ---
     const url = new URL(window.location);
     url.searchParams.delete("refresh"); // удаляем
     window.history.replaceState({}, document.title, url);
-}
+  }
+
+
 </script>
 
 {% endblock %}

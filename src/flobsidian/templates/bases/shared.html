@@ -4,7 +4,7 @@
     <div class="col">
         <div class="card vault-card h-100 shadow-sm">
             <div class="card-body d-flex flex-column justify-content-between">
-                {% if 'cover' in card  and card['cover'] %}
+                {% if 'cover' in card and card['cover'] %}
                 <img src="{{url_for('get_file', vault=vault, subpath=card['cover'])}}"
                     style="width:200px; height:200px; object-fit: contain;">
                 {% endif %}
@@ -14,7 +14,7 @@
                 {% endif %}
                 {% endfor %}
 
-                
+
             </div>
         </div>
     </div>
@@ -43,6 +43,14 @@
 {% endif %}
 {% endmacro %}
 {% macro render_table_view(table) %}
+// Получаем цвета Bootstrap
+const root = document.documentElement;
+const bgColor = getComputedStyle(root).getPropertyValue('--bs-body-bg').trim();
+const textColor = getComputedStyle(root).getPropertyValue('--bs-body-color').trim();
+const headerBg = getComputedStyle(root).getPropertyValue('--bs-primary').trim();
+const headerText = getComputedStyle(root).getPropertyValue('--bs-white').trim();
+
+
 // получаем данные из Jinja
 const data = {{ table | safe }};
 
@@ -66,6 +74,14 @@ pagination: "local",
 paginationSize: 100,
 columns: columns,
 data: data,
+// Подключаем цвета темы
+rowFormatter: function(row){
+        const el = row.getElement();
+        const idx = row.getPosition();
+        el.style.backgroundColor = bgColor;
+        el.style.color = textColor;
+    },
 });
 }
+
 {% endmacro %}
