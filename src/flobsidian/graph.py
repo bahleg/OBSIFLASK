@@ -34,7 +34,7 @@ class Graph:
             FileInfo(f, self.vault) for f in files
             if f.is_file() and f.name.endswith('.md')
         ]
-        nodes = [str(f.get_prop(['file', 'name'])) for f in files]
+        nodes = [str(f.get_prop(['file', 'path'])) for f in files]
         node_ids = {}
         for label_id, label in enumerate(nodes):
             node_ids[label] = label_id
@@ -48,13 +48,12 @@ class Graph:
         for node in nodes:
             shortname = Path(node).name
             if node_counter[shortname] > 1:
-                node_labels.append(str(node))
+                node_labels.append(str(node).replace('.md', ''))
             else:
-                node_labels.append(shortname)
+                node_labels.append(shortname.replace('.md', ''))
         for node_id in range(len(nodes)):
 
             file_links = files[node_id].get_prop(['file', 'links'])
-
             for link in file_links:
                 if link in node_ids:
                     to_id = node_ids[link]
@@ -66,7 +65,7 @@ class Graph:
         deg_max = max(deg)
         deg_min = min(deg)
         if deg_max == deg_min:
-            sizes = [1] * len(node_ids)
+            sizes = [50] * len(node_ids)
         else:
             denom = deg_max - deg_min
             sizes = [1 + (d - deg_min) / denom * 99 for d in deg]

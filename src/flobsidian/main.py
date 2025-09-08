@@ -88,13 +88,7 @@ def run():
                         vault=vault,
                         subpath=cfg.vaults[vault].home_file))
         else:
-            first_file = Singleton.indices[vault][0]
-            return redirect(
-                url_for('editor',
-                        vault=vault,
-                        subpath=str(
-                            Path(first_file).relative_to(
-                                Singleton.indices[vault].path))))
+            return redirect(url_for('get_folder_root', vault=vault))
 
     @app.route('/excalidraw/<vault>/<path:subpath>')
     def excalidraw(vault, subpath):
@@ -133,13 +127,9 @@ def run():
                         vault=vault,
                         subpath=cfg.vaults[vault].home_file))
         else:
-            first_file = Singleton.indices[vault][0]
             return redirect(
-                url_for('renderer',
-                        vault=vault,
-                        subpath=str(
-                            Path(first_file).relative_to(
-                                Singleton.indices[vault].path))))
+                url_for('get_folder_root',
+                        vault=vault))
 
     @app.route('/preview/<vault>/<path:subpath>')
     def preview(vault, subpath):
