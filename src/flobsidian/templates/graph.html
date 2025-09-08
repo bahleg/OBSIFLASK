@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Global graph</h1>
 <a id="flo-refresh-btn" href="{{url_for('graph', vault = vault)}}?refresh=1"><i class="bi bi-arrow-clockwise"></i></a>
-
+  
 <style>
   body {
     margin: 0;
@@ -42,6 +42,7 @@
 
 <div id="cy"></div>
 <script>
+
   const root = document.documentElement;
 
   // Основной фон страницы
@@ -113,6 +114,7 @@
     ],
     layout: { name: 'cose', animate: true }
   });
+
 
   // Клик по ноде → переход по ссылке
   cy.on('tap', 'node', function (evt) {
