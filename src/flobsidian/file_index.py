@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 from flobsidian.consts import INDEX_UPDATE_TIME
 from urllib import parse
-
+from flobsidian.utils import logger
 
 class FileIndex:
 
@@ -75,13 +75,6 @@ class FileIndex:
         self.last_time = time.time()
         self.tree = self.build_tree()
 
-    def add_file(self, full_path):
-        self._files.append(full_path)
-        shortname = str(Path(full_path).name)
-        if shortname not in self._name_to_path:
-            self._name_to_path[shortname] = set()
-        self._name_to_path[shortname].add(Path(full_path).parent)
-        self.build_tree()
 
     def check_refresh(self):
         if time.time() - self.last_time > INDEX_UPDATE_TIME:
@@ -105,7 +98,7 @@ class FileIndex:
                          resolve_markdown_without_ext: bool = False,
                          escape=True,
                          relative: bool = True):
-        if name.startswith('http'):
+        if name.startswith('http://') or name.startswith('https://'):
             return name
         name = name.strip()
         path = path.parent
@@ -138,14 +131,15 @@ class FileIndex:
               and (self.path / Path(name + '.md')).exists()):
             link = ((self.path / Path(name + '.md'))
                     )  #.relative_to(path.resolve()))
-        if relative:
-            link = str(os.path.relpath(link, path))
-        else:
-            link = str(os.path.relpath(link, self.path))
-        if link:
-            if escape:
-                return parse.quote(link)
+        if link is not None:
+            if relative:
+                link = str(os.path.relpath(link, path))
             else:
-                return link
-                
+                link = str(os.path.relpath(link, self.path))
+            if link:
+                if escape:
+                    return parse.quote(link)
+                else:
+                    return link
+        logger.warning(f'could not infer link: {name}')
         return None

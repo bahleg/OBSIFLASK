@@ -174,6 +174,7 @@ def run():
         return render_folder(vault, subpath)
 
     @app.route('/folder/<vault>')
+    @app.route('/folder/<vault>/')
     def get_folder_root(vault):
         if vault not in cfg.vaults:
             return 'Bad vault', 404

@@ -17,7 +17,7 @@ def render_folder(vault, subpath):
     files_folders = Path(abspath / subpath).absolute().glob('*')
     folders = []
     files = []
-    for f in files_folders:
+    for f in sorted(files_folders, key = lambda x:x.name):
         if not f.is_dir():
             files.append((str(f.relative_to(abspath)), f.name))
         else:
@@ -37,4 +37,5 @@ def render_folder(vault, subpath):
                            files=files,
                            folders=folders,
                            home=Singleton.config.vaults[vault].home_file,
+                           page_editor=False,
                            vault=vault, parent_url = parent_url, curdir = subpath)

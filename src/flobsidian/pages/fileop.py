@@ -83,8 +83,8 @@ def create_file_op(vault, form: FileOpForm):
             if not found:
                 raise ValueError(f'could not find template {template_name}')
             shutil.copy(t, path)
-        Singleton.indices[vault].add_file(path.resolve())
         add_message(f'File {form.target.data} created', 0, vault)
+        Singleton.indices[vault].refresh()
         return True
     except Exception as e:
         logger.error(f'problem during file creating {path.name}: {e}')

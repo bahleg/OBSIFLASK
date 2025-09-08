@@ -15,7 +15,7 @@ def make_save(path, content, index: FileIndex, vault: str):
         with open(path, 'w', encoding='utf-8') as f:
             f.write(content)
         if not exists:
-            index.add_file(Path(path).absolute())
+            index.refresh()
         add_message(f'Saved file: {path.name}', 0, vault)
         return jsonify({"status": "ok"}), 200
     except Exception as e:
