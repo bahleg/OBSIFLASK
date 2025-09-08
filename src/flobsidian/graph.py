@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from flobsidian.singleton import Singleton
 from flobsidian.bases.file_info import FileInfo
 from flask import url_for
+from flobsidian.utils import logger
+import time
+
 
 @dataclass
 class GraphRepr:
@@ -12,13 +15,20 @@ class GraphRepr:
     forward_edges: list[tuple[int, int]]
     href: list[str]
 
+
 class Graph:
 
     def __init__(self, vault):
         self.vault = vault
+        self.result = None
+        self.last_time_built = -1
 
-    def build(self):
-
+    def build(self, rebuild=False):
+        if (not rebuild) and (
+                time.time() - self.last_time_built
+                < Singleton.config.vaults[self.vault].graph_config.cache_time):
+            logger.info('using cached graph')
+            return self.result
         files = list(Singleton.indices[self.vault])
         files = [
             FileInfo(f, self.vault) for f in files
@@ -60,4 +70,6 @@ class Graph:
         else:
             denom = deg_max - deg_min
             sizes = [1 + (d - deg_min) / denom * 99 for d in deg]
-        return GraphRepr(node_labels, sizes, links, hrefs)
+        self.last_time_built = time.time()
+        self.result = GraphRepr(node_labels, sizes, links, hrefs)
+        return self.result

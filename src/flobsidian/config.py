@@ -14,6 +14,10 @@ class BaseConfig:
     cache_time: int = 3600
 
 
+@dataclass 
+class GraphConfig:
+    cache_time: int = 3600
+
 @dataclass
 class VaultConfig:
     full_path: str
@@ -22,7 +26,7 @@ class VaultConfig:
     ignore_hidden_dirs: bool = True
     template_dir: str | None = None
     base_config: BaseConfig = field(default_factory=lambda: BaseConfig())
-
+    graph_config : GraphConfig = field(default_factory=lambda: GraphConfig())
 
 @dataclass
 class Task:
