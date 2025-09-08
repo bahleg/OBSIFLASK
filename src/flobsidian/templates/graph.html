@@ -100,9 +100,12 @@
           'width': 'mapData(size, 1, 100, 20, 100)',
           'height': 'mapData(size, 1, 100, 20, 100)',
           'font-size': '12px',
-          'cursor': 'pointer'
+          'cursor': 'pointer',
+          'text-margin-y': -20        // отступ наверх
+          
         }
       },
+      
 
 
       {
@@ -141,14 +144,17 @@
       'content': node.data('label'),
       'text-valign': 'top',
       'text-halign': 'center',
-      'text-margin-y': -10
+      'text-margin-y': -20,
+      'z-index': 1000
     });
   });
 
   cy.on('mouseout', 'node', function (evt) {
     var node = evt.target;
     node.style({
-      'content': ''
+      'content': '',
+      'z-index': 0
+
     });
   });
 
