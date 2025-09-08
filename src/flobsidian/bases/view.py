@@ -7,7 +7,9 @@ import pandas as pd
 from flobsidian.consts import MaxViewErrors
 from flobsidian.bases.cache import BaseCache
 from flobsidian.consts import COVER_KEY
+
 NAN_CONST = 0
+
 
 def convert_field(x):
     if x is None:
@@ -45,13 +47,15 @@ class View:
         files = self.gather_files(vault)
         result = []
         problems = []
-        order_list_plus_sort = set(self.order)
+        # order is matter, so it's not a set
+        order_list_plus_sort = self.order[:]
         is_numeric = {}
         for r in self.sorts:
-            order_list_plus_sort.add(r[0])
+            order_list_plus_sort.append(r[0])
         final_order = []
         if self.type == 'cards':
-            order_list_plus_sort.add(COVER_KEY)
+            if COVER_KEY not in order_list_plus_sort:
+                order_list_plus_sort.append(COVER_KEY)
         for f in files:
             result.append({})
             for r in order_list_plus_sort:
@@ -75,7 +79,7 @@ class View:
                         problems.append(
                             f'could not infer value {r} from {f.path}: {e}')
                         value = ''
-                if r in self.order:
+                if r in self.order and prop_name not in final_order:
                     final_order.append(prop_name)
                 value = convert_field(value)
                 result[-1][prop_name] = value
@@ -124,16 +128,15 @@ class View:
                 columns_to_sort.append(column)
                 asc.append(True)
                 logger.warning('using defualt sorting')
-            
+
             if len(columns_to_sort) > 0:
                 for column in is_numeric:
                     if is_numeric[column]:
-                        df[column] = pd.to_numeric(df[column], errors='coerce').fillna(NAN_CONST)
+                        df[column] = pd.to_numeric(
+                            df[column], errors='coerce').fillna(NAN_CONST)
                     else:
                         df[column] = df[column].fillna('').astype(str)
-                df = df.sort_values(
-                    columns_to_sort,
-                    ascending=asc)
+                df = df.sort_values(columns_to_sort, ascending=asc)
             else:
                 add_message('The view is not sorted', 1, vault)
         df = df[final_order]

@@ -20,7 +20,7 @@ def render_graph(vault):
         'graph.html',
         vault=vault,
         navtree=render_tree(Singleton.indices[vault], vault, True),
-        page_editor=True,
+        page_editor=False,
         home=Singleton.config.vaults[vault].home_file,
         graph_data=graph_data,
         use_webgl=str(Singleton.config.vaults[vault].graph_config.use_webgl).lower(),

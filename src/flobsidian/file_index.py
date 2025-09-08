@@ -142,9 +142,11 @@ class FileIndex:
             link = str(os.path.relpath(link, path))
         else:
             link = str(os.path.relpath(link, self.path))
+        print (link)
         if link:
             if escape:
                 return parse.quote(link)
             else:
                 return link
+                
         return None

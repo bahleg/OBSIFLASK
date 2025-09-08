@@ -88,8 +88,8 @@ class FileInfo:
                     url = url_for('renderer',
                                   subpath=self.path,
                                   vault=self.vault)
-                    return f"<a href=\"{url}\">{self.path}</a>"
-                return str(self.path)
+                    return f"<a href=\"{url}\">{self.path.name}</a>"
+                return str(self.path.name)
         elif len(args) == 1:
             if args[0] == 'file':
                 if render:

@@ -12,7 +12,6 @@ from markupsafe import Markup
 from flobsidian.consts import wikilink
 
 re_tag_embed = re.compile(r'!\[\[([^\]]+)\]\]')
-wikilink = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
 
 
 def plugin_mermaid(md):
@@ -73,7 +72,7 @@ def parse_embedding(text, full_path, index: FileIndex, vault):
         link_path = index.resolve_wikilink(path,
                                            full_path,
                                            False,
-                                           escape=False)
+                                           escape=False, relative=False)
         relative_link = str(link_path).startswith('http://') or str(
             link_path).startswith('https://')
 
