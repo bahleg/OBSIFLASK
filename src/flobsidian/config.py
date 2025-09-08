@@ -17,6 +17,8 @@ class BaseConfig:
 @dataclass 
 class GraphConfig:
     cache_time: int = 3600
+    use_webgl: bool = True
+    debug_graph: bool = False 
 
 @dataclass
 class VaultConfig:

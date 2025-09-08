@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Global graph</h1>
 <a id="flo-refresh-btn" href="{{url_for('graph', vault = vault)}}?refresh=1"><i class="bi bi-arrow-clockwise"></i></a>
-  
+
 <style>
   body {
     margin: 0;
@@ -38,7 +38,10 @@
     /* эффект при наведении */
   }
 </style>
-<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/cytoscape@3.30.4/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/layout-base/layout-base.js"></script>
+<script src="https://unpkg.com/cose-base/cose-base.js"></script>
+<script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
 
 <div id="cy"></div>
 <script>
@@ -93,7 +96,7 @@
           'content': '',                  // нет текста
           'text-valign': 'center',
           'color': textColor,           // текст под тему
-        'background-color': primaryColor,  // ноды под тему
+          'background-color': primaryColor,  // ноды под тему
           'width': 'mapData(size, 1, 100, 20, 100)',
           'height': 'mapData(size, 1, 100, 20, 100)',
           'font-size': '12px',
@@ -112,7 +115,15 @@
         }
       }
     ],
-    layout: { name: 'cose', animate: true }
+    layout: { name: 'fcose', animate: true },
+  
+    // Настройки рендера
+    renderer: {
+      name: 'canvas',
+      webgl: {{use_webgl}},   
+      showFps: {{debug_graph}},  
+      webglDebug: {{debug_graph}},
+    }
   });
 
 

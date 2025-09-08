@@ -13,12 +13,15 @@ def render_graph(vault):
         refresh = True
     else:
         refresh = False
+ 
     
     graph_data: GraphRepr = asdict(Singleton.graphs[vault].build(refresh))
-    return render_template('graph.html',
-                           vault=vault,
-                           navtree=render_tree(Singleton.indices[vault], vault,
-                                               True),
-                           page_editor=True,
-                           home=Singleton.config.vaults[vault].home_file,
-                           graph_data=graph_data)
+    return render_template(
+        'graph.html',
+        vault=vault,
+        navtree=render_tree(Singleton.indices[vault], vault, True),
+        page_editor=True,
+        home=Singleton.config.vaults[vault].home_file,
+        graph_data=graph_data,
+        use_webgl=str(Singleton.config.vaults[vault].graph_config.use_webgl).lower(),
+        debug_graph=str(Singleton.config.vaults[vault].graph_config.debug_graph).lower())
