@@ -23,7 +23,8 @@ class BaseConfig:
 class GraphConfig:
     cache_time: int = 3600
     debug_graph: bool = False
-
+    fast_graph_max_nodes:int = 500
+    fast_graph_max_edges: int = 50*49//2
 
 @dataclass
 class VaultConfig:

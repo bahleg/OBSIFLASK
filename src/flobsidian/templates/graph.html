@@ -2,6 +2,9 @@
 
 {% block content %}
 <h1>Global graph</h1>
+{% if fast %}
+<h5><span class="text-danger">Warning: using simplified graph representation: too complex graph </span></h5>
+{% endif %}
 <a id="flo-refresh-btn" href="{{url_for('graph', vault = vault)}}?refresh=1"><i class="bi bi-arrow-clockwise"></i></a>
 <button id="toggle-panel"><i class="bi bi-gear-wide-connected"></i></button>
 
@@ -65,34 +68,37 @@
   <hr>
 <div class="mb-3 d-flex align-items-center">
   <div class="form-check me-3 mb-0 d-flex align-items-center">
-    <input type="checkbox" class="form-check-input me-2" id="tags">
+    <input type="checkbox" class="form-check-input me-2" id="tags" {% if include_tags %} checked {% endif %}>
     <label class="form-check-label mb-0" for="tags">Include tags</label>
   </div>
   <label for="color" class="form-label mb-0 me-2">Color</label>
   <input type="text" class="form-control form-control-sm"
-         id="color" placeholder="#ff0000" style="width: 90px;">
+         id="color" style="width: 90px;" value="{{tag_color}}">
 </div>
 
 
 
 
     <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="backlinks">
+      <input type="checkbox" class="form-check-input" id="backlinks" {% if backlinks %} checked {% endif %}>
       <label class="form-check-label" for="backlinks">Backlinks</label>
+    </div>
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="fast" {% if force_fast_disable %} checked {% endif %}>
+      <label class="form-check-label" for="fast">Disable graph simplification</label>
     </div>
 
     <div class="mb-3">
       <label for="filters" class="form-label">Filters</label>
-      <textarea class="form-control" id="filters" rows="3"></textarea>
+      <textarea class="form-control" id="filters" rows="5"></textarea>
     </div>
 
     <!-- Сообщение об ошибке -->
-    <div class="mb-3">
-      <span id="form-message" class="text-danger small">Error: invalid filter</span>
-    </div>
     <button id="rebuild" class="btn btn-primary w-100">Show filtered graph</button>
  
 </div>
+
 
 
 <style>
@@ -159,7 +165,21 @@
 <script src="https://unpkg.com/cose-base/cose-base.js"></script>
 <script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
 
-<div id="cy"></div>
+<div id="cy">
+{% if legend|length > 1 %}
+<div id="legend" style="position: absolute; top: 20px; left: 20px; 
+                            background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-radius: 5px;
+     padding: 10px;
+                        border: 1px solid #ccc; border-radius: 5px; z-index: 1000;">
+  <h6>Legend</h6>
+  {% for text, color in legend %}
+  <div><span style="display:inline-block;width:12px;height:12px;background:{{color}};margin-right:5px;"></span> {{text}}</div>
+  {% endfor %}
+  </div>
+  {% endif %}
+</div>
 <script>
 
   const root = document.documentElement;

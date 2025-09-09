@@ -8,12 +8,21 @@ from flobsidian.pages.index_tree import render_tree
 from flobsidian.singleton import Singleton
 from flobsidian.utils import logger
 from flobsidian.graph import Graph, GraphRepr
-from flobsidian.consts import MAX_EDGES_FAST_GRAPH, MAX_NODES_FAST_GRAPH
-import networkx as nx 
+import networkx as nx
 from networkx.algorithms.community import louvain_communities
 
 
+def select_color(cmap: Colormap, already: set):
+    for c in cmap.color_stops:
+        if c.color.hex in already:
+            continue
+        already.add(c.color.hex)
+        return c.color.hex
+    return cmap.bad_color.hex
+
+
 def render_graph(vault):
+    
     if request.args.get('refresh'):
         refresh = True
     else:
@@ -42,12 +51,17 @@ def render_graph(vault):
         'compression'
     ) or Singleton.config.default_user_config.default_graph_compression
     cm = Colormap(Singleton.config.default_user_config.graph_cmap)
-
+    legend = []
     graph_data: GraphRepr = Singleton.graphs[vault].build(refresh)
     graph_data = copy(graph_data)
-    colors = [cm.color_stops[0].color.hex] * len(graph_data.node_labels)
-    for i in graph_data.tags:
-        colors[i] = cm.color_stops[1].color.hex
+    used_colors = set()
+    colors = [select_color(cm, used_colors)] * len(graph_data.node_labels)
+    legend.append(('Pages', colors[-1]))
+    tag_color = select_color(cm, used_colors)
+    if include_tags:
+        for i in graph_data.tags:
+            colors[i] = tag_color
+        legend.append(('Tags', tag_color))
     graph_data.colors = colors
     tagset = set(graph_data.tags)
     if not include_tags:
@@ -55,20 +69,26 @@ def render_graph(vault):
             graph_data.node_labels[i]
             for i in range(len(graph_data.node_labels)) if i not in tagset
         ]
+
+        colors = [
+            graph_data.colors[i] for i in range(len(graph_data.node_labels))
+            if i not in tagset
+        ]
         links = [
             i for i in graph_data.forward_edges
             if i[0] not in tagset and i[1] not in tagset
         ]
+        graph_data.colors = colors
         graph_data.node_labels = nodes
         graph_data.forward_edges = links
 
     if backlinks:
-        links = [(i[1],i[0]) for i in graph_data.forward_edges]
+        links = [(i[1], i[0]) for i in graph_data.forward_edges]
         graph_data.forward_edges = links
 
     deg = [0] * len(graph_data.node_labels)
     for _, to_ in graph_data.forward_edges:
-            deg[to_] += 1
+        deg[to_] += 1
     deg_max = max(deg)
     deg_min = min(deg)
     if deg_max == deg_min:
@@ -79,31 +99,34 @@ def render_graph(vault):
 
     graph_data.node_sizes = sizes
 
-    fast = len(graph_data.node_labels) > MAX_NODES_FAST_GRAPH or len(graph_data.forward_edges) > MAX_EDGES_FAST_GRAPH
-    if fast and int(request.args.get('fast', 1))==0:
-        fast = False 
+    fast = len(graph_data.node_labels) > Singleton.config.vaults[vault].graph_config.fast_graph_max_nodes\
+             or len(graph_data.forward_edges) >  Singleton.config.vaults[vault].graph_config.fast_graph_max_edges
+    force_fast_disable = int(request.args.get('fast', 1)) == 0
+    if fast and force_fast_disable:
+        fast = False
     else:
         logger.warning('using fast options for faster computation')
-    
+
     if fast:
-        g= nx.digraph.DiGraph()
+        g = nx.digraph.DiGraph()
         for i in range(len(graph_data.node_labels)):
             g.add_node(i)
         for e in graph_data.forward_edges:
             g.add_edge(e[0], e[1])
         communities = louvain_communities(g, seed=42, resolution=1.0)
         id_to_cm = {}
+        cluster_color = select_color(cm, used_colors)
+        legend.append(('Clusters', cluster_color))
         for i in range(len(communities)):
             graph_data.node_labels.append(f'Cluster {i}')
             graph_data.node_sizes.append(200)
-            graph_data.colors.append(cm.color_stops[2].color.hex)
-            id_to_cm[i] = len(graph_data.node_labels)-1
+            graph_data.colors.append(cluster_color)
+            id_to_cm[i] = len(graph_data.node_labels) - 1
         new_edges = []
         for i_id, cm in enumerate(communities):
             for i in cm:
                 new_edges.append((i, id_to_cm[i_id]))
         graph_data.forward_edges = new_edges
-    
     return render_template(
         'graph.html',
         vault=vault,
@@ -117,4 +140,9 @@ def render_graph(vault):
         nodespacing=nodespacing,
         stiffness=stiffness,
         edgelength=edgelength,
-        compression=compression, fast=fast)
+        include_tags=include_tags,
+        compression=compression,
+        fast=fast,
+        tag_color=tag_color,
+        backlinks=backlinks,
+        force_fast_disable=force_fast_disable, legend=legend)
