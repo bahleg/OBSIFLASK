@@ -89,6 +89,12 @@
       <label class="form-check-label" for="fast">Disable graph simplification</label>
     </div>
 
+      <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="clustering" {% if force_clustering %} checked {% endif %}>
+      <label class="form-check-label" for="fast">Perform clustering</label>
+    </div>
+
+
     <div class="mb-3">
       <label for="filters" class="form-label">Filters</label>
       <textarea class="form-control" id="filters" rows="5"></textarea>

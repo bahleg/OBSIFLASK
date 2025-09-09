@@ -98,16 +98,17 @@ def render_graph(vault):
         sizes = [1 + (d - deg_min) / denom * 99 for d in deg]
 
     graph_data.node_sizes = sizes
-
+    
     fast = len(graph_data.node_labels) > Singleton.config.vaults[vault].graph_config.fast_graph_max_nodes\
              or len(graph_data.forward_edges) >  Singleton.config.vaults[vault].graph_config.fast_graph_max_edges
+    force_clustering = int(request.args.get('clustering', 0))
     force_fast_disable = int(request.args.get('fast', 1)) == 0
     if fast and force_fast_disable:
         fast = False
     else:
         logger.warning('using fast options for faster computation')
 
-    if fast:
+    if fast or force_clustering:
         g = nx.digraph.DiGraph()
         for i in range(len(graph_data.node_labels)):
             g.add_node(i)
@@ -146,4 +147,4 @@ def render_graph(vault):
         fast=fast,
         tag_color=tag_color,
         backlinks=backlinks,
-        force_fast_disable=force_fast_disable, legend=legend)
+        force_fast_disable=force_fast_disable, legend=legend, force_clustering=force_clustering)
