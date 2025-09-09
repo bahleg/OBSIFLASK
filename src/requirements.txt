@@ -8,3 +8,4 @@ python-frontmatter>=1.1.0
 Flask-WTF>=1.2.2
 lark>=1.2.2
 pandas>=2.3.0
+flask-favicon>=0.1.4

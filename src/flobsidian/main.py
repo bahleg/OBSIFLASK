@@ -31,6 +31,7 @@ from flobsidian.pages.fileop import render_fileop
 from flobsidian.pages.base import render_base
 from flobsidian.graph import Graph
 from flobsidian.pages.graph import render_graph
+from flask_favicon import FlaskFavicon
 
 
 def run():
@@ -52,6 +53,11 @@ def run():
     app = Flask(__name__,
                 template_folder=abspath(Path(__file__).parent / "templates"),
                 root_path=Path(__file__).parent)
+    flaskFavicon = FlaskFavicon()
+    flaskFavicon.init_app(app)
+    flaskFavicon.register_favicon(str(Path(__file__).resolve().parent/'static/favicon.png'), 'default') 
+    
+
     Bootstrap5(app)
 
     #app.config['SECRET_KEY'] = uuid.uuid4().hex
