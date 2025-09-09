@@ -171,7 +171,7 @@ def render_fileop(vault):
             form.destination.data = './'
 
     for t_id, t in enumerate(Singleton.indices[vault].get_templates()):
-        form.template.choices.append((f'{t_id+1}_{t.name}', f'📃 {t.name}'))
+        form.template.choices.append((f'{t_id+2}_{t.name}', f'📃 {t.name}'))
 
     if form.validate_on_submit():
         if form.operation.data == 'new':
