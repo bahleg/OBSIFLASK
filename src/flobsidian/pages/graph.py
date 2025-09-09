@@ -113,7 +113,8 @@ def render_graph(vault):
             g.add_node(i)
         for e in graph_data.forward_edges:
             g.add_edge(e[0], e[1])
-        communities = louvain_communities(g, seed=42, resolution=1.0)
+        communities = louvain_communities(g, seed=42, 
+                                          resolution=Singleton.config.vaults[vault].graph_config.louvain_communities_res)
         id_to_cm = {}
         cluster_color = select_color(cm, used_colors)
         legend.append(('Clusters', cluster_color))

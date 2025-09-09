@@ -25,6 +25,7 @@ class GraphConfig:
     debug_graph: bool = False
     fast_graph_max_nodes:int = 500
     fast_graph_max_edges: int = 50*49//2
+    louvain_communities_res: float = 1.0
 
 @dataclass
 class VaultConfig:
@@ -35,6 +36,7 @@ class VaultConfig:
     template_dir: str | None = None
     base_config: BaseConfig = field(default_factory=lambda: BaseConfig())
     graph_config: GraphConfig = field(default_factory=lambda: GraphConfig())
+    
 
 
 @dataclass
