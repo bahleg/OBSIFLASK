@@ -240,8 +240,9 @@
           'background-color': primaryColor,  // ноды под тему
           'width': 'mapData(size, 1, 100, 20, 100)',
           'height': 'mapData(size, 1, 100, 20, 100)',
-          'font-size': '15px',
+          'font-size': '24px',
           'cursor': 'pointer',
+          'text-opacity': 1,
           'text-margin-y': -20        // отступ наверх
 
         }
@@ -259,7 +260,16 @@
           'curve-style': 'haystack',
           'haystack-radius': 0.5, // радиус "сдвига", 0..1
         }
+      },
+
+      
+       {
+      selector: '.faded',
+      style: {
+        'opacity': 0.25,
       }
+    },
+
     ],
     layout: { name: 'fcose', 
     // Устанавливаем начальные значения
@@ -287,22 +297,52 @@
 
   let activeNode = null;
   function showActiveNode(newNode) {
-    if (activeNode){
-      activeNode.style({
+    // Если узел не изменился, ничего не делаем.
+    // Это предотвращает лишние вычисления.
+    if (activeNode && activeNode.id() === (newNode ? newNode.id() : null)) {
+      return;
+    }
+
+    // Сначала сбрасываем стили со всех элементов
+    cy.elements().removeClass('faded').style({
       'content': '',
       'z-index': 0
+    });
 
-    });
-    }
+    // Обновляем активный узел
     activeNode = newNode;
-    if (activeNode){
-    activeNode.style({
-      'content': activeNode.data('label'),
-      'text-valign': 'top',
-      'text-halign': 'center',
-      'text-margin-y': -20,
-      'z-index': 1000
-    });
+
+    // Если есть новый активный узел, применяем стили
+    if (activeNode) {
+      const neighborhood = activeNode.neighborhood();
+      const otherElements = cy.elements().difference(neighborhood.union(activeNode));
+
+      // Подсвечиваем ноду и её соседей
+      activeNode.addClass('highlighted');
+      neighborhood.addClass('highlighted');
+      otherElements.addClass('faded');
+      
+      // Показываем текст на активной ноде
+      activeNode.style({
+        'content': activeNode.data('label'),
+        'text-valign': 'top',
+        'text-halign': 'center',
+        'text-margin-y': -20,
+        'text-opacity': 1,
+        'z-index': 1000
+      });
+
+    // Условие: если соседей не слишком много, показываем их текст
+    const maxNeighborsWithLabels = 10;
+    if (neighborhood.nodes().size() < maxNeighborsWithLabels) {
+      neighborhood.nodes().style({
+        'content': function(ele) { return ele.data('label'); },
+        'text-opacity': 1,
+        'z-index': 999
+      });
+    }
+    
+     
     }
   }
   // Клик по ноде → переход по ссылке
@@ -325,6 +365,11 @@
 
   cy.on('mouseout', 'node', function (evt) {
     showActiveNode(null);
+     // Сначала сбрасываем стили со всех элементов
+    cy.elements().removeClass('faded').style({
+      'content': '',
+      'z-index': 0
+    });
   });
 
 </script>
