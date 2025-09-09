@@ -42,33 +42,41 @@
                 </div>
 
 
-
-                <div class="btn-group">
-                    <a href="{{url_for('index')}}" class="btn btn-primary" title="Vault index">
-                        <i class="bi bi-display"></i>
-                    </a>
-                    <a href="{{url_for('messages', vault=vault)}}?unread=0" class="btn btn-primary"
-                        title="Vault messages">
-                        <i class="bi bi-chat-right-text"></i>
-                    </a>
-
-
-
-
+                <div class="container-fluid">
+                    <div class="row row-cols-3 g-2">
+                        <div class="col">
+                            <a href="{{url_for('index')}}" class="btn btn-primary w-100" title="Vault index">
+                                <i class="bi bi-display  d-none d-sm-inline"></i>
+                                 <span class="d-inline d-sm-none"><small>Vaults</small></span>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href="{{url_for('fileop', vault=vault)}}?curdir={{curdir}}&curfile={{curfile}}"
+                                class="btn btn-primary w-100" title="File operations">
+                                <i class="bi bi-file-earmark d-none d-sm-inline"></i>
+                                 <span class="d-inline d-sm-none"><small>Files</small></span>
+                            </a>
+                        </div>
+                         <div class="col">
+                            <a href="{{url_for('messages', vault=vault)}}?unread=0" class="btn btn-primary w-100"
+                                title="Vault messages">
+                                <i class="bi bi-chat-right-text d-none d-sm-inline"></i>
+                                 <span class="d-inline d-sm-none"><small>Msg.</small></span>
+                            </a>
+                        </div>
+                       
+                        <div class="col">
+                            <a href="{{url_for('graph', vault=vault)}}" class="btn btn-primary w-100"
+                                title="Global graph">
+                                <i class="bi bi-bounding-box-circles d-none d-sm-inline"></i>
+                                 <span class="d-inline d-sm-none"><small>Graph</small></span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <p></p>
-                <div class="btn-group">
-                    <a href="{{url_for('fileop', vault=vault)}}?curdir={{curdir}}&curfile={{curfile}}"
-                        class="btn btn-primary" title="File operations">
-                        <i class="bi bi-file-earmark"></i>
-                    </a>
-                    <a href="{{url_for('graph', vault=vault)}}" class="btn btn-primary" title="Global graph">
-                        <i class="bi bi-bounding-box-circles"></i>
-                    </a>
-                </div>
 
-                </p>
 
+                <p>
                 <div class="collapse show" id="navtreeCollapse">
                     <div class="card p-3 flex-grow-1 mb-2" style="max-height: 480px;  overflow-y:auto;">
                         {{ navtree|safe }}
