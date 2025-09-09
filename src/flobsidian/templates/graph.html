@@ -235,17 +235,25 @@
           'width': 2,
           'line-color': edgeColor,
           'target-arrow-color': edgeColor,
-          'target-arrow-shape': 'triangle'
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'haystack',
+          'haystack-radius': 0.5, // радиус "сдвига", 0..1
         }
       }
     ],
-    layout: { name: 'fcose', animate: true,
+    layout: { name: 'fcose', 
     // Устанавливаем начальные значения
     nodeRepulsion: {{ nodespacing }},
     idealEdgeLength: {{ edgelength }},
     edgeElasticity: {{ stiffness }},
     gravity: {{ compression }},
-    numIter: 2500
+      {% if fast %}
+        numIter: 500, 
+        animate: false,
+      {% else %}
+        numIter: 2500,
+         animate: true,
+      {% endif %}
      },
 
     // Настройки рендера
@@ -365,7 +373,13 @@
       idealEdgeLength: idealEdgeLength,
       edgeElasticity: springStiffness,
       gravity: gravity,
-      numIter: 2500
+      {% if fast %}
+        numIter: 500, 
+        animate: false,
+      {% else %}
+        numIter: 2500,
+         animate: true,
+      {% endif %}
     });
     url.searchParams.set("compression", gravity);
     url.searchParams.set("edgelength", idealEdgeLength);

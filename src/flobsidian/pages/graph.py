@@ -8,6 +8,9 @@ from flobsidian.pages.index_tree import render_tree
 from flobsidian.singleton import Singleton
 from flobsidian.utils import logger
 from flobsidian.graph import Graph, GraphRepr
+from flobsidian.consts import MAX_EDGES_FAST_GRAPH, MAX_NODES_FAST_GRAPH
+import networkx as nx 
+from networkx.algorithms.community import louvain_communities
 
 
 def render_graph(vault):
@@ -76,6 +79,31 @@ def render_graph(vault):
 
     graph_data.node_sizes = sizes
 
+    fast = len(graph_data.node_labels) > MAX_NODES_FAST_GRAPH or len(graph_data.forward_edges) > MAX_EDGES_FAST_GRAPH
+    if fast and int(request.args.get('fast', 1))==0:
+        fast = False 
+    else:
+        logger.warning('using fast options for faster computation')
+    
+    if fast:
+        g= nx.digraph.DiGraph()
+        for i in range(len(graph_data.node_labels)):
+            g.add_node(i)
+        for e in graph_data.forward_edges:
+            g.add_edge(e[0], e[1])
+        communities = louvain_communities(g, seed=42, resolution=1.0)
+        id_to_cm = {}
+        for i in range(len(communities)):
+            graph_data.node_labels.append(f'Cluster {i}')
+            graph_data.node_sizes.append(200)
+            graph_data.colors.append(cm.color_stops[2].color.hex)
+            id_to_cm[i] = len(graph_data.node_labels)-1
+        new_edges = []
+        for i_id, cm in enumerate(communities):
+            for i in cm:
+                new_edges.append((i, id_to_cm[i_id]))
+        graph_data.forward_edges = new_edges
+    
     return render_template(
         'graph.html',
         vault=vault,
@@ -89,4 +117,4 @@ def render_graph(vault):
         nodespacing=nodespacing,
         stiffness=stiffness,
         edgelength=edgelength,
-        compression=compression)
+        compression=compression, fast=fast)
