@@ -239,7 +239,14 @@
         }
       }
     ],
-    layout: { name: 'fcose', animate: true },
+    layout: { name: 'fcose', animate: true,
+    // Устанавливаем начальные значения
+    nodeRepulsion: {{ nodespacing }},
+    idealEdgeLength: {{ edgelength }},
+    edgeElasticity: {{ stiffness }},
+    gravity: {{ compression }},
+    numIter: 2500
+     },
 
     // Настройки рендера
     renderer: {
@@ -250,33 +257,46 @@
     }
   });
 
+  let activeNode = null;
+  function showActiveNode(newNode) {
+    if (activeNode){
+      activeNode.style({
+      'content': '',
+      'z-index': 0
 
+    });
+    }
+    activeNode = newNode;
+    if (activeNode){
+    activeNode.style({
+      'content': activeNode.data('label'),
+      'text-valign': 'top',
+      'text-halign': 'center',
+      'text-margin-y': -20,
+      'z-index': 1000
+    });
+    }
+  }
   // Клик по ноде → переход по ссылке
   cy.on('tap', 'node', function (evt) {
     const url = evt.target.data('href');
     if (url) {
       window.open(url, "_blank");
     }
+    showActiveNode(evt.target);
+  });
+
+    // Клик по ноде → переход по ссылке
+  cy.on('tapend', 'node', function (evt) {
+    showActiveNode(evt.target);
   });
 
   cy.on('mouseover', 'node', function (evt) {
-    var node = evt.target;
-    node.style({
-      'content': node.data('label'),
-      'text-valign': 'top',
-      'text-halign': 'center',
-      'text-margin-y': -20,
-      'z-index': 1000
-    });
+    showActiveNode(evt.target);
   });
 
   cy.on('mouseout', 'node', function (evt) {
-    var node = evt.target;
-    node.style({
-      'content': '',
-      'z-index': 0
-
-    });
+    showActiveNode(null);
   });
 
 </script>
@@ -361,7 +381,6 @@
       span.textContent = el.value;
     });
   });
-  //applyForces()
   // Button click event
   document.getElementById('apply-forces').addEventListener('click', applyForces);
 

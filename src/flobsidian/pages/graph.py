@@ -27,7 +27,7 @@ def render_graph(vault):
         backlinks = False
 
     nodespacing = request.args.get(
-        'nodespacong'
+        'nodespacing'
     ) or Singleton.config.default_user_config.default_graph_node_spacing
     stiffness = request.args.get(
         'stiffness'
