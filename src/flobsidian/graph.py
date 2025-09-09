@@ -11,9 +11,11 @@ import time
 @dataclass
 class GraphRepr:
     node_labels: list[str]
-    node_sizes: list[int]
     forward_edges: list[tuple[int, int]]
     href: list[str]
+    tags: list[int]
+    node_sizes: list[int]  = None 
+    colors: list[str] = None 
 
 
 class Graph:
@@ -34,6 +36,9 @@ class Graph:
             FileInfo(f, self.vault) for f in files
             if f.is_file() and f.name.endswith('.md')
         ]
+        used_tags = {}
+        tag_ind = set()
+
         nodes = [str(f.get_prop(['file', 'path'])) for f in files]
         node_ids = {}
         for label_id, label in enumerate(nodes):
@@ -58,17 +63,21 @@ class Graph:
                 if link in node_ids:
                     to_id = node_ids[link]
                     links.append((node_id, to_id))
-        deg = [0] * len(node_ids)
-        for from_, to_ in links:
-            for i in [from_, to_]:
-                deg[i] += 1
-        deg_max = max(deg)
-        deg_min = min(deg)
-        if deg_max == deg_min:
-            sizes = [50] * len(node_ids)
-        else:
-            denom = deg_max - deg_min
-            sizes = [1 + (d - deg_min) / denom * 99 for d in deg]
+
+        for file_id, f in enumerate(files):
+            tags = f.get_prop(['file', 'tags'])
+            for tag in tags:
+                if tag in used_tags:
+                    tag_id = used_tags[tag]
+                else:
+                    tag_id = len(node_labels)
+                    node_labels.append('#' + tag)
+                    
+                    
+                    used_tags[tag] = tag_id
+                links.append((file_id, tag_id))
+
         self.last_time_built = time.time()
-        self.result = GraphRepr(node_labels, sizes, links, hrefs)
+        self.result = GraphRepr(node_labels, links, hrefs, 
+                                list(used_tags.values()))
         return self.result

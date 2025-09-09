@@ -7,8 +7,9 @@ class UserConfig:
     bootstrap_theme: str = "Solar"
     default_graph_node_spacing: int = 4500
     default_graph_edge_length: int = 100
-    default_graph_edge_stiffness: int = 0.45
+    default_graph_edge_stiffness: float = 0.45
     default_graph_compression: float = 1.0
+    graph_cmap: str = 'colorbrewer:Set1'
 
 
 @dataclass

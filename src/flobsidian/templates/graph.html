@@ -60,7 +60,38 @@
   <label>Graph compression: <span id="gravity-val">{{compression}}</span></label>
   <input type="range" id="gravity" min="0" max="5" step="0.1" value="{{compression}}"><br><br>
 
-  <button id="apply-forces" class="btn btn-sm btn-primary">Apply</button>
+  <button id="apply-forces" class="btn btn-sm btn-secondary">Apply graph forces</button>
+
+  <hr>
+<div class="mb-3 d-flex align-items-center">
+  <div class="form-check me-3 mb-0 d-flex align-items-center">
+    <input type="checkbox" class="form-check-input me-2" id="tags">
+    <label class="form-check-label mb-0" for="tags">Include tags</label>
+  </div>
+  <label for="color" class="form-label mb-0 me-2">Color</label>
+  <input type="text" class="form-control form-control-sm"
+         id="color" placeholder="#ff0000" style="width: 90px;">
+</div>
+
+
+
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="backlinks">
+      <label class="form-check-label" for="backlinks">Backlinks</label>
+    </div>
+
+    <div class="mb-3">
+      <label for="filters" class="form-label">Filters</label>
+      <textarea class="form-control" id="filters" rows="3"></textarea>
+    </div>
+
+    <!-- Сообщение об ошибке -->
+    <div class="mb-3">
+      <span id="form-message" class="text-danger small">Error: invalid filter</span>
+    </div>
+    <button id="rebuild" class="btn btn-primary w-100">Show filtered graph</button>
+ 
 </div>
 
 
@@ -149,16 +180,21 @@
   const elements = [];
 
   // Узлы
-  graphData.node_labels.forEach((label, i) => {
-    elements.push({
-      data: {
-        id: "n" + i,
-        label: label,
-        size: graphData.node_sizes[i],
-        href: graphData.href[i]
-      }
-    });
+ graphData.node_labels.forEach((label, i) => {
+  elements.push({
+    data: {
+      id: "n" + i,
+      label: label,
+      size: graphData.node_sizes[i],
+      href: graphData.href[i],
+      tag: graphData.tags[i]     // сохраняем тег
+    },
+    style: {
+      'background-color': graphData.colors[i]  // индивидуальный цвет
+    }
   });
+});
+
 
   // Рёбра
   graphData.forward_edges.forEach(([src, dst]) => {
@@ -258,20 +294,24 @@
   if (myParam) {
 
     // --- убираем параметр из URL ---
-    
+
     url.searchParams.delete("refresh"); // удаляем
-    
+
   }
 
   if (!getQueryParam("nodespacing")) {
-    url.searchParams.set("nodespacing", "{{nodespacing}}")};
+    url.searchParams.set("nodespacing", "{{nodespacing}}")
+  };
 
   if (!getQueryParam("stiffness")) {
-    url.searchParams.set("stiffness", "{{stiffness}}")};
+    url.searchParams.set("stiffness", "{{stiffness}}")
+  };
   if (!getQueryParam("edgelength")) {
-    url.searchParams.set("edgelength", "{{edgelength}}")};
+    url.searchParams.set("edgelength", "{{edgelength}}")
+  };
   if (!getQueryParam("compression")) {
-    url.searchParams.set("compression", "{{compression}}")};
+    url.searchParams.set("compression", "{{compression}}")
+  };
 
   window.history.replaceState({}, document.title, url);
 
@@ -321,7 +361,7 @@
       span.textContent = el.value;
     });
   });
-
+  //applyForces()
   // Button click event
   document.getElementById('apply-forces').addEventListener('click', applyForces);
 
