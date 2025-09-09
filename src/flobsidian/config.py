@@ -3,8 +3,8 @@ from dataclasses import dataclass, field
 
 @dataclass
 class UserConfig:
-    pass
-
+    use_webgl: bool = True
+    bootstrap_theme: str = "Solar"
 
 
 @dataclass
@@ -14,11 +14,11 @@ class BaseConfig:
     cache_time: int = 3600
 
 
-@dataclass 
+@dataclass
 class GraphConfig:
     cache_time: int = 3600
-    use_webgl: bool = True
-    debug_graph: bool = False 
+    debug_graph: bool = False
+
 
 @dataclass
 class VaultConfig:
@@ -28,7 +28,8 @@ class VaultConfig:
     ignore_hidden_dirs: bool = True
     template_dir: str | None = None
     base_config: BaseConfig = field(default_factory=lambda: BaseConfig())
-    graph_config : GraphConfig = field(default_factory=lambda: GraphConfig())
+    graph_config: GraphConfig = field(default_factory=lambda: GraphConfig())
+
 
 @dataclass
 class Task:
@@ -39,17 +40,15 @@ class Task:
     error: str = 'Task failed'
 
 
-
 @dataclass
 class AppConfig:
     vaults: dict[str, VaultConfig]
     tasks: list[Task] = field(default_factory=lambda: [])
-
-    bootstrap_theme: str = "Solar"
     flask_params: dict = field(default_factory=lambda: {})
     log_path: str = './flobsidian.log'
+    default_user_config: UserConfig = field(
+        default_factory=lambda: UserConfig())
     """
     Log level used for the project: [DEBUG, INFO, WARNING, ERROR]
     """
     log_level: str = 'DEBUG'
-    

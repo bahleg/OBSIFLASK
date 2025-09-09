@@ -23,5 +23,5 @@ def render_graph(vault):
         page_editor=False,
         home=Singleton.config.vaults[vault].home_file,
         graph_data=graph_data,
-        use_webgl=str(Singleton.config.vaults[vault].graph_config.use_webgl).lower(),
+        use_webgl=str(Singleton.config.default_user_config.use_webgl).lower(),
         debug_graph=str(Singleton.config.vaults[vault].graph_config.debug_graph).lower())

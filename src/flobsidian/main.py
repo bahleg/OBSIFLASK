@@ -58,7 +58,7 @@ def run():
     #app.config['SECRET_KEY'] = uuid.uuid4().hex
     #CSRFProtect(app)
     app.config['WTF_CSRF_ENABLED'] = False
-    app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.bootstrap_theme
+    app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.default_user_config.bootstrap_theme
 
     @app.context_processor
     def inject_service_vars():
