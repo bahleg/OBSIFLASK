@@ -47,7 +47,6 @@ def run():
         Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
                                              cfg.vaults[vault].template_dir)
         Singleton.graphs[vault] = Graph(vault)
-        
 
     logger.debug('starting app')
     app = Flask(__name__,
@@ -58,7 +57,8 @@ def run():
     #app.config['SECRET_KEY'] = uuid.uuid4().hex
     #CSRFProtect(app)
     app.config['WTF_CSRF_ENABLED'] = False
-    app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.default_user_config.bootstrap_theme
+    app.config[
+        "BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.default_user_config.bootstrap_theme
 
     @app.context_processor
     def inject_service_vars():
@@ -127,9 +127,7 @@ def run():
                         vault=vault,
                         subpath=cfg.vaults[vault].home_file))
         else:
-            return redirect(
-                url_for('get_folder_root',
-                        vault=vault))
+            return redirect(url_for('get_folder_root', vault=vault))
 
     @app.route('/preview/<vault>/<path:subpath>')
     def preview(vault, subpath):
@@ -189,7 +187,6 @@ def run():
     @app.route('/graph/<vault>')
     def graph(vault):
         return render_graph(vault)
-
 
     @app.route('/messages/<vault>')
     def messages(vault):
