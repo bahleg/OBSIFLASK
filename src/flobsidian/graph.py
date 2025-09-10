@@ -6,16 +6,15 @@ from flobsidian.bases.file_info import FileInfo
 from flask import url_for
 from flobsidian.utils import logger
 import time
-
+import numpy as np
 
 @dataclass
 class GraphRepr:
     node_labels: list[str]
-    forward_edges: list[tuple[int, int]]
+    edges: np.ndarray
     href: list[str]
     tags: list[int]
-    node_sizes: list[int]  = None 
-    colors: list[str] = None 
+    files: list[FileInfo]
 
 
 class Graph:
@@ -37,7 +36,7 @@ class Graph:
             if f.is_file() and f.name.endswith('.md')
         ]
         used_tags = {}
-        tag_ind = set()
+        
 
         nodes = [str(f.get_prop(['file', 'path'])) for f in files]
         node_ids = {}
@@ -76,8 +75,13 @@ class Graph:
                     
                     used_tags[tag] = tag_id
                 links.append((file_id, tag_id))
-
+                hrefs.append('')
+        assert len(links) < 2**16-1
+        np_edges = np.zeros((len(links), 2), dtype=np.uint16)
+        for i_id, (i,j) in enumerate(links):
+            np_edges[i_id] = np.array([i, j])
         self.last_time_built = time.time()
-        self.result = GraphRepr(node_labels, links, hrefs, 
-                                list(used_tags.values()))
+        
+        self.result = GraphRepr(node_labels, np_edges, hrefs, 
+                                list(used_tags.values()), files)
         return self.result

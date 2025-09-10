@@ -97,7 +97,7 @@
 
     <div class="mb-3">
       <label for="filters" class="form-label">Filters</label>
-      <textarea class="form-control" id="filters" rows="5"></textarea>
+      <textarea class="form-control" id="filters" rows="5">{{filters}}</textarea>
     </div>
 
     <!-- Сообщение об ошибке -->
@@ -221,9 +221,9 @@
     data: {
       id: "n" + i,
       label: label,
-      size: graphData.node_sizes[i],
+      size: graphData.sizes[i],
       href: graphData.href[i],
-      tag: graphData.tags[i]     // сохраняем тег
+      
     },
     style: {
       'background-color': graphData.colors[i]  // индивидуальный цвет
@@ -233,7 +233,7 @@
 
 
   // Рёбра
-  graphData.forward_edges.forEach(([src, dst]) => {
+  graphData.edges.forEach(([src, dst]) => {
     elements.push({
       data: {
         id: "e" + src + "_" + dst,
@@ -441,6 +441,21 @@
   if (!getQueryParam("compression")) {
     url.searchParams.set("compression", "{{compression}}")
   };
+  if (!getQueryParam("tag-color")) {
+    url.searchParams.set("tag-color", "{{tag_color}}")
+  };
+ if (!getQueryParam("clustering")) {
+    url.searchParams.set("clustering", "{{force_clustering_bool}}")
+  };
+  if (!getQueryParam("fast")) {
+    url.searchParams.set("fast", "{{force_fast_disable_bool}}")
+  };
+  if (!getQueryParam("backlinks")) {
+    url.searchParams.set("backlinks", "{{backlinks_bool}}")
+  };
+  if (!getQueryParam("filters")) {
+    url.searchParams.set("filters", JSON.stringify({{filters | tojson}}))
+  };
 
   window.history.replaceState({}, document.title, url);
 
@@ -486,19 +501,57 @@
     url.searchParams.set("edgelength", idealEdgeLength);
     url.searchParams.set("stiffness", springStiffness);
     url.searchParams.set("nodespacing", nodeRepulsion);
+    
     window.history.replaceState({}, document.title, url);
     layout.run();
   }
 
-  document.querySelectorAll("#control-panel input").forEach(el => {
+  document.querySelectorAll("#control-panel input[type='range']").forEach(el => {
     const span = document.getElementById(el.id + "-val");
     el.addEventListener("input", () => {
       span.textContent = el.value;
     });
   });
+
   // Button click event
   document.getElementById('apply-forces').addEventListener('click', applyForces);
 
 
+</script>
+<script>
+function rebuildGraph() {
+
+  const nodeRepulsion = parseFloat(document.getElementById('repulsion').value);
+  const idealEdgeLength = parseFloat(document.getElementById('spring').value);
+  const springStiffness = parseFloat(document.getElementById('stiffness').value);
+  const gravity = parseFloat(document.getElementById('gravity').value);
+
+
+  const tags_checked = Number(document.getElementById('tags').checked);
+  const tags_color = document.getElementById('color').value;
+  const backlinks_checked = Number(document.getElementById('backlinks').checked);
+  const fast_checked =  Number(!document.getElementById('fast').checked);
+  const clustering_checked = Number(document.getElementById('clustering').checked);
+  const filters_text = document.getElementById('filters').value;
+
+
+  const url = new URL(window.location);
+  url.searchParams.set("compression", gravity);
+  url.searchParams.set("edgelength", idealEdgeLength);
+  url.searchParams.set("stiffness", springStiffness);
+  url.searchParams.set("nodespacing", nodeRepulsion);
+
+
+  url.searchParams.set("tags", tags_checked);
+  url.searchParams.set("tag-color", tags_color);
+  url.searchParams.set("backlinks", backlinks_checked);
+  url.searchParams.set("fast", fast_checked);
+  url.searchParams.set("clustering", clustering_checked);
+  url.searchParams.set("filters",  encodeURIComponent(filters_text));
+  window.location.assign(url);
+}
+document.getElementById('rebuild').addEventListener("click", () => {
+    rebuildGraph();
+  });
 </script>
 {% endblock %}
