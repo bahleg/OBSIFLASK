@@ -85,12 +85,12 @@ def render_graph(vault):
         except Exception as e:
             add_message(f'could not parse filters {filters}', 1, vault, repr(e))
             filters = None
-    try:
-        for f in filters:
-            assert isinstance(f, dict)
-    except Exception as e:
-        add_message(f'could not parse filters {filters}', 1, vault, repr(e))
-        filters = None
+        try:
+            for f in filters:
+                assert isinstance(f, dict)
+        except Exception as e:
+            add_message(f'could not parse filters {filters}', 1, vault, repr(e))
+            filters = None
 
     if not filters:
         filters = make_default_filter(select_color(cm, used_colors))
