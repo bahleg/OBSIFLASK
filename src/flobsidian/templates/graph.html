@@ -188,6 +188,16 @@
 </div>
 <script>
 
+  function getRandomSample(collection, k) {
+  const arr = collection.toArray();
+  // алгоритм Фишера–Йетса
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, k);
+}
+
   const root = document.documentElement;
 
   // Основной фон страницы
@@ -340,12 +350,32 @@
 
     // Условие: если соседей не слишком много, показываем их текст
     const maxNeighborsWithLabels = 10;
-    if (neighborhood.nodes().size() < maxNeighborsWithLabels) {
-      neighborhood.nodes().style({
+    const neighbors = neighborhood.nodes();
+    if (neighbors.size() < maxNeighborsWithLabels) {
+      neighbors.style({
         'content': function(ele) { return ele.data('label'); },
-        'text-opacity': 1,
+        'text-opacity': 0.5,
         'z-index': 999
       });
+    }
+    else{
+
+        // сбрасываем стили у всех
+        neighbors.style({
+          'content': '',
+          'text-opacity': 0
+        });
+
+        // выбираем случайные maxNeighborsWithLabels
+         const selected = getRandomSample(neighbors, maxNeighborsWithLabels);
+
+        selected.forEach(ele => {
+          ele.style({
+            'content': ele.data('label'),
+            'text-opacity': 0.5,
+            'z-index': 999
+          });
+        });
     }
     
      

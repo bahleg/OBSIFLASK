@@ -22,7 +22,7 @@ def select_color(cmap: Colormap, already: set):
 
 
 def render_graph(vault):
-    
+
     if request.args.get('refresh'):
         refresh = True
     else:
@@ -98,7 +98,7 @@ def render_graph(vault):
         sizes = [1 + (d - deg_min) / denom * 99 for d in deg]
 
     graph_data.node_sizes = sizes
-    
+
     fast = len(graph_data.node_labels) > Singleton.config.vaults[vault].graph_config.fast_graph_max_nodes\
              or len(graph_data.forward_edges) >  Singleton.config.vaults[vault].graph_config.fast_graph_max_edges
     force_clustering = int(request.args.get('clustering', 0))
@@ -114,20 +114,27 @@ def render_graph(vault):
             g.add_node(i)
         for e in graph_data.forward_edges:
             g.add_edge(e[0], e[1])
-        communities = louvain_communities(g, seed=42, 
-                                          resolution=Singleton.config.vaults[vault].graph_config.louvain_communities_res)
+        communities = louvain_communities(
+            g,
+            seed=42,
+            resolution=Singleton.config.vaults[vault].graph_config.
+            louvain_communities_res)
         id_to_cm = {}
         cluster_color = select_color(cm, used_colors)
         legend.append(('Clusters', cluster_color))
+        cluster_id = 0
         for i in range(len(communities)):
-            graph_data.node_labels.append(f'Cluster {i}')
-            graph_data.node_sizes.append(200)
-            graph_data.colors.append(cluster_color)
-            id_to_cm[i] = len(graph_data.node_labels) - 1
+            if len(communities[i])>1:
+                cluster_id+=1
+                graph_data.node_labels.append(f'Cluster {cluster_id}')
+                graph_data.node_sizes.append(200)
+                graph_data.colors.append(cluster_color)
+                id_to_cm[i] = len(graph_data.node_labels) - 1
         new_edges = []
         for i_id, cm in enumerate(communities):
-            for i in cm:
-                new_edges.append((i, id_to_cm[i_id]))
+            if len(cm)>1:
+                for i in cm:
+                    new_edges.append((i, id_to_cm[i_id]))
         graph_data.forward_edges = new_edges
     return render_template(
         'graph.html',
@@ -147,4 +154,6 @@ def render_graph(vault):
         fast=fast,
         tag_color=tag_color,
         backlinks=backlinks,
-        force_fast_disable=force_fast_disable, legend=legend, force_clustering=force_clustering)
+        force_fast_disable=force_fast_disable,
+        legend=legend,
+        force_clustering=force_clustering)
