@@ -12,3 +12,6 @@ CRUD-operations
 
 # v. 0.4.*
 Basic bases functionality
+
+# v. 0.5.*
+Graphs are ready

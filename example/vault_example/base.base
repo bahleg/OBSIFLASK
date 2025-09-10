@@ -6,9 +6,6 @@ properties:
 views:
   - type: table
     name: Table
-    sort:
-      - property: tags
-        direction: ASC
     filters:
       and:
         - file.folder.contains("many_digits")
@@ -24,11 +21,11 @@ views:
       - third
       - tags
       - formula.form
-  - type: table
-    name: Table-even
     sort:
       - property: tags
         direction: ASC
+  - type: table
+    name: Table-even
     filters:
       and:
         - file.folder.contains("many_digits")
@@ -42,16 +39,17 @@ views:
       - next
       - prev
       - third
-  - type: cards
-    name: cards
     sort:
       - property: tags
         direction: ASC
+  - type: cards
+    name: cards
     filters:
       and:
         - file.folder.contains("many_digits")
         - "!cover.isEmpty()"
     order:
       - file.name
-  
-
+    sort:
+      - property: tags
+        direction: ASC
