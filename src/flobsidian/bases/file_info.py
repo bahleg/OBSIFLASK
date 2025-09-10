@@ -22,6 +22,9 @@ class FileInfo:
     def get_internal_data(self):
         if self.read:
             return
+        if self.path.suffix != '.md':
+            self.read = True
+            return
         try:
             with open(self.real_path) as inp:
                 text = inp.read()
