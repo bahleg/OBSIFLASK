@@ -31,6 +31,7 @@ from flobsidian.pages.fileop import render_fileop
 from flobsidian.pages.base import render_base
 from flobsidian.graph import Graph
 from flobsidian.pages.graph import render_graph
+from flobsidian.pages.search import render_search
 from flask_favicon import FlaskFavicon
 
 
@@ -194,6 +195,10 @@ def run():
     def graph(vault):
         return render_graph(vault)
 
+    @app.route('/search/<vault>')
+    def search(vault):
+        return render_search(vault)
+    
     @app.route('/messages/<vault>')
     def messages(vault):
         unread = request.args.get('unread', default='1')

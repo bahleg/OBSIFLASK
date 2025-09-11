@@ -10,7 +10,7 @@ class UserConfig:
     default_graph_edge_stiffness: float = 0.45
     default_graph_compression: float = 1.0
     graph_cmap: str = 'colorbrewer:Set1'
-
+    
 
 @dataclass
 class BaseConfig:
@@ -60,3 +60,4 @@ class AppConfig:
     Log level used for the project: [DEBUG, INFO, WARNING, ERROR]
     """
     log_level: str = 'DEBUG'
+    

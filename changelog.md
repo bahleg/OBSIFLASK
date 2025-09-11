@@ -15,3 +15,6 @@ Basic bases functionality
 
 # v. 0.5.*
 Graphs are ready
+
+# v. 0.6.*
+Search

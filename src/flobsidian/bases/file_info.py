@@ -4,8 +4,8 @@ from pathlib import Path
 from flobsidian.utils import logger
 from flobsidian.singleton import Singleton
 from flobsidian.messages import add_message
-from flobsidian.consts import COVER_KEY, wikilink, hashtag
-
+from flobsidian.consts import COVER_KEY, wikilink, hashtag, MAX_FILE_SIZE_MARKDOWN
+import os 
 
 class FileInfo:
 
@@ -22,6 +22,8 @@ class FileInfo:
     def get_internal_data(self):
         if self.read:
             return
+        if os.path.getsize(self.real_path)>MAX_FILE_SIZE_MARKDOWN:
+            logger.warning(f'skipping {self.path} due to size limit {MAX_FILE_SIZE_MARKDOWN/1024/1024} MB')
         if self.path.suffix != '.md':
             self.read = True
             return
