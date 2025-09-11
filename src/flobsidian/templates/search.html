@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="mb-4">Search</h1>
+<form action="/" method="get" class="row g-3 align-items-center mb-4" id="searchForm">
+    <!-- Основные поля -->
+    <div class="col-auto">
+        <label for="q" class="col-form-label">Text search:</label>
+    </div>
+    <div class="col-auto">
+        <input type="text" id="q" name="q" value="{{ query or '' }}" class="form-control" required>
+    </div>
+    <div class="col-auto">
+        <label for="mode" class="col-form-label">Search options:</label>
+    </div>
+    <div class="col-auto">
+        <select id="mode" name="mode" class="form-select">
+            <option value="exact" {% if mode=='exact' %}selected{% endif %}>Exact search</option>
+            <option value="regex" {% if mode=='regex' %}selected{% endif %}>Regex</option>
+            <option value="fuzzy" {% if mode=='fuzzy' %}selected{% endif %}>Fuzzy search</option>
+            <option value="tags" {% if mode=='tags' %}selected{% endif %}>Tags</option>
+            <option value="forward" {% if mode=='forward' %}selected{% endif %}>Forward links</option>
+            <option value="backward" {% if mode=='backward' %}selected{% endif %}>Backward links</option>
+            <option value="formula" {% if mode=='formula' %}selected{% endif %}>Formula</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="button" id="goBtn" class="btn btn-primary">Search</button>
+    </div>
+
+    <!-- Дополнительные параметры -->
+    <div class="col-12 mt-2 extra-param" id="ignoreCaseContainer">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="ignore_case" id="ignore_case" {% if ignore_case
+                %}checked{% endif %}>
+            <label class="form-check-label" for="ignore_case">Ignore case</label>
+        </div>
+    </div>
+
+    <div class="col-12 extra-param" id="ignorePunctContainer">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="ignore_punct" id="ignore_punct" {% if ignore_punct
+                %}checked{% endif %}>
+            <label class="form-check-label" for="ignore_punct">Ignore punctuation</label>
+        </div>
+    </div>
+
+    <div class="col-auto extra-param" id="fuzzyWindowContainer">
+        <label for="fuzzy_window" class="col-form-label">Fuzzy search window size coefficient:</label>
+        <input type="number" class="form-control" id="fuzzy_window" name="fuzzy_window" value="{{ fuzzy_window }}"
+            min="1">
+    </div>
+
+    <div class="col-auto extra-param" id="fuzzyRatioContainer">
+        <label for="fuzzy_ratio" class="col-form-label">Fuzzy search inclusion ratio:</label>
+        <input type="number" step="0.05" class="form-control" id="fuzzy_ratio" name="fuzzy_ratio"
+            value="{{ fuzzy_ratio }}" min="0" max="1">
+    </div>
+    <div class="col-12 extra-param" id="localLinkContainer">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="local_link" id="local_link" {% if local_link
+                %}checked{% endif %}>
+            <label class="form-check-label" for="local_link">Use local link search</label>
+        </div>
+    </div>
+</form>
+
+<script>
+    function updateExtraParams() {
+        const mode = document.getElementById('mode').value;
+
+        // Сначала скрываем все
+        document.querySelectorAll('.extra-param').forEach(el => el.style.display = 'none');
+
+        // Для exact, regex, fuzzy показываем ignore_case и ignore_punct
+        if (['exact', 'regex', 'fuzzy'].includes(mode)) {
+            document.getElementById('ignoreCaseContainer').style.display = 'block';
+            document.getElementById('ignorePunctContainer').style.display = 'block';
+        }
+
+        // Для fuzzy показываем окно и inclusion ratio
+        if (mode === 'fuzzy') {
+            document.getElementById('fuzzyWindowContainer').style.display = 'block';
+            document.getElementById('fuzzyRatioContainer').style.display = 'block';
+        }
+
+        // Для forward/backward links показываем local link search
+        if (['forward', 'backward'].includes(mode)) {
+            document.getElementById('localLinkContainer').style.display = 'block';
+        }
+    }
+
+    // Обновляем при загрузке страницы
+    updateExtraParams();
+
+    // Обновляем при изменении выбора режима
+    document.getElementById('mode').addEventListener('change', updateExtraParams);
+</script>
+
+<script>
+document.getElementById('goBtn').addEventListener('click', (e) => {
+    e.preventDefault();  // <--- предотвращаем стандартный сабмит
+    const form = document.getElementById('searchForm');
+    const formData = new FormData(form);
+
+    // Собираем только непустые поля
+    const params = {};
+    formData.forEach((value, key) => {
+        if (value) params[key] = value;
+    });
+
+    const queryString = new URLSearchParams(params).toString();
+    const url = '{{ url_for("search", vault=vault) }}' + '?' + queryString;
+    window.location.href = url;
+
+});
+</script>
+
+{% if query %}
+<h2 class="mb-3">Results for "{{ query }}"</h2>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 30%">File</th>
+                <th>Conetxt</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if results %}
+            {% for file, context in results %}
+            <tr>
+                <td class="text-monospace"><a href="{{ url_for('renderer', vault=vault, subpath = file) }}">{{file}}</a>
+                </td>
+                <td class="context">{{ context| safe }}</td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="2" class="text-center text-muted">Nothing found</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
