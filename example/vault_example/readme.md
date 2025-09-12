@@ -3,8 +3,7 @@ This vault shows basic functionality currently implemented in [FLOBSIDIAN](https
 * [[Files, directories and links| 🗐 Files, directories and links]]
 * [[Files editing and rendering| 🖉 Files editing and rendering]]
 * [[Bases support| 🗄 Bases support]]
-* [[graph| Graph support]]
-* [[Search in FLOBSIDIAN]]
+* [[Graph support| 🕸️ Graph support]]
 * [[Other functionality]]
 
 

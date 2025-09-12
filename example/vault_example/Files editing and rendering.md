@@ -23,7 +23,22 @@ The editor supports basic Markdown features, including:
 * [links](https://github.com/bahleg/flobsidian) and [[Files, directories and links | wikilins (see details here)]]
 * ~~different~~ *text* **styles**
 * Frontmatter properties: are represented as a separate block of the page, see [[frontmatter example]].
+## Mermaid support
 
+Mermaid is supported :) 
+```mermaid 
+---
+title: Simple sample
+---
+stateDiagram-v2
+    [*] --> Still
+    Still --> [*]
+
+    Still --> Moving
+    Moving --> Still
+    Moving --> Crash
+    Crash --> [*]
+```
 ## 🖇️ File Embedding and attachements
 
 Depending on the file type, attachments are handled differently.
