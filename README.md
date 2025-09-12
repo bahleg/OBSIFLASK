@@ -42,6 +42,6 @@ docker run -p 8000:8000 obsiflask
 ```
 
 ## More
-* [License](license.md)
+* [License: GPLv3](LICENSE)
 * [Changelog](changelog.md)
 * [Roadmap](roadmap.md)
