@@ -52,7 +52,7 @@ def make_link(link, path: Path, index: FileIndex):
     if '/' in alias:
         alias = alias.split('/')[-1]
     if '.md' in alias:
-        alias = alias.replace('.md')
+        alias = alias.replace('.md', '')
 
     link = index.resolve_wikilink(name, path, True)
 

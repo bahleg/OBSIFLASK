@@ -2,7 +2,7 @@ Image:
 ![[logo.png]]
 
 Attach:
-![[readme.md]]
+![[readme]]
 
 Base:
 ![[base.base]]

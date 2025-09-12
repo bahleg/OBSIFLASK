@@ -1,0 +1,1 @@
+This is the file with name "relative path example.md", which can be found by wikilink with relative link.

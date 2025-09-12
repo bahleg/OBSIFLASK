@@ -124,7 +124,7 @@ def run():
             return f'Bad path: {subpath}', 404
         return render_base(vault, subpath, real_path)
 
-    @app.route('/render/<vault>')
+    @app.route('/renderer/<vault>')
     def renderer_root(vault):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
@@ -162,12 +162,14 @@ def run():
         real_path = Path(cfg.vaults[vault].full_path).absolute() / subpath
         return page_get_file(real_path)
 
+        
     @app.route('/folder/<vault>/<path:subpath>')
     def get_folder(vault, subpath):
         if vault not in cfg.vaults:
             return 'Bad vault', 404
         return render_folder(vault, subpath)
 
+    @app.route('/renderer/<vault>/')
     @app.route('/folder/<vault>')
     @app.route('/folder/<vault>/')
     def get_folder_root(vault):

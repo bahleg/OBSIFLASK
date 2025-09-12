@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 @dataclass
 class UserConfig:
     use_webgl: bool = True
-    bootstrap_theme: str = "Solar"
+    bootstrap_theme: str = "Litera"
     default_graph_node_spacing: int = 4500
     default_graph_edge_length: int = 100
     default_graph_edge_stiffness: float = 0.45
