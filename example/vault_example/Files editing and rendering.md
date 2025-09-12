@@ -20,7 +20,7 @@ The editor supports basic Markdown features, including:
 * bullets
 * [ ] todo lists
 * ### headers
-* [links](https://github.com/bahleg/flobsidian) and [[Files, directories and links | wikilins (see details here)]]
+* [links](https://github.com/bahleg/OBSIFLASK) and [[Files, directories and links | wikilins (see details here)]]
 * ~~different~~ *text* **styles**
 * Frontmatter properties: are represented as a separate block of the page, see [[frontmatter example]].
 ## Mermaid support
@@ -70,7 +70,7 @@ Non-image and non-base files are rendered as download links. Example:
 # ✒️ Excalidraw
 
 [Excalidraw](https://excalidraw.com/) is a tool for creating drawings and canvas-style diagrams.
-FLOBSIDIAN can open `.excalidraw` files directly.  
+OBSIFLASK can open `.excalidraw` files directly.  
 Example: [[excalidrawexample.excalidraw]]
 
-Note: There is also [a great Obsidian plugin for excalidraw](https://github.com/zsviczian/obsidian-excalidraw-plugin). It is not currently compatible with FLOBSIDIAN, but support is planned in the future.
+Note: There is also [a great Obsidian plugin for excalidraw](https://github.com/zsviczian/obsidian-excalidraw-plugin). It is not currently compatible with OBSIFLASK, but support is planned in the future.

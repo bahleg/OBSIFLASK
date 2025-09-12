@@ -1,7 +1,7 @@
 from flask import jsonify, render_template
-from flobsidian.messages import get_messages
-from flobsidian.pages.index_tree import render_tree
-from flobsidian.singleton import Singleton
+from obsiflask.messages import get_messages
+from obsiflask.pages.index_tree import render_tree
+from obsiflask.singleton import Singleton
 from datetime import datetime
 
 

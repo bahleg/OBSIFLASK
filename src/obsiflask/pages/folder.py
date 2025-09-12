@@ -1,10 +1,10 @@
 from flask import abort
 from pathlib import Path
 from flask import render_template, redirect, url_for
-from flobsidian.pages.renderer import get_markdown
-from flobsidian.pages.index_tree import render_tree
-from flobsidian.singleton import Singleton
-from flobsidian.utils import logger
+from obsiflask.pages.renderer import get_markdown
+from obsiflask.pages.index_tree import render_tree
+from obsiflask.singleton import Singleton
+from obsiflask.utils import logger
 
 
 def render_folder(vault, subpath):

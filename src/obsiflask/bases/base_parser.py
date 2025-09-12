@@ -1,14 +1,14 @@
 from threading import Lock
 from omegaconf import OmegaConf
 from pathlib import Path
-from flobsidian.singleton import Singleton
-from flobsidian.bases.view import View
-from flobsidian.bases.filter import Filter, FilterAnd, FilterOr, FieldFilter, TrivialFilter
-from flobsidian.utils import logger
-from flobsidian.messages import add_message
-from flobsidian.bases.grammar import FilterTransformer, grammar
+from obsiflask.singleton import Singleton
+from obsiflask.bases.view import View
+from obsiflask.bases.filter import Filter, FilterAnd, FilterOr, FieldFilter, TrivialFilter
+from obsiflask.utils import logger
+from obsiflask.messages import add_message
+from obsiflask.bases.grammar import FilterTransformer, grammar
 from lark import Lark
-from flobsidian.bases.cache import BaseCache
+from obsiflask.bases.cache import BaseCache
 import time
 
 class Base:

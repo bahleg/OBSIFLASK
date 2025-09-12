@@ -1,9 +1,9 @@
 import os
 import time
 from pathlib import Path
-from flobsidian.consts import INDEX_UPDATE_TIME
+from obsiflask.consts import INDEX_UPDATE_TIME
 from urllib import parse
-from flobsidian.utils import logger
+from obsiflask.utils import logger
 
 class FileIndex:
 

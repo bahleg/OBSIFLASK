@@ -9,18 +9,18 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from cmap import Colormap
 from flask import render_template, redirect, url_for, request, stream_template
-from flobsidian.pages.renderer import get_markdown
-from flobsidian.pages.index_tree import render_tree
-from flobsidian.singleton import Singleton
-from flobsidian.utils import logger
-from flobsidian.graph import Graph, GraphRepr
+from obsiflask.pages.renderer import get_markdown
+from obsiflask.pages.index_tree import render_tree
+from obsiflask.singleton import Singleton
+from obsiflask.utils import logger
+from obsiflask.graph import Graph, GraphRepr
 import networkx as nx
 from networkx.algorithms.community import louvain_communities
-from flobsidian.messages import add_message
+from obsiflask.messages import add_message
 import re
-from flobsidian.bases.filter import FieldFilter
-from flobsidian.graph import Graph, GraphRepr
-from flobsidian.consts import MAX_FILE_SIZE_MARKDOWN, SEARCH_PREVIEW_CHARS
+from obsiflask.bases.filter import FieldFilter
+from obsiflask.graph import Graph, GraphRepr
+from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN, SEARCH_PREVIEW_CHARS
 
 punct = re.compile('\W+')
 

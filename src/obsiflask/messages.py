@@ -1,9 +1,9 @@
 from threading import Lock
 import time
 from dataclasses import dataclass, asdict
-from flobsidian.singleton import Singleton
-from flobsidian.consts import MESSAGE_LIST_SIZE
-from flobsidian.utils import logger
+from obsiflask.singleton import Singleton
+from obsiflask.consts import MESSAGE_LIST_SIZE
+from obsiflask.utils import logger
 
 types = {0: 'info', 1: 'warning', 2: 'error'}
 _lock = Lock()

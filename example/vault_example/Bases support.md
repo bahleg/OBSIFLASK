@@ -1,15 +1,15 @@
 [Bases](https://help.obsidian.md/bases) is a new Obsidian feature that officially replaces _Dataview_.
 
-Currently, FLOBSIDIAN supports only a subset of the Bases syntax.  For details, see the  [grammar parser](https://github.com/bahleg/flobsidian/blob/main/src/flobsidian/bases/grammar.py) and [file properties parser](https://github.com/bahleg/flobsidian/blob/main/src/flobsidian/bases/file_info.py).
+Currently, OBSIFLASK supports only a subset of the Bases syntax.  For details, see the  [grammar parser](https://github.com/bahleg/OBSIFLASK/blob/main/src/obsiflask/bases/grammar.py) and [file properties parser](https://github.com/bahleg/OBSIFLASK/blob/main/src/obsiflask/bases/file_info.py).
 
 # 👀 Multi-view functionality
-FLOBSIDIAN supports the multi-view feature of Bases: a base can include multiple views of different types:
+OBSIFLASK supports the multi-view feature of Bases: a base can include multiple views of different types:
 
 1. **Table view** — a simple table-like rendering
 
 2. **Card view** — each node is represented as a card with a cover image (taken from the `cover` property in the frontmatter)
 
-Both view types are supported in FLOBSIDIAN.
+Both view types are supported in OBSIFLASK.
 
 # 🧩 Example
 Consider a base for the `many_digits` folder.  
@@ -31,6 +31,6 @@ Bases can also be embedded into a page — see [[Files editing and rendering]].
 
 ## ⚠️ Attention 
 
-As with the file index, Bases are currently implemented inefficiently and are updated periodically (see [config](https://github.com/bahleg/flobsidian/blob/main/src/flobsidian/config.py)).
+As with the file index, Bases are currently implemented inefficiently and are updated periodically (see [config](https://github.com/bahleg/OBSIFLASK/blob/main/src/obsiflask/config.py)).
 
 For the refreshing the base press "refresh" button.

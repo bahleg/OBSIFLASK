@@ -1,6 +1,6 @@
 import re
 
-APP_NAME = 'flobsidian'
+APP_NAME = 'obsiflask'
 
 COVER_KEY = 'cover'
 INDEX_UPDATE_TIME = 5 * 60

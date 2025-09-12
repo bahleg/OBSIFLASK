@@ -1,15 +1,15 @@
 from flask import render_template, redirect, url_for
 import mistune
 import re
-from flobsidian.pages.index_tree import render_tree
-from flobsidian.singleton import Singleton
-from flobsidian.file_index import FileIndex
+from obsiflask.pages.index_tree import render_tree
+from obsiflask.singleton import Singleton
+from obsiflask.file_index import FileIndex
 from pathlib import Path
 from urllib import parse
-from flobsidian.utils import logger
+from obsiflask.utils import logger
 import frontmatter
 from markupsafe import Markup
-from flobsidian.consts import wikilink
+from obsiflask.consts import wikilink
 
 re_tag_embed = re.compile(r'!\[\[([^\]]+)\]\]')
 

@@ -1,10 +1,10 @@
 from flask import url_for
 from frontmatter import parse
 from pathlib import Path
-from flobsidian.utils import logger
-from flobsidian.singleton import Singleton
-from flobsidian.messages import add_message
-from flobsidian.consts import COVER_KEY, wikilink, hashtag, MAX_FILE_SIZE_MARKDOWN
+from obsiflask.utils import logger
+from obsiflask.singleton import Singleton
+from obsiflask.messages import add_message
+from obsiflask.consts import COVER_KEY, wikilink, hashtag, MAX_FILE_SIZE_MARKDOWN
 import os 
 
 class FileInfo:

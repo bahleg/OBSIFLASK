@@ -1,10 +1,10 @@
 from pathlib import Path
 from collections import Counter
 from dataclasses import dataclass
-from flobsidian.singleton import Singleton
-from flobsidian.bases.file_info import FileInfo
+from obsiflask.singleton import Singleton
+from obsiflask.bases.file_info import FileInfo
 from flask import url_for
-from flobsidian.utils import logger
+from obsiflask.utils import logger
 import time
 import numpy as np
 

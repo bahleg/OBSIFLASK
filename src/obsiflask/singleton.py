@@ -1,6 +1,6 @@
-from flobsidian.file_index import FileIndex
-from flobsidian.config import AppConfig
-from flobsidian.version import get_version
+from obsiflask.file_index import FileIndex
+from obsiflask.config import AppConfig
+from obsiflask.version import get_version
 
 
 class Singleton:

@@ -1,11 +1,11 @@
 from pathlib import Path
 import re
-from flobsidian.bases.grammar import FilterTransformer, grammar
+from obsiflask.bases.grammar import FilterTransformer, grammar
 from lark import Lark
-from flobsidian.bases.file_info import FileInfo
+from obsiflask.bases.file_info import FileInfo
 from functools import partial
-from flobsidian.singleton import Singleton
-from flobsidian.messages import add_message
+from obsiflask.singleton import Singleton
+from obsiflask.messages import add_message
 
 filter_binary_op = re.compile('([^\s]+)\s+([^\s]+)\s+([^\s]+)')
 

@@ -1,11 +1,11 @@
 from flask import abort, request
 from pathlib import Path
 from flask import render_template, redirect, url_for
-from flobsidian.pages.renderer import get_markdown
-from flobsidian.pages.index_tree import render_tree
-from flobsidian.singleton import Singleton
-from flobsidian.utils import logger
-from flobsidian.messages import add_message
+from obsiflask.pages.renderer import get_markdown
+from obsiflask.pages.index_tree import render_tree
+from obsiflask.singleton import Singleton
+from obsiflask.utils import logger
+from obsiflask.messages import add_message
 from flask import redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField

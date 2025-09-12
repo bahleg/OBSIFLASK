@@ -1,15 +1,15 @@
 from flask import render_template, redirect, url_for, render_template_string, request, abort
 import mistune
 import re
-from flobsidian.singleton import Singleton
-from flobsidian.file_index import FileIndex
+from obsiflask.singleton import Singleton
+from obsiflask.file_index import FileIndex
 from pathlib import Path
 from urllib import parse
-from flobsidian.utils import logger
+from obsiflask.utils import logger
 import frontmatter
 from markupsafe import Markup
-from flobsidian.bases.base_parser import parse_base
-from flobsidian.pages.index_tree import render_tree
+from obsiflask.bases.base_parser import parse_base
+from obsiflask.pages.index_tree import render_tree
 
 
 def render_base(vault, subpath, real_path):

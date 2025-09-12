@@ -1,8 +1,8 @@
 from pathlib import Path
 from flask import jsonify
-from flobsidian.utils import logger
-from flobsidian.file_index import FileIndex
-from flobsidian.messages import add_message
+from obsiflask.utils import logger
+from obsiflask.file_index import FileIndex
+from obsiflask.messages import add_message
 
 
 def make_save(path, content, index: FileIndex, vault: str):

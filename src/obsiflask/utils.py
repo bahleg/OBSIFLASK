@@ -11,7 +11,7 @@ MAX_LOG_SIZE = 100 * 1024 * 1024
 """Maximal log size. After exceeding the limit, will be updated according rolling strategy.
 """
 
-logger = logging.getLogger("flobsidian")
+logger = logging.getLogger("obsiflask")
 """
 Default obsidian-flask logger
 """

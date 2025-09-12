@@ -12,26 +12,26 @@ import uuid
 from flask_bootstrap import Bootstrap5
 
 # from toolbox.front_flask.download import download, download_shared as download_shared_back
-from flobsidian.config import AppConfig
-from flobsidian.minihydra import load_entrypoint_config
-from flobsidian.utils import init_logger
-from flobsidian.pages.editor import render_editor
-from flobsidian.pages.file import get_file as page_get_file
-from flobsidian.pages.index import render_index
-from flobsidian.pages.renderer import render_renderer, get_markdown
-from flobsidian.pages.save import make_save
-from flobsidian.tasks import run_tasks
-from flobsidian.singleton import Singleton
-from flobsidian.file_index import FileIndex
-from flobsidian.pages.index_tree import render_tree
-from flobsidian.pages.messages import render_messages
-from flobsidian.pages.excalidraw import render_excalidraw
-from flobsidian.pages.folder import render_folder
-from flobsidian.pages.fileop import render_fileop
-from flobsidian.pages.base import render_base
-from flobsidian.graph import Graph
-from flobsidian.pages.graph import render_graph
-from flobsidian.pages.search import render_search
+from obsiflask.config import AppConfig
+from obsiflask.minihydra import load_entrypoint_config
+from obsiflask.utils import init_logger
+from obsiflask.pages.editor import render_editor
+from obsiflask.pages.file import get_file as page_get_file
+from obsiflask.pages.index import render_index
+from obsiflask.pages.renderer import render_renderer, get_markdown
+from obsiflask.pages.save import make_save
+from obsiflask.tasks import run_tasks
+from obsiflask.singleton import Singleton
+from obsiflask.file_index import FileIndex
+from obsiflask.pages.index_tree import render_tree
+from obsiflask.pages.messages import render_messages
+from obsiflask.pages.excalidraw import render_excalidraw
+from obsiflask.pages.folder import render_folder
+from obsiflask.pages.fileop import render_fileop
+from obsiflask.pages.base import render_base
+from obsiflask.graph import Graph
+from obsiflask.pages.graph import render_graph
+from obsiflask.pages.search import render_search
 from flask_favicon import FlaskFavicon
 
 

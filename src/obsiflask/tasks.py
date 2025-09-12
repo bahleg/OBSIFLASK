@@ -2,9 +2,9 @@ from functools import partial
 import time
 import subprocess
 from threading import Thread
-from flobsidian.config import Task
-from flobsidian.messages import add_message
-from flobsidian.utils import logger
+from obsiflask.config import Task
+from obsiflask.messages import add_message
+from obsiflask.utils import logger
 
 
 def thread_wrapper(task: Task):

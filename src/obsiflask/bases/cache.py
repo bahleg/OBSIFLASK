@@ -1,5 +1,5 @@
 from threading import Lock
-from flobsidian.singleton import Singleton
+from obsiflask.singleton import Singleton
 import time
 
 

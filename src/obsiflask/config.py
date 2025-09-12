@@ -53,7 +53,7 @@ class AppConfig:
     vaults: dict[str, VaultConfig]
     tasks: list[Task] = field(default_factory=lambda: [])
     flask_params: dict = field(default_factory=lambda: {})
-    log_path: str = './flobsidian.log'
+    log_path: str = './obsiflask.log'
     default_user_config: UserConfig = field(
         default_factory=lambda: UserConfig())
     """

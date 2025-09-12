@@ -1,9 +1,9 @@
 from pathlib import Path
 
 from collections import defaultdict
-from flobsidian.file_index import FileIndex
+from obsiflask.file_index import FileIndex
 from flask import url_for
-from flobsidian.singleton import Singleton
+from obsiflask.singleton import Singleton
 
 
 def render_tree(tree, vault, edit=False, level=0):

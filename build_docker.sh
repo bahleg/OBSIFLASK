@@ -1,1 +1,1 @@
-docker build . -t flobsidian
+docker build . -t OBSIFLASK

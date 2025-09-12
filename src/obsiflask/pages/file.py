@@ -1,5 +1,5 @@
 from pathlib import Path
-from flobsidian.singleton import Singleton
+from obsiflask.singleton import Singleton
 from flask import send_file, abort
 
 
