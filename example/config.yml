@@ -12,7 +12,7 @@ flask_params:
   use_reloader: false
   host: 0.0.0.0
 tasks:
-  - cmd: echo "asd"
-    interval: 30
+  - cmd: echo "hello world"
+    interval: 120
     vault: example
-    success: "Echo task for test (30 seconds)"
+    success: "Echo task for test (every 2 minutes)"

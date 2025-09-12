@@ -23,7 +23,7 @@ The file operations are:
 
 	- Copy file/folder
 	
-When creating a file, you can optionally select a template, if a template folder is set in the [config](https://github.com/bahleg/OBSIFLASK/blob/main/src/obsiflask/config.py)
+When creating a file, you can optionally select a template, if a template folder is set in the [config](https://github.com/bahleg/OBSIFLASK/blob/main/src/obsiflask/config.py). For example, for this vault you can use a [[digit]] template.
 # 🔗 Links
 LOBSIDIAN supports both Markdown links and wikilinks.
 
