@@ -22,7 +22,7 @@ The editor supports basic Markdown features, including:
 * ### headers
 * [links](https://github.com/bahleg/flobsidian) and [[Files, directories and links | wikilins (see details here)]]
 * ~~different~~ *text* **styles**
-
+* Frontmatter properties: are represented as a separate block of the page, see [[frontmatter example]].
 
 ## 🖇️ File Embedding and attachements
 

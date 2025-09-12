@@ -38,7 +38,7 @@ FLOBSIDIAN resolves wikilinks according to the following rules:
 2. **Relative path:**
     
     - If only one file matches the relative path, it resolves to that file.  
-        Example: [[relative path example.md]]
+        Example: [[relative path example]]
         
     - If multiple files match the same path, it resolves to the first matching file.  
         Example: [[1.md]]
