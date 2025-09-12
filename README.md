@@ -14,7 +14,7 @@ It supports multiple vaults, search and navigation, background tasks, and graph 
 
 ---
 
-## 📦 Installation and run
+## 📦 Getting Started
 For OBSIFLASK configuration, please see [Config file](https://github.com/bahleg/OBSIFLASK/blob/main/src/obsiflask/config.py).
 
 With an example config, the server will be started at https://localhost:8000. 
@@ -30,11 +30,11 @@ obsiflask ../example/config.yml
 
 ### Docker
 Demo run:
-```bash build_docker.sh
+```bash bash build_docker.sh
 docker run -p 8000:8000 obsiflask
 ```
 
-## Other documents
+## More
 * [License](license.md)
 * [Changelog](changelog.md)
 * [Roadmap](roadmap.md)
