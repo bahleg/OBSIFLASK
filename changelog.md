@@ -1,20 +1,29 @@
-# v. 0.0.*
-initial version
+# Changelog
 
-# v. 0.1.*
-Implemented basic functionality: editor, rendering, nav. tree, tasks and messages
+All notable changes to this project will be documented in this file.  
+The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
-# v. 0.2.*
-Excalidraw support, folders overview, better rendering/editor methods
+---
 
-# v. 0.3.*
-CRUD-operations
+## [0.6.*] – Search
+- Added search functionality.
 
-# v. 0.4.*
-Basic bases functionality
+## [0.5.*] – Graphs
+- Implemented graph visualization.
 
-# v. 0.5.*
-Graphs are ready
+## [0.4.*] – Bases
+- Added basic support for Bases.
 
-# v. 0.6.*
-Search
+## [0.3.*] – File operations
+- Implemented CRUD operations for files and folders.
+
+## [0.2.*] – Rendering improvements
+- Added Excalidraw support.  
+- Implemented folder overview.  
+- Improved rendering and editor methods.
+
+## [0.1.*] – Core functionality
+- Implemented basic functionality: editor, rendering, navigation tree, tasks, and messages.
+
+## [0.0.*] – Initial version
+- First working prototype.
