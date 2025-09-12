@@ -1,1 +1,1 @@
-docker build . -t OBSIFLASK
+docker build . -t obsiflask
