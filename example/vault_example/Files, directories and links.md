@@ -47,6 +47,7 @@ FLOBSIDIAN resolves wikilinks according to the following rules:
 Additionally, FLOBSIDIAN supports links without file extensions.  
 For example, [[1]] resolves to `1.md`.
 
+The broken links are rendered in a special way: [[This is broken link]].
 
 
 # ⚠️ Notes about file index
