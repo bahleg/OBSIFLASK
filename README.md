@@ -35,6 +35,6 @@ docker run -p 8000:8000 obsiflask
 ```
 
 ## Other documents
-[License](license.md)
-[Changelog](changelog.md)
-[Roadmap](roadmap.md)
+* [License](license.md)
+* [Changelog](changelog.md)
+* [Roadmap](roadmap.md)
