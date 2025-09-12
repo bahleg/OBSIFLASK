@@ -1,4 +1,11 @@
-# 🔮 OBSIFLASK
+<div align="center">  
+    <picture>
+      <img alt="OBSIFLASK logo" src="src/obsiflask/static/logo.png" width="200px">
+    </picture>
+    <h1> OBSIFLASK </h1>
+    <p align="center"> Simple web service for Obsidian vaults </p>
+</div>
+
 
 **OBSIFLASK** is a lightweight web service for Obsidian vaults, built on Flask.  
 It supports multiple vaults, search and navigation, background tasks, and graph visualization.
