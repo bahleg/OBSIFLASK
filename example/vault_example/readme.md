@@ -1,9 +1,8 @@
 This vault shows basic functionality currently implemented in [FLOBSIDIAN](https://github.com/bahleg/flobsidian): a simple web-based service for hosting Obsidian vaults.
 
 * [[Files, directories and links| 🗐 Files, directories and links]]
-* [[rendering| Editor, Markdown support]]
-* [[Excalidraw support]]
-* [[bases| Bases support]]
+* [[Files editing and rendering| 🖉 Files editing and rendering]]
+* [[Bases support]]
 * [[graph| Graph support]]
 * [[Search in FLOBSIDIAN]]
 * [[Other functionality]]
