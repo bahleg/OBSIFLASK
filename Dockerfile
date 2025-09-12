@@ -5,4 +5,4 @@ COPY src /src
 RUN cd /src; pip3  install --upgrade pip --no-cache && pip3 --no-cache install .
 COPY example /example
 COPY example/config.yml /config.yml
-CMD flobsidian /config.yml
+CMD obsiflask /config.yml

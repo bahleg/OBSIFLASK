@@ -1,12 +1,12 @@
-from flobsidian.singleton import Singleton
-from flobsidian.bases.filter import Filter
-from flobsidian.bases.file_info import FileInfo
-from flobsidian.messages import add_message
-from flobsidian.utils import logger
+from obsiflask.singleton import Singleton
+from obsiflask.bases.filter import Filter
+from obsiflask.bases.file_info import FileInfo
+from obsiflask.messages import add_message
+from obsiflask.utils import logger
 import pandas as pd
-from flobsidian.consts import MaxViewErrors
-from flobsidian.bases.cache import BaseCache
-from flobsidian.consts import COVER_KEY
+from obsiflask.consts import MaxViewErrors
+from obsiflask.bases.cache import BaseCache
+from obsiflask.consts import COVER_KEY
 
 NAN_CONST = 0
 
