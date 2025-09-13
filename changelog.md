@@ -5,25 +5,28 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0
 
 ---
 
-## [0.6.*] – Search
+### [0.7.*] – Search
+- Making repo public, build scripts, minor style code refactoring
+
+### [0.6.*] – Search
 - Added search functionality.
 
-## [0.5.*] – Graphs
+### [0.5.*] – Graphs
 - Implemented graph visualization.
 
-## [0.4.*] – Bases
+### [0.4.*] – Bases
 - Added basic support for Bases.
 
-## [0.3.*] – File operations
+### [0.3.*] – File operations
 - Implemented CRUD operations for files and folders.
 
-## [0.2.*] – Rendering improvements
+### [0.2.*] – Rendering improvements
 - Added Excalidraw support.  
 - Implemented folder overview.  
 - Improved rendering and editor methods.
 
-## [0.1.*] – Core functionality
+### [0.1.*] – Core functionality
 - Implemented basic functionality: editor, rendering, navigation tree, tasks, and messages.
 
-## [0.0.*] – Initial version
+### [0.0.*] – Initial version
 - First working prototype.
