@@ -2,11 +2,20 @@
 Version handling module
 """
 import subprocess
-import os 
 version_str = '0.6.0'
 
 
-def get_version(pep_version=True) -> str:
+def get_version(pep_version=True, short: bool = False) -> str:
+    """
+    Returns version
+
+    Args:
+        pep_version (bool, optional): if set, will use "+" as delimiter. Defaults to True.
+        short (bool, optional): if set, will use a semver-like version without git suffix. Defaults to False.
+
+    Returns:
+        str: _description_
+    """
     delim_char = '+' if pep_version else '-'
 
     # пытаемся получить git commit
@@ -25,6 +34,8 @@ def get_version(pep_version=True) -> str:
     except Exception:
         commit = None
 
+    if short:
+        return version_str
     if commit:
         ver = f"{version_str}{delim_char}{commit}"
     else:

@@ -46,6 +46,16 @@ def test_version_no_git(no_git):
     assert ver.endswith("+local")
 
 
+def test_version_short():
+    ver = get_version(True, True)
+    ver2 = get_version(False, True)
+    assert ver == ver2
+    parts = ver.split('.')
+    assert len(parts) == 3
+    for p in parts:
+        int(p)
+
+
 def test_bump_version(tmp_path):
     path = tmp_path / "version.py"
     bump_version(path)
