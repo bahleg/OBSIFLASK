@@ -5,7 +5,7 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0
 
 ---
 
-### [0.7.*] – Search
+### [0.7.*] – Refactoring
 - Making repo public, build scripts, minor style code refactoring
 
 ### [0.6.*] – Search
