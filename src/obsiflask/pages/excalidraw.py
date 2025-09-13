@@ -2,7 +2,7 @@ from pathlib import Path
 from flask import render_template, redirect, url_for, abort
 from obsiflask.pages.renderer import get_markdown
 from obsiflask.pages.index_tree import render_tree
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 
 default_excalidraw = """{
@@ -37,7 +37,7 @@ def render_excalidraw(vault, path, real_path):
                            excalidraw_json=text,
                            path=path,
                            vault=vault,
-                           navtree=render_tree(Singleton.indices[vault], vault,
+                           navtree=render_tree(AppState.indices[vault], vault,
                                                True),
                            page_editor=True,
-                           home=Singleton.config.vaults[vault].home_file, curdir = Path(path).parent, curfile=path)
+                           home=AppState.config.vaults[vault].home_file, curdir = Path(path).parent, curfile=path)

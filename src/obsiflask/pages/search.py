@@ -11,7 +11,7 @@ from cmap import Colormap
 from flask import render_template, redirect, url_for, request, stream_template
 from obsiflask.pages.renderer import get_markdown
 from obsiflask.pages.index_tree import render_tree
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 from obsiflask.graph import Graph, GraphRepr
 import networkx as nx
@@ -30,7 +30,7 @@ def generate_formula(
 ):
     try:
         filter = FieldFilter(query)
-        graph: Graph = Singleton.graphs[vault]
+        graph: Graph = AppState.graphs[vault]
         graph_results = graph.build(True)
         for file in graph_results.files:
             if filter.check(file):
@@ -46,7 +46,7 @@ def generate_tags(
 ):
     try:
         query = query.lstrip('#').strip()
-        graph: Graph = Singleton.graphs[vault]
+        graph: Graph = AppState.graphs[vault]
         graph_results = graph.build(True)
         tag_id = None
         for i in graph_results.tags:
@@ -100,7 +100,7 @@ def generate_links(query, vault: str, forward: bool = True, local: bool = True):
     ids_to_search = set()
     query = query.lstrip('./')
     try:
-        graph: Graph = Singleton.graphs[vault]
+        graph: Graph = AppState.graphs[vault]
         graph_results = graph.build(True)
         for f_id, f in enumerate(graph_results.files):
             for path_version in [query, query+'.md']:
@@ -133,7 +133,7 @@ def generate_text(
 ):
     assert mode in ['exact', 'regex', 'fuzzy',]
 
-    graph: Graph = Singleton.graphs[vault]
+    graph: Graph = AppState.graphs[vault]
 
     try:
         if ignore_case:
@@ -220,10 +220,10 @@ def render_search(vault):
 
     return render_func('search.html',
                        vault=vault,
-                       navtree=render_tree(Singleton.indices[vault], vault,
+                       navtree=render_tree(AppState.indices[vault], vault,
                                            True),
                        page_editor=False,
-                       home=Singleton.config.vaults[vault].home_file,
+                       home=AppState.config.vaults[vault].home_file,
                        results=results,
                        query=query, ignore_case = ignore_case, ignore_punct = ignore_punct, 
                        mode=mode, local_link=local_link, fuzzy_window=fuzzy_window, fuzzy_ratio=fuzzy_ratio)

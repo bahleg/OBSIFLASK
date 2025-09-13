@@ -1,7 +1,7 @@
 from threading import Lock
 from omegaconf import OmegaConf
 from pathlib import Path
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.bases.view import View
 from obsiflask.bases.filter import Filter, FilterAnd, FilterOr, FieldFilter, TrivialFilter
 from obsiflask.utils import logger
@@ -25,7 +25,7 @@ def parse_filter(filter_dict: dict, vault):
         result = FieldFilter(filter_dict)
         return result
     if len(filter_dict) > 1:
-        if Singleton.config.vaults[vault].base_config.error_on_yaml_parse:
+        if AppState.config.vaults[vault].base_config.error_on_yaml_parse:
             raise NotImplementedError(
                 f'unsupported filter format: {filter_dict}')
         else:
@@ -40,7 +40,7 @@ def parse_filter(filter_dict: dict, vault):
     elif key == 'or':
         return FilterOr([parse_filter(f, vault) for f in filter_dict['or']])
     else:
-        if Singleton.config.vaults[vault].base_config.error_on_yaml_parse:
+        if AppState.config.vaults[vault].base_config.error_on_yaml_parse:
             raise NotImplementedError(f'unsupported filter key: \"{key}\"')
         else:
             add_message(f'unsupported filter key: \"{key}\". Disabling.', 1,
@@ -52,7 +52,7 @@ def parse_view(view: dict, vault: str, formulas, properties, base_path):
     result = View(formulas, properties, base_path)
     result.type = view['type']
     if result.type not in ['table', 'cards']:
-        if Singleton.config.vaults[vault].base_config.error_on_yaml_parse:
+        if AppState.config.vaults[vault].base_config.error_on_yaml_parse:
             raise NotImplementedError(f'unsupported view type: {result.type}')
         else:
             add_message(
@@ -86,7 +86,7 @@ def parse_base(real_path, vault) -> Base:
             func = FilterTransformer().transform(parser.parse(formula))
             
         except Exception as e:
-            if Singleton.config.vaults[vault].base_config.error_on_field_parse:
+            if AppState.config.vaults[vault].base_config.error_on_field_parse:
                 raise ValueError(f'Problems with formula {formula} parsing: {e}')
             else:
                 add_message(f'Problems with formula {formula} parsing. Skipping', 1, vault, repr(e))

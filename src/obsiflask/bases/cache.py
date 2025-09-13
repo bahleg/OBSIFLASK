@@ -1,5 +1,5 @@
 from threading import Lock
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 import time
 
 
@@ -16,7 +16,7 @@ class BaseCache:
                 vault = k[0]
                 old_time = v[1]
                 delta = time.time() - old_time
-                if Singleton.config.vaults[
+                if AppState.config.vaults[
                         vault].base_config.cache_time < delta:
                     to_delete.add(k)
             for k in to_delete:

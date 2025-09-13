@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for
 import mistune
 import re
 from obsiflask.pages.index_tree import render_tree
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.file_index import FileIndex
 from pathlib import Path
 from urllib import parse
@@ -155,13 +155,13 @@ def render_renderer(vault, path, real_path):
         return redirect(url_for('get_file', vault=vault, subpath=path))
     return render_template('renderer.html',
                            markdown_text=get_markdown(real_path,
-                                                      Singleton.indices[vault],
+                                                      AppState.indices[vault],
                                                       vault),
                            path=path,
                            vault=vault,
-                           navtree=render_tree(Singleton.indices[vault], vault,
+                           navtree=render_tree(AppState.indices[vault], vault,
                                                False),
                            is_editor=False,
-                           home=Singleton.config.vaults[vault].home_file,
+                           home=AppState.config.vaults[vault].home_file,
                            curdir=Path(path).parent,
                            curfile=path)

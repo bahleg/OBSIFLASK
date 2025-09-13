@@ -5,7 +5,7 @@ from obsiflask.config import AppConfig
 from obsiflask.version import get_version
 
 
-class Singleton:
+class AppState:
     indices: dict[str, "FileIndex"] = {}  # obsiflask.file_index
     config: AppConfig | None = None
     messages: dict[tuple[str, str], list["Message"]] = {}  # obsiflask.messages
@@ -17,4 +17,4 @@ class Singleton:
         """
         Injecting the config into jinja variables to be exposed to flask
         """
-        Singleton.injected_vars_jinja['config'] = Singleton.config
+        AppState.injected_vars_jinja['config'] = AppState.config

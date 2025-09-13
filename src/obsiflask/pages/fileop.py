@@ -3,7 +3,7 @@ from pathlib import Path
 from flask import render_template, redirect, url_for
 from obsiflask.pages.renderer import get_markdown
 from obsiflask.pages.index_tree import render_tree
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 from obsiflask.messages import add_message
 from flask import redirect, url_for
@@ -34,9 +34,9 @@ class FileOpForm(FlaskForm):
         rv = FlaskForm.validate(self, **kwargs)  # сначала проверяем все поля
         if not rv:
             return False
-        target = (Singleton.indices[self.vault].path /
+        target = (AppState.indices[self.vault].path /
                   Path(self.target.data)).resolve()
-        if not target.is_relative_to(Singleton.indices[self.vault].path):
+        if not target.is_relative_to(AppState.indices[self.vault].path):
             self.target.errors.append(
                 'Cannot manipulate file outside the vault')
             return False
@@ -51,9 +51,9 @@ class FileOpForm(FlaskForm):
                 return False
 
         if self.operation.data in ['copy', 'move']:
-            dst = (Singleton.indices[self.vault].path /
+            dst = (AppState.indices[self.vault].path /
                    Path(self.destination.data)).resolve()
-            if not dst.is_relative_to(Singleton.indices[self.vault].path):
+            if not dst.is_relative_to(AppState.indices[self.vault].path):
                 self.destination.errors.append(
                     'Cannot manipulate file outside the vault')
                 return False
@@ -67,7 +67,7 @@ class FileOpForm(FlaskForm):
 
 def create_file_op(vault, form: FileOpForm):
     try:
-        path = Singleton.indices[vault].path / Path(form.target.data)
+        path = AppState.indices[vault].path / Path(form.target.data)
         path.parent.mkdir(parents=True, exist_ok=True)
         if form.template.data.startswith('0_'):
             path.touch()
@@ -76,7 +76,7 @@ def create_file_op(vault, form: FileOpForm):
         else:
             template_name = form.template.data.split('_', 1)[1]
             found = False
-            for t in Singleton.indices[vault].get_templates():
+            for t in AppState.indices[vault].get_templates():
                 if str(t.name) == template_name:
                     found = True
                     break
@@ -84,7 +84,7 @@ def create_file_op(vault, form: FileOpForm):
                 raise ValueError(f'could not find template {template_name}')
             shutil.copy(t, path)
         add_message(f'File {form.target.data} created', 0, vault)
-        Singleton.indices[vault].refresh()
+        AppState.indices[vault].refresh()
         return True
     except Exception as e:
         logger.error(f'problem during file creating {path.name}: {e}')
@@ -97,12 +97,12 @@ def create_file_op(vault, form: FileOpForm):
 
 def delete_file_op(vault, form: FileOpForm):
     try:
-        path = Singleton.indices[vault].path / Path(form.target.data)
+        path = AppState.indices[vault].path / Path(form.target.data)
         if path.is_dir():
             shutil.rmtree(path)
         else:
             path.unlink()
-        Singleton.indices[vault].refresh()
+        AppState.indices[vault].refresh()
         add_message(f'File {form.target.data} deleted', 0, vault)
 
     except Exception as e:
@@ -119,8 +119,8 @@ def copy_move_file(vault, form: FileOpForm, copy):
     else:
         op_label = 'Move'
     try:
-        path = Singleton.indices[vault].path / Path(form.target.data)
-        dst = Singleton.indices[vault].path / Path(form.destination.data)
+        path = AppState.indices[vault].path / Path(form.target.data)
+        dst = AppState.indices[vault].path / Path(form.destination.data)
         if path.is_dir():
             dst.mkdir(parents=True, exist_ok=True)
         else:
@@ -133,7 +133,7 @@ def copy_move_file(vault, form: FileOpForm, copy):
         else:
             shutil.move(path, dst)
         
-        Singleton.indices[vault].refresh()
+        AppState.indices[vault].refresh()
         add_message(f'{op_label} {form.target.data}: successful', 0, vault)
         return True
     except Exception as e:
@@ -146,7 +146,7 @@ def copy_move_file(vault, form: FileOpForm, copy):
 
 
 def render_fileop(vault):
-    navtree = render_tree(Singleton.indices[vault], vault, True)
+    navtree = render_tree(AppState.indices[vault], vault, True)
     form = FileOpForm(vault)
     back_url = url_for('renderer_root', vault=vault)
 
@@ -170,7 +170,7 @@ def render_fileop(vault):
         else:
             form.destination.data = './'
 
-    for t_id, t in enumerate(Singleton.indices[vault].get_templates()):
+    for t_id, t in enumerate(AppState.indices[vault].get_templates()):
         form.template.choices.append((f'{t_id+2}_{t.name}', f'📃 {t.name}'))
 
     if form.validate_on_submit():
@@ -199,6 +199,6 @@ def render_fileop(vault):
     return render_template('fileop.html',
                            form=form,
                            navtree=navtree,
-                           home=Singleton.config.vaults[vault].home_file,
+                           home=AppState.config.vaults[vault].home_file,
                            vault=vault,
                            back_url=back_url)

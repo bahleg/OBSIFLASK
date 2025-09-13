@@ -4,7 +4,7 @@ from obsiflask.bases.grammar import FilterTransformer, grammar
 from lark import Lark
 from obsiflask.bases.file_info import FileInfo
 from functools import partial
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.messages import add_message
 
 filter_binary_op = re.compile('([^\s]+)\s+([^\s]+)\s+([^\s]+)')
@@ -59,7 +59,7 @@ class FieldFilter:
 
     def check(self, file: FileInfo):
         if self.exception:
-            if Singleton.config.vaults[
+            if AppState.config.vaults[
                     file.vault].base_config.error_on_field_parse:
                 raise self.exception
             else:

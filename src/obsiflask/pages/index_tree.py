@@ -3,11 +3,11 @@ from pathlib import Path
 from collections import defaultdict
 from obsiflask.file_index import FileIndex
 from flask import url_for
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 
 
 def render_tree(tree, vault, edit=False, level=0):
-    rel_path = Singleton.indices[vault].path
+    rel_path = AppState.indices[vault].path
 
     if isinstance(tree, FileIndex):
         tree = tree.get_tree()

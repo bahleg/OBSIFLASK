@@ -3,13 +3,13 @@ from pathlib import Path
 from flask import render_template, redirect, url_for
 from obsiflask.pages.renderer import get_markdown
 from obsiflask.pages.index_tree import render_tree
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 
 
 def render_folder(vault, subpath):
-    navtree = render_tree(Singleton.indices[vault], vault, True)
-    abspath = Singleton.indices[vault].path.absolute().resolve()
+    navtree = render_tree(AppState.indices[vault], vault, True)
+    abspath = AppState.indices[vault].path.absolute().resolve()
     target = (abspath / subpath).resolve()
     if  abspath != target and not abspath in list(target.parents):
         return abort(402)
@@ -36,6 +36,6 @@ def render_folder(vault, subpath):
                            navtree=navtree,
                            files=files,
                            folders=folders,
-                           home=Singleton.config.vaults[vault].home_file,
+                           home=AppState.config.vaults[vault].home_file,
                            page_editor=False,
                            vault=vault, parent_url = parent_url, curdir = subpath)

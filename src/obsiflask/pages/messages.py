@@ -1,7 +1,7 @@
 from flask import jsonify, render_template
 from obsiflask.messages import get_messages
 from obsiflask.pages.index_tree import render_tree
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from datetime import datetime
 
 
@@ -10,9 +10,9 @@ def render_messages(vault, unread, raw=False):
     if raw:
         return jsonify(messages)
     return render_template('messages.html',
-                           home=Singleton.config.vaults[vault].home_file,
+                           home=AppState.config.vaults[vault].home_file,
                            messages=messages,
-                           navtree=render_tree(Singleton.indices[vault], vault,
+                           navtree=render_tree(AppState.indices[vault], vault,
                                                False),
                            vault=vault,
                            unread=bool(unread))

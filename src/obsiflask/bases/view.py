@@ -1,4 +1,4 @@
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.bases.filter import Filter
 from obsiflask.bases.file_info import FileInfo
 from obsiflask.messages import add_message
@@ -34,7 +34,7 @@ class View:
         self.global_filter = None 
 
     def gather_files(self, vault):
-        files = [f for f in Singleton.indices[vault] if f.is_file()]
+        files = [f for f in AppState.indices[vault] if f.is_file()]
         files = [FileInfo(f, vault) for f in files]
         files = [f for f in files if self.global_filter.check(f)]
         files = [f for f in files if self.filter.check(f)]
@@ -73,7 +73,7 @@ class View:
                     else:
                         value = f.get_prop(prop, render=True)
                 except Exception as e:
-                    if Singleton.config.vaults[
+                    if AppState.config.vaults[
                             vault].base_config.error_on_field_parse:
                         raise ValueError(
                             f'could not infer value {r} from {f.path}: {e}')
@@ -116,7 +116,7 @@ class View:
             for s in self.sorts:
                 s = s[0].replace('.', '_'), s[1]
                 if s[0] not in df.columns or s[1] not in ['ASC', 'DESC']:
-                    if Singleton.config.vaults[
+                    if AppState.config.vaults[
                             vault].base_config.error_on_yaml_parse:
                         raise ValueError(f'Bad value for sorting: {s}')
                     else:

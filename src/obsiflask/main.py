@@ -16,7 +16,7 @@ from obsiflask.pages.index import render_index
 from obsiflask.pages.renderer import render_renderer, get_markdown
 from obsiflask.pages.save import make_save
 from obsiflask.tasks import run_tasks
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.file_index import FileIndex
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.pages.messages import render_messages
@@ -39,7 +39,7 @@ def check_vault(vault: str) -> tuple[str, int] | None:
     Returns:
         tuple[str, int] | None: flask-formatted return or None
     """
-    cfg = Singleton.config
+    cfg = AppState.config
     if vault not in cfg.vaults:
         return "Bad vault", 400
     return None
@@ -60,7 +60,7 @@ def resolve_path(vault: str, subpath: str) -> Path | tuple[str, int]:
     if vault_resolution_result is not None:
         return vault_resolution_result
 
-    cfg = Singleton.config
+    cfg = AppState.config
     real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
     if not real_path.exists():
         return f"Bad path: {subpath}", 400
@@ -73,9 +73,9 @@ def run():
     """
     # Config and logger initialization
     cfg: AppConfig = load_entrypoint_config(AppConfig)
-    Singleton.config = cfg
+    AppState.config = cfg
     for vault in cfg.vaults:
-        Singleton.messages[(vault, None)] = []
+        AppState.messages[(vault, None)] = []
     logger = init_logger(cfg.log_path, log_level=cfg.log_level)
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
@@ -84,11 +84,11 @@ def run():
     # app resources
     run_tasks({vault: cfg.vaults[vault].tasks})
     for vault in cfg.vaults:
-        Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
+        AppState.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
                                              cfg.vaults[vault].template_dir,
                                              vault)
-        Singleton.graphs[vault] = Graph(vault)
-    Singleton.inject_vars()
+        AppState.graphs[vault] = Graph(vault)
+    AppState.inject_vars()
 
     # Flask confguration
     logger.debug('starting app')
@@ -108,7 +108,7 @@ def run():
 
     @app.context_processor
     def inject_service_vars():
-        return {'injected_vars': Singleton.injected_vars_jinja}
+        return {'injected_vars': AppState.injected_vars_jinja}
 
     @app.template_filter('datetimeformat')
     def datetimeformat(value):
@@ -174,7 +174,7 @@ def run():
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
-        markdown = get_markdown(real_path, Singleton.indices[vault], vault)
+        markdown = get_markdown(real_path, AppState.indices[vault], vault)
         return jsonify({'content': markdown})
 
     @app.route('/save/<vault>/<path:subpath>', methods=['PUT'])
@@ -184,7 +184,7 @@ def run():
             return real_path
         data = request.get_json()
         content = data.get('content', '')
-        return make_save(real_path, content, Singleton.indices[vault], vault)
+        return make_save(real_path, content, AppState.indices[vault], vault)
 
     @app.route('/file/<vault>/<path:subpath>')
     def get_file(vault, subpath):
@@ -222,8 +222,8 @@ def run():
 
     @app.route('/tree/<vault>')
     def tree(vault):
-        Singleton.indices[vault].refresh()
-        return render_tree(Singleton.indices[vault], vault)
+        AppState.indices[vault].refresh()
+        return render_tree(AppState.indices[vault], vault)
 
     @app.route('/graph/<vault>')
     def graph(vault):

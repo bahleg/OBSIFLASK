@@ -8,7 +8,7 @@ from cmap import Colormap
 from flask import render_template, redirect, url_for, request
 from obsiflask.pages.renderer import get_markdown
 from obsiflask.pages.index_tree import render_tree
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 from obsiflask.graph import Graph, GraphRepr
 import networkx as nx
@@ -64,18 +64,18 @@ def render_graph(vault):
 
     nodespacing = request.args.get(
         'nodespacing'
-    ) or Singleton.config.default_user_config.default_graph_node_spacing
+    ) or AppState.config.default_user_config.default_graph_node_spacing
     stiffness = request.args.get(
         'stiffness'
-    ) or Singleton.config.default_user_config.default_graph_edge_stiffness
+    ) or AppState.config.default_user_config.default_graph_edge_stiffness
     edgelength = request.args.get(
         'edgelength'
-    ) or Singleton.config.default_user_config.default_graph_edge_length
+    ) or AppState.config.default_user_config.default_graph_edge_length
     compression = request.args.get(
         'compression'
-    ) or Singleton.config.default_user_config.default_graph_compression
+    ) or AppState.config.default_user_config.default_graph_compression
 
-    cm = Colormap(Singleton.config.default_user_config.graph_cmap)
+    cm = Colormap(AppState.config.default_user_config.graph_cmap)
     used_colors = set()
 
     filters = request.args.get('filters')
@@ -96,7 +96,7 @@ def render_graph(vault):
         filters = make_default_filter(select_color(cm, used_colors))
 
     legend = []
-    graph_data: GraphRepr = Singleton.graphs[vault].build(refresh)
+    graph_data: GraphRepr = AppState.graphs[vault].build(refresh)
     graph_data = copy(graph_data)
     out_ids = []
     out_colors = []
@@ -197,8 +197,8 @@ def render_graph(vault):
     out_graph = GraphRederingRepresentation(out_labels, None,
                                             out_href, out_colors, sizes)
 
-    fast = len(graph_data.node_labels) > Singleton.config.vaults[vault].graph_config.fast_graph_max_nodes\
-             or len(filtered_edges) >  Singleton.config.vaults[vault].graph_config.fast_graph_max_edges
+    fast = len(graph_data.node_labels) > AppState.config.vaults[vault].graph_config.fast_graph_max_nodes\
+             or len(filtered_edges) >  AppState.config.vaults[vault].graph_config.fast_graph_max_edges
     try:
         force_clustering = int(request.args.get('clustering', 0))
     except:
@@ -223,7 +223,7 @@ def render_graph(vault):
         communities = louvain_communities(
             g,
             seed=42,
-            resolution=Singleton.config.vaults[vault].graph_config.
+            resolution=AppState.config.vaults[vault].graph_config.
             louvain_communities_res)
         id_to_cm = {}
         cluster_color = select_color(cm, used_colors)
@@ -247,13 +247,13 @@ def render_graph(vault):
     return render_template(
         'graph.html',
         vault=vault,
-        navtree=render_tree(Singleton.indices[vault], vault, True),
+        navtree=render_tree(AppState.indices[vault], vault, True),
         page_editor=False,
-        home=Singleton.config.vaults[vault].home_file,
+        home=AppState.config.vaults[vault].home_file,
         graph_data=out_graph,
-        use_webgl=str(Singleton.config.default_user_config.use_webgl).lower(),
+        use_webgl=str(AppState.config.default_user_config.use_webgl).lower(),
         debug_graph=str(
-            Singleton.config.vaults[vault].graph_config.debug_graph).lower(),
+            AppState.config.vaults[vault].graph_config.debug_graph).lower(),
         nodespacing=nodespacing,
         stiffness=stiffness,
         edgelength=edgelength,

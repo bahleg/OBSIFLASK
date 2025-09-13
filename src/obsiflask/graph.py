@@ -1,7 +1,7 @@
 from pathlib import Path
 from collections import Counter
 from dataclasses import dataclass
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.bases.file_info import FileInfo
 from flask import url_for
 from obsiflask.utils import logger
@@ -27,10 +27,10 @@ class Graph:
     def build(self, rebuild=False):
         if (not rebuild) and (
                 time.time() - self.last_time_built
-                < Singleton.config.vaults[self.vault].graph_config.cache_time):
+                < AppState.config.vaults[self.vault].graph_config.cache_time):
             logger.info('using cached graph')
             return self.result
-        files = list(Singleton.indices[self.vault])
+        files = list(AppState.indices[self.vault])
         files = [
             FileInfo(f, self.vault) for f in files
             if f.is_file() and f.name.endswith('.md')

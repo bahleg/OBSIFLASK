@@ -2,7 +2,7 @@ from flask import url_for
 from frontmatter import parse
 from pathlib import Path
 from obsiflask.utils import logger
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.messages import add_message
 from obsiflask.consts import COVER_KEY, wikilink, hashtag, MAX_FILE_SIZE_MARKDOWN
 import os 
@@ -11,7 +11,7 @@ class FileInfo:
 
     def __init__(self, path: Path, vault):
         self.vault = vault
-        index_path = Singleton.indices[vault].path
+        index_path = AppState.indices[vault].path
         self.path = Path(path).resolve().relative_to(index_path.resolve())
         self.real_path = Path(path).resolve()
         self.read = False
@@ -34,7 +34,7 @@ class FileInfo:
 
             for m in matches:
                 link = m.group(1)
-                link = Singleton.indices[self.vault].resolve_wikilink(
+                link = AppState.indices[self.vault].resolve_wikilink(
                     link, self.real_path, True, escape=False, relative=False)
                 if link:
                     self._links.add(link)
@@ -63,7 +63,7 @@ class FileInfo:
     def handle_cover(self, value):
         value = (self.real_path.parent / value).resolve()
 
-        value = value.relative_to(Singleton.indices[self.vault].path)
+        value = value.relative_to(AppState.indices[self.vault].path)
         return str(value)
 
     def get_prop(self, *args, render=False):
@@ -105,7 +105,7 @@ class FileInfo:
             if args[0] == COVER_KEY and render and COVER_KEY in self.frontmatter:
                 return self.handle_cover(self.frontmatter[COVER_KEY])
             return self.frontmatter.get(args[0], '')
-        if Singleton.config.vaults[
+        if AppState.config.vaults[
                 self.vault].base_config.error_on_field_parse:
             raise ValueError(f'Field not found: {args}')
         else:

@@ -2,7 +2,7 @@ from pathlib import Path
 from flask import render_template, redirect, url_for
 from obsiflask.pages.renderer import get_markdown
 from obsiflask.pages.index_tree import render_tree
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 
 
@@ -16,15 +16,15 @@ def render_editor(vault, path, real_path):
         text = None
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))
-    markdown = get_markdown(real_path, Singleton.indices[vault], vault)
+    markdown = get_markdown(real_path, AppState.indices[vault], vault)
     return render_template('editor.html',
                            markdown_text=text,
                            path=path,
                            vault=vault,
                            markdown_html=markdown,
-                           navtree=render_tree(Singleton.indices[vault], vault,
+                           navtree=render_tree(AppState.indices[vault], vault,
                                                True),
                            page_editor=True,
-                           home=Singleton.config.vaults[vault].home_file,
+                           home=AppState.config.vaults[vault].home_file,
                            curdir=Path(path).parent,
                            curfile=path)

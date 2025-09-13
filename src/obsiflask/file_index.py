@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 from urllib import parse
 from obsiflask.utils import logger
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 
 class FileIndex:
 
@@ -78,7 +78,7 @@ class FileIndex:
 
 
     def check_refresh(self):
-        if time.time() - self.last_time > Singleton.config.vaults[self.vault].file_index_update_time:
+        if time.time() - self.last_time > AppState.config.vaults[self.vault].file_index_update_time:
             self.refresh()
 
     def __getitem__(self, index):

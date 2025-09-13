@@ -1,7 +1,7 @@
 from threading import Lock
 import time
 from dataclasses import dataclass, asdict
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.consts import MESSAGE_LIST_SIZE
 from obsiflask.utils import logger
 
@@ -37,11 +37,11 @@ def add_message(message: str,
             f'adding message for user: {user} and vault {vault}: {message}. Details: {details}'
         )
     msg = Message(message, time.time(), type, vault, user, details)
-    Singleton.messages[(vault, user)].append(msg)
+    AppState.messages[(vault, user)].append(msg)
     with _lock:
-        if len(Singleton.messages[(vault, user)]) > 2 * MESSAGE_LIST_SIZE:
-            Singleton.messages[(vault, user)] = sorted(
-                Singleton.messages[(vault, user)],
+        if len(AppState.messages[(vault, user)]) > 2 * MESSAGE_LIST_SIZE:
+            AppState.messages[(vault, user)] = sorted(
+                AppState.messages[(vault, user)],
                 key=lambda x: (x.is_read, -x.time))[:MESSAGE_LIST_SIZE]
 
 
@@ -53,7 +53,7 @@ def get_messages(
 ):
     result = []
     try:
-        result = Singleton.messages[(vault, user)]
+        result = AppState.messages[(vault, user)]
         if unread:
             result = [r for r in result if not r.is_read]
 

@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, render_template_string, request, abort
 import mistune
 import re
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from obsiflask.file_index import FileIndex
 from pathlib import Path
 from urllib import parse
@@ -56,10 +56,10 @@ def render_base_view(vault, subpath, real_path):
         raise NotImplementedError(f'Unsupported type: {base.views[key].type}')
     return render_template(template_path,
                            table=result,
-                           navtree=render_tree(Singleton.indices[vault], vault,
+                           navtree=render_tree(AppState.indices[vault], vault,
                                                False),
                            is_editor=False,
-                           home=Singleton.config.vaults[vault].home_file,
+                           home=AppState.config.vaults[vault].home_file,
                            curdir=Path(subpath).parent,
                            curfile=subpath,
                            vault=vault,

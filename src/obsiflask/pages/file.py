@@ -1,5 +1,5 @@
 from pathlib import Path
-from obsiflask.singleton import Singleton
+from obsiflask.app_state import AppState
 from flask import send_file, abort
 
 
