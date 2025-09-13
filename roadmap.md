@@ -32,4 +32,6 @@ Planned features to be implemented (tentative order):
   - Basic hotkey support  
   - Command palette  
   - Tags as links rendering
-- Large files: currently excluded from analysis  
+- Large files: currently excluded from analysis
+- More unit tests
+- More selenium tests
