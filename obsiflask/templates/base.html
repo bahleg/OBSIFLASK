@@ -39,10 +39,10 @@
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     {% if page_editor %}
                     <span class="fs-4"><a href="{{url_for('editor_root', vault = vault)}}"
-                            class="text-decoration-none">{{injected_vars['config'].vaults[vault].short_title or OBSIFLASK}}</a></span>
+                            class="text-decoration-none">{{injected_vars['config'].vaults[vault].short_title or "OBSIFLASK"}}</a></span>
                     {% else %}
                     <span class="fs-4"><a href="{{url_for('renderer_root', vault = vault)}}"
-                            class="text-decoration-none">{{injected_vars['config'].vaults[vault].short_title or OBSIFLASK}}</a></span>
+                            class="text-decoration-none">{{injected_vars['config'].vaults[vault].short_title or "OBSIFLASK"}}</a></span>
 
                     {% endif %}
                     <button class="btn btn-sm btn-secondary" id="toggleSidebar">◀</button>

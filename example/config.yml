@@ -1,6 +1,6 @@
 vaults:  # a dict of used vaults
   example:
-    full_path: '../example/vault_example' # path to vault
+    full_path: './example/vault_example' # path to vault
     home_file: 'readme.md' # path to main "home" file
     template_dir: templates # path to templates
     title: 'OBSIFLASK example vault' # title for the index page

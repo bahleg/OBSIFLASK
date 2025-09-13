@@ -29,9 +29,8 @@ With an example config, the server will be started at https://localhost:8000.
 ### Python pip
 ```bash
 git clone https://github.com/bahleg/obsiflask.git
-cd src
 pip install .
-obsiflask ../example/config.yml
+obsiflask ./example/config.yml
 ```
 
 or

@@ -151,7 +151,7 @@ class VaultConfig:
     Title for the vault index page.
     If not set, will show the key for the vault in the app config
     """
-    short_title: str = ''
+    short_title: str | None = None
     """
     Short title for the sidebar and page title
     """
