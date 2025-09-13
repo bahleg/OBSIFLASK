@@ -35,4 +35,5 @@ Planned features to be implemented (tentative order):
 - More unit tests
 - More selenium tests
 - Documentation
-- twine 
+- twine
+- Bases view fixes (sometimes they are too small)
