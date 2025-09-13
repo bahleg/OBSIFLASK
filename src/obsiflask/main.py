@@ -49,7 +49,7 @@ def run():
         Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
                                              cfg.vaults[vault].template_dir)
         Singleton.graphs[vault] = Graph(vault)
-
+    Singleton.inject_vars()
     logger.debug('starting app')
     app = Flask(__name__,
                 template_folder=abspath(Path(__file__).parent / "templates"),

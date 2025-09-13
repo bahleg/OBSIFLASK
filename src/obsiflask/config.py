@@ -36,7 +36,9 @@ class VaultConfig:
     template_dir: str | None = None
     base_config: BaseConfig = field(default_factory=lambda: BaseConfig())
     graph_config: GraphConfig = field(default_factory=lambda: GraphConfig())
-    
+    title: str | None = None  
+    short_title: str | None = 'OBSIFLASK'
+    description: str = '' 
 
 
 @dataclass

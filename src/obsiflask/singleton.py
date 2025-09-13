@@ -10,3 +10,6 @@ class Singleton:
     injected_vars_jinja: dict = {'version': get_version()}
     graphs: dict[str, "Graph"] = {}
     
+    @staticmethod 
+    def inject_vars():
+        Singleton.injected_vars_jinja['config'] = Singleton.config
