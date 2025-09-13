@@ -26,7 +26,7 @@ For OBSIFLASK configuration, please see [Config file](https://github.com/bahleg/
 
 With an example config, the server will be started at https://localhost:8000. 
 
-### Python
+### Python pip
 ```bash
 git clone https://github.com/bahleg/obsiflask.git
 cd src
@@ -34,11 +34,21 @@ pip install .
 obsiflask ../example/config.yml
 ```
 
+or
+```
+pip install git+https://github.com/bahleg/OBSIFLASK.git
+```
+
 
 ### Docker
 Demo run:
 ```bash bash build_docker.sh
 docker run -p 8000:8000 obsiflask
+```
+
+By default docker image uses config from /config.yml. You can use the docker with your config:
+```
+docker run -p 8000:8000 -v <path to your config>:/config.yml obsiflask
 ```
 
 ## 🤝 Contributing
