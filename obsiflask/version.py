@@ -2,7 +2,7 @@
 Version handling module
 """
 import subprocess
-version_str = '0.7.1'
+version_str = '0.7.2'
 
 
 def get_version(pep_version=True, short: bool = False) -> str:
