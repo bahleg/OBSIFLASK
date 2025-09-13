@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 from obsiflask.version import get_version
 
-with open('requirements.txt', encoding='uft-8') as inp:
+with open('requirements.txt') as inp:
     requirements = '\n'.join(
         re.findall(r'^([^\s^+]+).*$', inp.read(), flags=re.MULTILINE))
 
