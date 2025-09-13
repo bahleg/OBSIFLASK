@@ -1,17 +1,12 @@
 from pathlib import Path
 import datetime
 import logging
-from flask import Flask
-from flask import redirect, url_for
 from os.path import abspath
-from flask_bootstrap import Bootstrap5
-from flask import request, redirect
-from flask import Flask, request, jsonify
-from flask_wtf.csrf import CSRFProtect
-import uuid
-from flask_bootstrap import Bootstrap5
 
-# from toolbox.front_flask.download import download, download_shared as download_shared_back
+from flask import Flask, request, jsonify, redirect, url_for
+from flask_bootstrap import Bootstrap5
+from flask_favicon import FlaskFavicon
+
 from obsiflask.config import AppConfig
 from obsiflask.minihydra import load_entrypoint_config
 from obsiflask.utils import init_logger
@@ -32,37 +27,42 @@ from obsiflask.pages.base import render_base
 from obsiflask.graph import Graph
 from obsiflask.pages.graph import render_graph
 from obsiflask.pages.search import render_search
-from flask_favicon import FlaskFavicon
 
 
 def run():
+    """
+    Main application entrypoint
+    """
+    # Config and logger initialization
     cfg: AppConfig = load_entrypoint_config(AppConfig)
     Singleton.config = cfg
     for vault in cfg.vaults:
         Singleton.messages[(vault, None)] = []
-    run_tasks(cfg.tasks)
     logger = init_logger(cfg.log_path, log_level=cfg.log_level)
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
     logger.debug('initialization')
+
+    # app resources
+    run_tasks({vault: cfg.vaults[vault].tasks})
     for vault in cfg.vaults:
         Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
-                                             cfg.vaults[vault].template_dir)
+                                             cfg.vaults[vault].template_dir, vault)
         Singleton.graphs[vault] = Graph(vault)
     Singleton.inject_vars()
+
+    # Flask confguration
     logger.debug('starting app')
     app = Flask(__name__,
                 template_folder=abspath(Path(__file__).parent / "templates"),
                 root_path=Path(__file__).parent)
     flaskFavicon = FlaskFavicon()
     flaskFavicon.init_app(app)
-    flaskFavicon.register_favicon(str(Path(__file__).resolve().parent/'static/logo.png'), 'default') 
-    
+    flaskFavicon.register_favicon(
+        str(Path(__file__).resolve().parent / 'static/logo.png'), 'default')
 
     Bootstrap5(app)
 
-    #app.config['SECRET_KEY'] = uuid.uuid4().hex
-    #CSRFProtect(app)
     app.config['WTF_CSRF_ENABLED'] = False
     app.config[
         "BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.default_user_config.bootstrap_theme
@@ -162,7 +162,6 @@ def run():
         real_path = Path(cfg.vaults[vault].full_path).absolute() / subpath
         return page_get_file(real_path)
 
-        
     @app.route('/folder/<vault>/<path:subpath>')
     def get_folder(vault, subpath):
         if vault not in cfg.vaults:
@@ -200,21 +199,21 @@ def run():
     @app.route('/search/<vault>')
     def search(vault):
         return render_search(vault)
-    
+
     @app.route('/messages/<vault>')
     def messages(vault):
         unread = request.args.get('unread', default='1')
         raw = request.args.get('raw', default='0')
         try:
             unread = int(unread)
-        except:
-            logger.warning(f'could not parse unread parameter: {unread}')
+        except Exception as e:
+            logger.warning(f'could not parse unread parameter: {unread}: {e}')
             unread = 1
 
         try:
             raw = int(raw)
-        except:
-            logger.warning(f'could not parse raw parameter: {raw}')
+        except Exception as e:
+            logger.warning(f'could not parse raw parameter: {raw}: {e}')
             raw = 0
         return render_messages(vault, unread, raw=raw)
 
@@ -222,6 +221,7 @@ def run():
     def fileop(vault):
         return render_fileop(vault)
 
+    # Run
     app.run(**cfg.flask_params)
 
 

@@ -1,5 +1,7 @@
 {% from 'bootstrap5/utils.html' import render_messages %}
 {% include "flask-favicon.html" %}
+{% from 'shared.html' import render_footer %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,13 +58,7 @@
         </div>
     </div>
         {% block footer %}
-        <hr />
-    <footer class="text-center">
-        <a href="https://github.com/bahleg/OBSIFLASK">bahleg</a>, 2025
-        <br/>
-        <a href="https://github.com/bahleg/OBSIFLASK/blob/main/changelog.md">v. {{injected_vars["version"]}}</a>
-        
-    </footer>
+            {{ render_footer(injected_vars["version"]) }}
     {% endblock %}
     {{ bootstrap.load_js() }}
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

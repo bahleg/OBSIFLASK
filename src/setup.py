@@ -1,8 +1,12 @@
+"""
+Setup script for OBSIFLASK
+"""
 import re
 from setuptools import setup, find_packages
+
 from obsiflask.version import get_version
 
-with open('requirements.txt') as inp:
+with open('requirements.txt', encoding='uft-8') as inp:
     requirements = '\n'.join(
         re.findall(r'^([^\s^+]+).*$', inp.read(), flags=re.MULTILINE))
 
@@ -17,11 +21,11 @@ setup(
     packages=find_packages(),
     install_requires=requirements,
     entry_points={"console_scripts": ["obsiflask=obsiflask.main:run"]},
-    include_package_data=True,  # важно!
+    include_package_data=True,
     package_data={
         "obsiflask": [
             "templates/*.html",
-             "templates/*/*.html",
+            "templates/*/*.html",
             "static/*.*",
             "static/*/*.*",
         ],

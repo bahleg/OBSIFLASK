@@ -1,9 +1,8 @@
 import re
 
-APP_NAME = 'obsiflask'
+APP_NAME = 'OBSIFLASK'
 
 COVER_KEY = 'cover'
-INDEX_UPDATE_TIME = 5 * 60
 MESSAGE_LIST_SIZE = 100
 MAX_FILE_SIZE_MARKDOWN = 1024*1024 # 1 MB
 MaxViewErrors = 50

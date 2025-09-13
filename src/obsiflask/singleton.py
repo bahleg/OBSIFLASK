@@ -1,15 +1,20 @@
-from obsiflask.file_index import FileIndex
+"""
+A class to represent static variables used across the project
+"""
 from obsiflask.config import AppConfig
 from obsiflask.version import get_version
 
 
 class Singleton:
-    indices: dict[str, FileIndex] = {}
+    indices: dict[str, "FileIndex"] = {} # obsiflask.file_index
     config: AppConfig = None
-    messages: dict[tuple[str, str], list["Message"]] = {}
+    messages: dict[tuple[str, str], list["Message"]] = {} # obsiflask.messages
     injected_vars_jinja: dict = {'version': get_version()}
-    graphs: dict[str, "Graph"] = {}
-    
-    @staticmethod 
+    graphs: dict[str, "Graph"] = {} # obsiflask.graph
+
+    @staticmethod
     def inject_vars():
+        """
+        Injecting the config into jinja variables to be exposed to flask
+        """
         Singleton.injected_vars_jinja['config'] = Singleton.config

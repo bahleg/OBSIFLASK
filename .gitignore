@@ -1,8 +1,12 @@
+# OBSIFLASK-specific files
+temp/
+example/.obsidian
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
-temp/
+
 # C extensions
 *.so
 

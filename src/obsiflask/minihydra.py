@@ -1,4 +1,7 @@
 """
+Originally a code from embed2discover (https://gitlab.datascience.ch/democrasci/embed2discover)
+GPLv3
+
 The module mimics some features of Hydra library
 """
 import sys
@@ -6,7 +9,7 @@ from typing import Optional, Any
 from pathlib import Path
 import importlib
 
-from omegaconf import OmegaConf, DictConfig, ListConfig
+from omegaconf import OmegaConf, DictConfig
 
 TARGET_KEY = "_target_"
 """this key must contain the classpath to objects needed to create from the config"""

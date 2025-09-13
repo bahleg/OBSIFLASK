@@ -7,7 +7,7 @@ from obsiflask.messages import add_message
 from obsiflask.utils import logger
 
 
-def thread_wrapper(task: Task):
+def thread_wrapper(task: Task, vault: str):
     while True:
         time.sleep(task.interval)
         stderr = ''
@@ -30,12 +30,13 @@ def thread_wrapper(task: Task):
             stderr = repr(e)
             msg = task.error
             type = 2
-        add_message(msg, type, task.vault, stderr)
-        
+        add_message(msg, type, vault, stderr)
 
 
-def run_tasks(tasks: list[Task]):
-    for task in tasks:
-        logger.info(f'running task {task}')
-        thread = Thread(target=partial(thread_wrapper, task=task))
-        thread.start()
+def run_tasks(tasks_dict: {str, list[Task]}):
+    for vault, tasks in tasks_dict.items():
+        for task in tasks:
+            logger.info(f'running task {task}')
+            thread = Thread(
+                target=partial(thread_wrapper, task=task, vault=vault))
+            thread.start()

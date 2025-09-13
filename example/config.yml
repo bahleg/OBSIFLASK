@@ -1,21 +1,18 @@
-vaults: 
+vaults:  # a dict of used vaults
   example:
-    full_path: '../example/vault_example'
-    allowed_users: []
-    home_file: 'readme.md'
-    template_dir: templates
-    title: 'OBSIFLASK example vault'
-    short_title: 'Example'
-    description: 'This is a vault describing functionality of OBSIFLASK'
-    base_config:
-      error_on_field_parse: false
-flask_params:
+    full_path: '../example/vault_example' # path to vault
+    home_file: 'readme.md' # path to main "home" file
+    template_dir: templates # path to templates
+    title: 'OBSIFLASK example vault' # title for the index page
+    short_title: 'Example' # title for the sidebar and HTML title
+    description: 'This is a vault describing functionality of OBSIFLASK' # description for the index page
+    tasks: # a list of tasks that will be periodically executed in the vault
+    - cmd: echo "hello world" 
+      interval: 120 # every 2 min
+      success: "Echo task for test (every 2 minutes)"
+
+flask_params: # these params will be propagated into flask app.run(**kwargs) 
   port: 8000
   debug: true
   use_reloader: false
   host: 0.0.0.0
-tasks:
-  - cmd: echo "hello world"
-    interval: 120
-    vault: example
-    success: "Echo task for test (every 2 minutes)"

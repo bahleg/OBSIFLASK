@@ -1,18 +1,19 @@
 import os
 import time
 from pathlib import Path
-from obsiflask.consts import INDEX_UPDATE_TIME
 from urllib import parse
 from obsiflask.utils import logger
+from obsiflask.singleton import Singleton
 
 class FileIndex:
 
-    def __init__(self, path, template_dir):
+    def __init__(self, path, template_dir, vault):
         self.path = Path(path).resolve()
         if template_dir is not None:
             self.template_dir = self.path / template_dir
         else:
             self.template_dir = None
+        self.vault = vault
         self.templates = []
         self._name_to_path = {}
         self._files = []
@@ -77,7 +78,7 @@ class FileIndex:
 
 
     def check_refresh(self):
-        if time.time() - self.last_time > INDEX_UPDATE_TIME:
+        if time.time() - self.last_time > Singleton.config.vaults[self.vault].file_index_update_time:
             self.refresh()
 
     def __getitem__(self, index):

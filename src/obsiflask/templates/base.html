@@ -2,11 +2,11 @@
 {% from 'bootstrap5/utils.html' import render_messages %}
 {% from 'bootstrap5/form.html' import render_form%}
 {% from 'bootstrap5/table.html' import render_table %}
+{% from 'shared.html' import render_footer %}
+
 {% include "flask-favicon.html" %}
 <!DOCTYPE html>
-
 <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
-
 <html lang="en">
 
 <head>
@@ -121,14 +121,7 @@
             {% block content %}{% endblock %}
 
             {% block footer %}
-            <hr />
-            <footer class="text-center">
-                <a href="https://github.com/bahleg/OBSIFLASK">bahleg</a>, 2025
-                <br />
-                <a href="https://github.com/bahleg/OBSIFLASK/blob/main/changelog.md">v.
-                    {{injected_vars["version"]}}</a>
-
-            </footer>
+                {{ render_footer(injected_vars["version"]) }}
             {% endblock %}
         </div>
 

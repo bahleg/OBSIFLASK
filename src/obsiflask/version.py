@@ -1,7 +1,18 @@
+"""
+Version handling
+"""
 version_str = '0.6.0'
 
 
-def get_version(pep_version=True):
+def get_version(pep_version=True) -> str:
+    """
+    Returns version
+    Args:
+        pep_version (bool, optional): if set, will return version with suffix in PEP-format. Defaults to True.
+
+    Returns:
+        str: version
+    """
     if pep_version:
         delim_char = '+'
     else:
@@ -19,6 +30,9 @@ def get_version(pep_version=True):
 
 
 def bump_version():
+    """
+    Updates version
+    """
     with open(__file__) as inp:
         lines = inp.readlines()
         assert lines[0].startswith('version_str')

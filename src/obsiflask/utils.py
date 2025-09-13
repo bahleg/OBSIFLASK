@@ -1,4 +1,7 @@
 """
+Originally a code from embed2discover (https://gitlab.datascience.ch/democrasci/embed2discover)
+GPLv3
+
 Some basic functions for logging, 
 working with config and prototyping modules of the toolbox
 """
