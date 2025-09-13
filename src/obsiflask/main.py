@@ -67,12 +67,21 @@ def resolve_path(vault: str, subpath: str) -> Path | tuple[str, int]:
     return real_path
 
 
-def run():
+def run(cfg: AppConfig | None, return_app: bool = False) -> Flask:
     """
     Main application entrypoint
+    
+
+    Args:
+        cfg (AppConfig, optional): application config. If not set, will use arguments to load config from system
+        return_app (bool, optional): returns application without running. Defaults to False.
+
+    Returns:
+        Flask: flask application
     """
     # Config and logger initialization
-    cfg: AppConfig = load_entrypoint_config(AppConfig)
+    if cfg is None:
+        cfg: AppConfig = load_entrypoint_config(AppConfig)
     AppState.config = cfg
     for vault in cfg.vaults:
         AppState.messages[(vault, None)] = []
@@ -82,11 +91,11 @@ def run():
     logger.debug('initialization')
 
     # app resources
-    run_tasks({vault: cfg.vaults[vault].tasks})
+    run_tasks({vault: cfg.vaults[vault].tasks for vault in cfg.vaults})
     for vault in cfg.vaults:
         AppState.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
-                                             cfg.vaults[vault].template_dir,
-                                             vault)
+                                            cfg.vaults[vault].template_dir,
+                                            vault)
         AppState.graphs[vault] = Graph(vault)
     AppState.inject_vars()
 
@@ -254,6 +263,8 @@ def run():
     def fileop(vault):
         return render_fileop(vault)
 
+    if return_app:
+        return app
     # Run
     app.run(**cfg.flask_params)
 

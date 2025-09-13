@@ -1,7 +1,7 @@
 # OBSIFLASK-specific files
 temp/
 example/.obsidian
-
+src/assets/favicon
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

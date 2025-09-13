@@ -29,9 +29,15 @@ def get_version(pep_version=True) -> str:
     return ver
 
 
-def bump_version():
+def bump_version(path_to_save: str | None = None) -> str:
     """
     Updates version
+    
+
+    Args:
+        rewrite_file (str, optional): if set, will rewrite this file to the new location. 
+        Otherwise will rewrite file
+
     """
     with open(__file__) as inp:
         lines = inp.readlines()
@@ -45,8 +51,11 @@ def bump_version():
         tokens = version_str.split('.')
         new_ver = f'{tokens[0]}.{tokens[1]}.{int(tokens[2])+1}'
         lines[v_id] = f"version_str = '{new_ver}'\n"
-    with open(__file__, 'w') as out:
-        out.write(''.join(lines))
+    result = ''.join(lines)
+    path_to_save = path_to_save or __file__
+    with open(path_to_save, 'w') as out:
+        out.write(result)
+
 
 
 if __name__ == '__main__':
