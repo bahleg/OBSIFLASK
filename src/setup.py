@@ -23,6 +23,7 @@ setup(
             "templates/*.html",
              "templates/*/*.html",
             "static/*.*",
+            "static/*/*.*",
         ],
     },
 )
