@@ -37,7 +37,7 @@ class VaultConfig:
     base_config: BaseConfig = field(default_factory=lambda: BaseConfig())
     graph_config: GraphConfig = field(default_factory=lambda: GraphConfig())
     title: str | None = None  
-    short_title: str | None = 'OBSIFLASK'
+    short_title: str = ''
     description: str = '' 
 
 
