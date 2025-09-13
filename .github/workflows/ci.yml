@@ -64,19 +64,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Tag Docker image
+      - name: Push Docker image
         if: env.PUBLISH_DOCKER == 'true'
         run: |
           DOCKER_VERSION=$(python -c 'from obsiflask.version import get_version; print(get_version(False))')
           docker tag obsiflask:latest bahleg13/obsiflask:latest
           docker tag obsiflask:latest bahleg13/obsiflask:"$DOCKER_VERSION"
-      
-      - name: Push Docker image
-        if: env.PUBLISH_DOCKER == 'true'
-        run: |
           docker push bahleg13/obsiflask:latest
           echo "pushing to bahleg13/obsiflask:${DOCKER_VERSION}"
-          docker push bahleg13/obsiflask:${DOCKER_VERSION}
+          docker push bahleg13/obsiflask:${DOCKER_VERSION}пше 
           
 
       - name: Push version bump and tag
