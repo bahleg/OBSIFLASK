@@ -1,6 +1,6 @@
 <div align="center">  
     <picture>
-      <img alt="OBSIFLASK logo" src="src/obsiflask/static/logo.png" width="200px">
+      <img alt="OBSIFLASK logo" src="obsiflask/static/logo.png" width="200px">
     </picture>
     <h1> OBSIFLASK </h1>
     <p align="center"> Simple web service for Obsidian vaults </p>
