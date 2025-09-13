@@ -23,7 +23,6 @@ Planned features to be implemented (tentative order):
 - Bookmarks
 - Obsidian config usage   
 - Read-only vaults or parts of vaults  
-- Documentation 
 - PWA support (tentative)  
 
 ## Minor features and fixes
@@ -35,3 +34,5 @@ Planned features to be implemented (tentative order):
 - Large files: currently excluded from analysis
 - More unit tests
 - More selenium tests
+- Documentation
+- twine 
