@@ -1,5 +1,5 @@
 """
-Version handling
+Version handling module
 """
 version_str = '0.6.0'
 
@@ -35,10 +35,16 @@ def bump_version():
     """
     with open(__file__) as inp:
         lines = inp.readlines()
-        assert lines[0].startswith('version_str')
+        found = False
+        for v_id, version_line in enumerate(lines):
+            if version_line.startswith('version_str'):
+                found = True
+                break
+        if not found:
+            raise ValueError('Could not find version line')
         tokens = version_str.split('.')
         new_ver = f'{tokens[0]}.{tokens[1]}.{int(tokens[2])+1}'
-        lines[0] = f"version_str = '{new_ver}'\n"
+        lines[v_id] = f"version_str = '{new_ver}'\n"
     with open(__file__, 'w') as out:
         out.write(''.join(lines))
 

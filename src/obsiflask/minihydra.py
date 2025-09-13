@@ -15,7 +15,7 @@ TARGET_KEY = "_target_"
 """this key must contain the classpath to objects needed to create from the config"""
 
 
-def load_config(path: str | Path, basic_type_dataclass=None) -> DictConfig:
+def load_config(path: str | Path, basic_type_dataclass: type | None = None) -> DictConfig:
     """
     Loads config from YAML.
     If basic_type_dataclass is provided, merges config with basic_type_dataclass 
@@ -23,7 +23,7 @@ def load_config(path: str | Path, basic_type_dataclass=None) -> DictConfig:
 
     Args:
     path (str| Path): path to YAML config
-    basic_type_dataclass (dataclass): scheme, dataclass, defaults to None
+    basic_type_dataclass (type | None): scheme, dataclass, defaults to None
 
     Returns:
         DictConfig: resulting config
@@ -40,7 +40,7 @@ def load_config(path: str | Path, basic_type_dataclass=None) -> DictConfig:
 def load_entrypoint_config(basic_type_dataclass=None) -> DictConfig:
     """
     A very basic handler for CLI.
-    Validates that there is given only one argument, convverts it into config.
+    Validates that there is given only one argument, converts it into config.
 
     Args:
         basic_type_dataclass (dataclass): optional dataclass for scheme validation, defaults to None
@@ -56,12 +56,12 @@ def load_entrypoint_config(basic_type_dataclass=None) -> DictConfig:
     return config
 
 
-def init(init_dict: dict, required_type: Optional[type] = None) -> Any:
+def init(init_dict: dict | DictConfig, required_type: Optional[type] = None) -> Any:
     """
     Initializes an object from config.
 
     Args:
-        init_dict (Dict): dict with data to initalize.
+        init_dict (dict | DictConfig): dict with data to initialize.
         The dict must contain _target_ key with full python classpath.
         The dict can contain other arguments that needed to init recursively
     
@@ -70,7 +70,8 @@ def init(init_dict: dict, required_type: Optional[type] = None) -> Any:
     Returns:
         Any: new object created from config
     """
-    assert TARGET_KEY in init_dict, f"{TARGET_KEY} not found in dict: {init_dict}"
+    if TARGET_KEY not in init_dict:
+        raise ValueError(f"{TARGET_KEY} not found in dict: {init_dict}")
     class_path = init_dict[TARGET_KEY]
     module = importlib.import_module(class_path.rsplit(".", 1)[0])
     classtype = getattr(module, class_path.split(".")[-1])

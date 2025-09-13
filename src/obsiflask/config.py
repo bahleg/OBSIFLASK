@@ -3,6 +3,7 @@ Module describes configuration scheme.
 For the main config class, see AppConfig
 """
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -47,12 +48,12 @@ class BaseConfig:
     """
     error_on_yaml_parse: bool = False
     """
-    If True, will raise an excpetion during bases yaml parsing.
+    If True, will raise an exception during bases yaml parsing.
     Otherwise, will put message and skip
     """
     error_on_field_parse: bool = False
     """
-    If True, will raise an excpetion during formula parsing.
+    If True, will raise an exception during formula parsing.
     Otherwise, will put message and skip
     """
     cache_time: int = 3600
@@ -118,7 +119,7 @@ class VaultConfig:
     """
     full_path: str
     """
-    Path to vault directory. Can be local or absoulte
+    Path to vault directory. Can be local or absolute
     """
     home_file: str = ''
     """
@@ -133,15 +134,15 @@ class VaultConfig:
     """
     Optional directory to template files
     """
-    base_config: BaseConfig = field(default_factory=lambda: BaseConfig())
+    base_config: BaseConfig = field(default_factory=BaseConfig)
     """
     Base handling config
     """
-    graph_config: GraphConfig = field(default_factory=lambda: GraphConfig())
+    graph_config: GraphConfig = field(default_factory=GraphConfig)
     """
     Graph handling config
     """
-    tasks: list[Task] = field(default_factory=lambda: [])
+    tasks: list[Task] = field(default_factory=list)
     """
     List of tasks to be executed in the vault
     """
@@ -170,7 +171,7 @@ class AppConfig:
     """
     Config for each vault
     """
-    flask_params: dict = field(default_factory=lambda: {})
+    flask_params: dict[str, Any] = field(default_factory=dict)
     """
     Flask parameters. Will be put into app.run(**kwargs)
     """
@@ -178,8 +179,7 @@ class AppConfig:
     """
     Path to save logs
     """
-    default_user_config: UserConfig = field(
-        default_factory=lambda: UserConfig())
+    default_user_config: UserConfig = field(default_factory=UserConfig)
     """
     User-specific config
     """

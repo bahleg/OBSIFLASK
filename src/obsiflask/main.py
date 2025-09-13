@@ -29,6 +29,44 @@ from obsiflask.pages.graph import render_graph
 from obsiflask.pages.search import render_search
 
 
+def check_vault(vault: str) -> tuple[str, int] | None:
+    """
+    Checks if the vault exists    
+
+    Args:
+        vault (str): vault name
+
+    Returns:
+        tuple[str, int] | None: flask-formatted return or None
+    """
+    cfg = Singleton.config
+    if vault not in cfg.vaults:
+        return "Bad vault", 400
+    return None
+
+
+def resolve_path(vault: str, subpath: str) -> Path | tuple[str, int]:
+    """
+    Resolves path w.r.t. to application
+
+    Args:
+        vault (str): vault name
+        subpath (str): path relative to vault
+
+    Returns:
+        Path | tuple[str, int]: flask-formatted return or absolute path 
+    """
+    vault_resolution_result = check_vault(vault)
+    if vault_resolution_result is not None:
+        return vault_resolution_result
+
+    cfg = Singleton.config
+    real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
+    if not real_path.exists():
+        return f"Bad path: {subpath}", 400
+    return real_path
+
+
 def run():
     """
     Main application entrypoint
@@ -47,7 +85,8 @@ def run():
     run_tasks({vault: cfg.vaults[vault].tasks})
     for vault in cfg.vaults:
         Singleton.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
-                                             cfg.vaults[vault].template_dir, vault)
+                                             cfg.vaults[vault].template_dir,
+                                             vault)
         Singleton.graphs[vault] = Graph(vault)
     Singleton.inject_vars()
 
@@ -78,17 +117,16 @@ def run():
 
     @app.route('/edit/<vault>/<path:subpath>')
     def editor(vault, subpath):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
-        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
-        if not (real_path).exists():
-            return f'Bad path: {subpath}', 404
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         return render_editor(vault, subpath, real_path)
 
     @app.route('/editor/<vault>')
     def editor_root(vault):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
+        vault_resolution_result = check_vault(vault)
+        if vault_resolution_result:
+            return vault_resolution_result
         if cfg.vaults[vault].home_file:
             return redirect(
                 url_for('editor',
@@ -99,35 +137,30 @@ def run():
 
     @app.route('/excalidraw/<vault>/<path:subpath>')
     def excalidraw(vault, subpath):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
-        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
-        if not (real_path).exists():
-            return f'Bad path: {subpath}', 404
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         return render_excalidraw(vault, subpath, real_path)
 
     @app.route('/renderer/<vault>/<path:subpath>')
     def renderer(vault, subpath):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
-        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
-        if not (real_path).exists():
-            return f'Bad path: {subpath}', 404
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         return render_renderer(vault, subpath, real_path)
 
     @app.route('/base/<vault>/<path:subpath>')
     def base(vault, subpath):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
-        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
-        if not (real_path).exists():
-            return f'Bad path: {subpath}', 404
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         return render_base(vault, subpath, real_path)
 
     @app.route('/renderer/<vault>')
     def renderer_root(vault):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
+        vault_resolution_result = check_vault(vault)
+        if vault_resolution_result:
+            return vault_resolution_result
         if cfg.vaults[vault].home_file:
             return redirect(
                 url_for('renderer',
@@ -138,49 +171,49 @@ def run():
 
     @app.route('/preview/<vault>/<path:subpath>')
     def preview(vault, subpath):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
-        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
-        if not (real_path).exists():
-            return f'Bad path: {subpath}', 404
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         markdown = get_markdown(real_path, Singleton.indices[vault], vault)
         return jsonify({'content': markdown})
 
     @app.route('/save/<vault>/<path:subpath>', methods=['PUT'])
     def save_file(vault, subpath):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
-        real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         data = request.get_json()
         content = data.get('content', '')
         return make_save(real_path, content, Singleton.indices[vault], vault)
 
     @app.route('/file/<vault>/<path:subpath>')
     def get_file(vault, subpath):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
-        real_path = Path(cfg.vaults[vault].full_path).absolute() / subpath
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         return page_get_file(real_path)
 
     @app.route('/folder/<vault>/<path:subpath>')
     def get_folder(vault, subpath):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         return render_folder(vault, subpath)
 
     @app.route('/renderer/<vault>/')
     @app.route('/folder/<vault>')
     @app.route('/folder/<vault>/')
     def get_folder_root(vault):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
+        vault_resolution_result = check_vault(vault)
+        if vault_resolution_result:
+            return vault_resolution_result
         return render_folder(vault, '.')
 
     @app.route('/static/<path:subpath>')
     def get_static(vault, subpath):
-        if vault not in cfg.vaults:
-            return 'Bad vault', 404
-        real_path = (Path(__name__).parent / 'static').absolute() / subpath
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         return page_get_file(real_path)
 
     @app.route('/')

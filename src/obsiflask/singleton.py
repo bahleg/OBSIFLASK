@@ -6,11 +6,11 @@ from obsiflask.version import get_version
 
 
 class Singleton:
-    indices: dict[str, "FileIndex"] = {} # obsiflask.file_index
-    config: AppConfig = None
-    messages: dict[tuple[str, str], list["Message"]] = {} # obsiflask.messages
+    indices: dict[str, "FileIndex"] = {}  # obsiflask.file_index
+    config: AppConfig | None = None
+    messages: dict[tuple[str, str], list["Message"]] = {}  # obsiflask.messages
     injected_vars_jinja: dict = {'version': get_version()}
-    graphs: dict[str, "Graph"] = {} # obsiflask.graph
+    graphs: dict[str, "Graph"] = {}  # obsiflask.graph
 
     @staticmethod
     def inject_vars():

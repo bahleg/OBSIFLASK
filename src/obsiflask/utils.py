@@ -21,22 +21,21 @@ Default obsidian-flask logger
 
 
 def init_logger(
-    file_path: str = None,
+    file_path: str | None = None,
     use_rich: bool = True,
     remove_other_handlers: bool = True,
     log_level: str = "DEBUG",
-    logger_to_init: logging.Logger = None,
+    logger_to_init: logging.Logger | None = None,
 ) -> logging.Logger:
     """
     Makes a logger for a toolbox.
-    Uses "springs" logger settings as a base
 
     Args:
-        file_path (str): if set, creates a file with logs, defaults to None
+        file_path (str | None): if set, creates a file with logs, defaults to None
         use_rich (bool): if set, will use rich colors in logs, defaults to True
         remove_other_handlers (bool): if set, will delete all other handlers, defaults to True
         log_level (str): logging level
-        logger_to_init (logging.Logger): logger to init. If not set, will use default logger
+        logger_to_init (logging.Logger | None): logger to init. If not set, will use default logger
     Returns:
         (logging.Logger): logger
     """
