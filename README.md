@@ -41,7 +41,17 @@ Demo run:
 docker run -p 8000:8000 obsiflask
 ```
 
+## 🤝 Contributing
+
+This is a personal pet project that I develop in my free time.  
+Expect plenty of bugs, missing features, and rough edges 🙂  
+
+That said — feedback, issues, and pull requests are very welcome!  
+If you have ideas, suggestions, or fixes, feel free to open an issue or submit a PR.
+
+
 ## More
 * [License: GPLv3](LICENSE)
 * [Changelog](changelog.md)
 * [Roadmap](roadmap.md)
+
