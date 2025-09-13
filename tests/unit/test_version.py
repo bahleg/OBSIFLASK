@@ -2,26 +2,48 @@ import importlib.util as util
 
 from obsiflask.version import get_version, bump_version
 
+import pytest
+from unittest.mock import patch
+from obsiflask.version import get_version, version_str
 
-def test_get_version(monkeypatch):
-    monkeypatch.setenv("GIT_BRANCH", "main")
-    monkeypatch.setenv("GIT_COMMIT", "abcdef")
+
+def fake_check_output_git_commit(*args, **kwargs):
+    if args[0] == ["git", "rev-parse", "--short", "HEAD"]:
+        return "abc123"
+    if args[0] == ["git", "status", "--porcelain"]:
+        return ""
+    return ""
+
+
+def fake_check_output_git_dirty(*args, **kwargs):
+    if args[0] == ["git", "rev-parse", "--short", "HEAD"]:
+        return "abc123"
+    if args[0] == ["git", "status", "--porcelain"]:
+        return " M some_file.py"
+    return ""
+
+
+def fake_check_output_git_fail(*args, **kwargs):
+    raise Exception("git not found")
+
+
+@patch("subprocess.check_output", side_effect=fake_check_output_git_commit)
+def test_version_with_commit(clean_git):
     ver = get_version()
-    assert ver.endswith("+abcdef")
+    assert ver.startswith(version_str + "+abc123")
+    assert ".dirty" not in ver
 
-    monkeypatch.setenv("GIT_BRANCH", "local")
+
+@patch("subprocess.check_output", side_effect=fake_check_output_git_dirty)
+def test_version_dirty(dirty_git):
+    ver = get_version()
+    assert ver.startswith(version_str + "+abc123.dirty")
+
+
+@patch("subprocess.check_output", side_effect=fake_check_output_git_fail)
+def test_version_no_git(no_git):
     ver = get_version()
     assert ver.endswith("+local")
-
-    monkeypatch.setenv("GIT_BRANCH", "feature/test")
-    monkeypatch.setenv("GIT_COMMIT", "123456")
-    ver = get_version()
-    assert ver.endswith("+feature/test.123456")
-
-    monkeypatch.setenv("GIT_BRANCH", "main")
-    monkeypatch.setenv("GIT_COMMIT", "abcdef")
-    ver = get_version(pep_version=False)
-    assert ver.endswith("-abcdef")
 
 
 def test_bump_version(tmp_path):

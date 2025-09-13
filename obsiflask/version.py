@@ -1,32 +1,37 @@
 """
 Version handling module
 """
+import subprocess
+import os 
 version_str = '0.6.0'
 
 
 def get_version(pep_version=True) -> str:
-    """
-    Returns version
-    Args:
-        pep_version (bool, optional): if set, will return version with suffix in PEP-format. Defaults to True.
+    delim_char = '+' if pep_version else '-'
 
-    Returns:
-        str: version
-    """
-    if pep_version:
-        delim_char = '+'
+    # пытаемся получить git commit
+    try:
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            stderr=subprocess.DEVNULL,
+            text=True
+        ).strip()
+        # проверяем, есть ли несохранённые изменения
+        dirty = subprocess.check_output(
+            ["git", "status", "--porcelain"], text=True
+        ).strip()
+        if dirty:
+            commit += ".dirty"
+    except Exception:
+        commit = None
+
+    if commit:
+        ver = f"{version_str}{delim_char}{commit}"
     else:
-        delim_char = '-'
-    import os
-    branch = os.environ.get('GIT_BRANCH', 'local')
-    commit = os.environ.get('GIT_COMMIT', '')
-    if branch == 'main':
-        ver = f'{version_str}{delim_char}{commit}'
-    elif branch == 'local':
-        ver = f'{version_str}{delim_char}local'
-    else:
-        ver = f'{version_str}{delim_char}{branch}.{commit}'
+        ver = f"{version_str}{delim_char}local"
+
     return ver
+
 
 
 def bump_version(path_to_save: str | None = None) -> str:

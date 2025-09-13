@@ -4,7 +4,6 @@ GPLv3
 """
 
 import os
-import re
 
 from obsiflask.utils import init_logger
 
