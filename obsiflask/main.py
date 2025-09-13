@@ -67,7 +67,7 @@ def resolve_path(vault: str, subpath: str) -> Path | tuple[str, int]:
     return real_path
 
 
-def run(cfg: AppConfig | None, return_app: bool = False) -> Flask:
+def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
     """
     Main application entrypoint
     
