@@ -30,7 +30,7 @@ def get_version(pep_version=True, short: bool = False) -> str:
             ["git", "status", "--porcelain"], text=True
         ).strip()
         if dirty:
-            commit += ".dirty"
+            commit += ".local"
     except Exception:
         commit = None
 

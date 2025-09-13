@@ -75,6 +75,7 @@ jobs:
         if: env.PUBLISH_DOCKER == 'true'
         run: |
           docker push bahleg13/obsiflask:latest
+          echo "pushing to bahleg13/obsiflask:"$DOCKER_VERSION""
           docker push bahleg13/obsiflask:"$DOCKER_VERSION"
           
 

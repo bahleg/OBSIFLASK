@@ -31,13 +31,13 @@ def fake_check_output_git_fail(*args, **kwargs):
 def test_version_with_commit(clean_git):
     ver = get_version()
     assert ver.startswith(version_str + "+abc123")
-    assert ".dirty" not in ver
+    assert ".local" not in ver
 
 
 @patch("subprocess.check_output", side_effect=fake_check_output_git_dirty)
 def test_version_dirty(dirty_git):
     ver = get_version()
-    assert ver.startswith(version_str + "+abc123.dirty")
+    assert ver.startswith(version_str + "+abc123.local")
 
 
 @patch("subprocess.check_output", side_effect=fake_check_output_git_fail)
