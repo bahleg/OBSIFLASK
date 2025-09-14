@@ -20,7 +20,7 @@ Planned features to be implemented (tentative order):
 - Enhanced Bases support  
   - Links in Bases
 - Icon support  
-- Bookmarks
+- Bookmarks (and permalinks)
 - Obsidian config usage   
 - Read-only vaults or parts of vaults  
 - PWA support (tentative)  
