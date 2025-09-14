@@ -1,18 +1,34 @@
+"""
+The module contains a FileIndex class that helps to resolve obsidian links w.r.t. file system
+"""
 import os
 import time
 from pathlib import Path
 from urllib import parse
+
 from obsiflask.utils import logger
 from obsiflask.app_state import AppState
 
+
 class FileIndex:
 
-    def __init__(self, path, template_dir, vault):
+    def __init__(self, path: str, template_dir: str, vault: str):
+        """
+        FileIndex constructor.
+        FileIndex handles information about file system and vault files
+        and helps to resolve links.
+
+        Args:
+            path (str): path to the vault in the file system (can be local or absolute)
+            template_dir (str): path to templates w.r.t. vault path
+            vault (str): vault name
+        """
         self.path = Path(path).resolve()
         if template_dir is not None:
             self.template_dir = self.path / template_dir
         else:
             self.template_dir = None
+
         self.vault = vault
         self.templates = []
         self._name_to_path = {}
@@ -22,15 +38,29 @@ class FileIndex:
         self._tree = {}
         self._templates = []
 
-    def get_templates(self):
+    def get_templates(self) -> list[Path]:
+        """
+        returns a list of template files
+        Returns:
+             list[Path]: list of templates
+        """
         self.check_refresh()
         return self._templates
 
-    def get_tree(self):
+    def get_tree(self) -> dict[str, str | dict]:
+        """
+        Returns a dictionary representing a hierarchy of files in the vault
+
+        Returns:
+            dict[str, str|dict]: a tree
+        """
         self.check_refresh()
         return self._tree
 
     def build_tree(self):
+        """
+        Builds a file index tree
+        """
         abspath = Path(self.path)
         tree = {}
         for path in self._files:
@@ -39,10 +69,6 @@ class FileIndex:
                 is_rel = parent.is_relative_to(abspath)
                 if not is_rel:
                     continue
-
-                #if parent == abspath:
-                #    continue
-
                 if parent not in node:
                     node[parent] = {}
                 node = node[parent]
@@ -57,12 +83,16 @@ class FileIndex:
         self._tree = tree
 
     def refresh(self):
+        """
+        Refreshes file index
+        """
         if self.template_dir:
             self._templates = list(self.template_dir.glob('*md'))
 
         self._files = list(self.path.glob('**/*'))
         self._files = [f for f in self._files
-                       if not '/.' in str(f.resolve())]  # ignore hidden
+                       if not any(part.startswith('.') for part in f.parts)]  # ignore hidden
+        
         self._file_set = set(self._files)
 
         self._name_to_path = {}
@@ -76,9 +106,13 @@ class FileIndex:
         self.last_time = time.time()
         self.tree = self.build_tree()
 
-
     def check_refresh(self):
-        if time.time() - self.last_time > AppState.config.vaults[self.vault].file_index_update_time:
+        """
+        Checks that files were indexed recently.
+        If not, runs refresh()
+        """
+        if time.time() - self.last_time > AppState.config.vaults[
+                self.vault].file_index_update_time:
             self.refresh()
 
     def __getitem__(self, index):
@@ -89,16 +123,40 @@ class FileIndex:
         self.check_refresh()
         return len(self._files)
 
-    def get_name_to_path(self):
+    def get_name_to_path(self) -> dict[str, set[Path]]:
+        """
+        Returns a dictionary, representing a set of files for each key
+        a key is a local file name 
+
+        Returns:
+            dict[str, set[Path]]: resulting dict
+        """
         self.check_refresh()
         return self._name_to_path
 
     def resolve_wikilink(self,
-                         name,
+                         name: str,
                          path: Path,
                          resolve_markdown_without_ext: bool = False,
                          escape=True,
-                         relative: bool = True):
+                         relative: bool = True) -> str | None:
+        """
+        Tries to resolve the wikilink
+
+        Args:
+            name (str): a link
+            path (Path): a relative path for resolving link 
+            resolve_markdown_without_ext (bool, optional): if True, will ignore extenstion during resolving. 
+                It will try to resolve the filename as a markdown file (*.md). Defaults to False.
+            escape (bool, optional): if True, will escape the final link for URL building. Defaults to True.
+            relative (bool, optional): if True, will return relative link w.r.t. path, otherwise relative path
+             w.r.t. index path. 
+                Defaults to True.
+
+        Returns:
+            str | None: a resolved link or None if fails
+        """
+
         if name.startswith('http://') or name.startswith('https://'):
             return name
         name = name.strip()
@@ -125,13 +183,13 @@ class FileIndex:
 
         # full
         elif (self.path / Path(name)).exists():
-            link = ((self.path / Path(name)))  #.relative_to(path.resolve()))
+            link = ((self.path / Path(name)))
 
         # full + md
         elif (resolve_markdown_without_ext
               and (self.path / Path(name + '.md')).exists()):
-            link = ((self.path / Path(name + '.md'))
-                    )  #.relative_to(path.resolve()))
+            link = ((self.path / Path(name + '.md')))
+
         if link is not None:
             if relative:
                 link = str(os.path.relpath(link, path))
@@ -141,6 +199,6 @@ class FileIndex:
                 if escape:
                     return parse.quote(link)
                 else:
-                    return link
+                    return str(link)
         logger.warning(f'could not infer link: {name}')
         return None
