@@ -1,18 +1,30 @@
+"""
+This module represents a logic for tasks that are run periodically
+"""
 from functools import partial
 import time
 import subprocess
-from threading import Thread
+from threading import Thread, Event
+
 from obsiflask.config import Task
-from obsiflask.messages import add_message
+from obsiflask.messages import add_message, type_to_int
 from obsiflask.utils import logger
 
 
-def thread_wrapper(task: Task, vault: str):
-    while True:
+def thread_wrapper(task: Task, vault: str, stop_event: Event):
+    """
+    Runs task and sleeps for a specific interval
+
+    Args:
+        task (Task): task to run
+        vault (str): vault name
+        stop_event (Event): event to check
+    """
+    while not stop_event.is_set():
         time.sleep(task.interval)
         stderr = ''
         msg = task.success
-        type = 0
+        msg_type = type_to_int['info']
         try:
             result = subprocess.run(task.cmd,
                                     shell=True,
@@ -24,19 +36,32 @@ def thread_wrapper(task: Task, vault: str):
                     f'Task {task} finished with error code: {result.returncode}. STDERR: {stderr}'
                 )
                 msg = task.error
-                type = 2
+                msg_type = type_to_int['error']
         except Exception as e:
             logger.error(f'Task {task} finished with exception: {e}')
             stderr = repr(e)
             msg = task.error
-            type = 2
-        add_message(msg, type, vault, stderr)
+            msg_type = type_to_int['error']
+        add_message(msg, msg_type, vault, stderr)
+    logger.info(f'Task {task} thread for vault "{vault}" stopped')
 
 
-def run_tasks(tasks_dict: {str, list[Task]}):
+def run_tasks(tasks_dict: dict[str, list[Task]]) -> Event:
+    """
+    Runs threads with tasks
+    Args:
+        tasks_dict (str, list[Task]): dictionary for running tasks for each vault
+    
+    Returns:
+        Event: an event to disable threads
+    """
+    stop_event = Event()
     for vault, tasks in tasks_dict.items():
         for task in tasks:
             logger.info(f'running task {task}')
             thread = Thread(
-                target=partial(thread_wrapper, task=task, vault=vault))
+                target=partial(thread_wrapper, task=task, vault=vault, stop_event=stop_event),
+                daemon=True,
+            )
             thread.start()
+    return stop_event

@@ -5,12 +5,15 @@ They will be represented as a flash messages in the vault page
 from threading import Lock
 import time
 from dataclasses import dataclass
+
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 
 types = {0: 'info', 1: 'warning', 2: 'error'}
+type_to_int = {'info': 0, 'warning': 1, 'error': 2}
 """
 Types of messages
+TODO: change logic to enum
 """
 _lock = Lock()
 
