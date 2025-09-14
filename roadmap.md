@@ -4,6 +4,7 @@ Planned features to be implemented (tentative order):
 
 ## Major features
 - Improved Markdown editor
+- Dark theme
 - Autocompletion
 - Improved navigation tree  
 - Multi-user support
