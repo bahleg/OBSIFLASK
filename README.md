@@ -22,9 +22,9 @@ It supports multiple vaults, search and navigation, background tasks, and graph 
 ---
 
 ## 📦 Getting Started
-For OBSIFLASK configuration, please see [Config file](https://github.com/bahleg/OBSIFLASK/blob/main/src/obsiflask/config.py).
+For OBSIFLASK configuration, please see [Config file](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py).
 
-With an example config, the server will be started at https://localhost:8000. 
+With an example config, the server will be started at http://localhost:8000. 
 
 ### Python pip
 ```bash
