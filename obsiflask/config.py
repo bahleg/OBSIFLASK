@@ -163,10 +163,11 @@ class VaultConfig:
     """
     Cache time in seconds. After that will rebuild the file index
     """
-    message_list_size = 100
+    message_list_size: int = 100
     """
     This amount of messages will be stored in the vault
     """
+
 
 @dataclass
 class AppConfig:

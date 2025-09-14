@@ -15,7 +15,7 @@ For example, this [url](/graph/example?nodespacing=4500&stiffness=0.45&edgelengt
 
 # ⚡ Graph clustering and simplification
 
-For large vaults, the global graph may become difficult to read. To address this, **OBSIFLASK** uses a [community detection algorithm](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.louvain.louvain_communities.html) that groups nodes into clusters of densely connected communities. This option can be enabled in the graph settings.
+For large vaults, the global graph may become difficult to read. To address this, OBSIFLASK uses a [community detection algorithm](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.louvain.louvain_communities.html) that groups nodes into clusters of densely connected communities. This option can be enabled in the graph settings.
 
 
 Clustering is also used to improve performance: instead of drawing all edges, the algorithm connects clusters to their nodes, producing a much simpler graph.  
