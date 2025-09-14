@@ -2,7 +2,6 @@ from threading import Lock
 import time
 from dataclasses import dataclass, asdict
 from obsiflask.app_state import AppState
-from obsiflask.consts import MESSAGE_LIST_SIZE
 from obsiflask.utils import logger
 
 types = {0: 'info', 1: 'warning', 2: 'error'}
@@ -24,7 +23,8 @@ def add_message(message: str,
                 type: int,
                 vault: str,
                 details: str = '',
-                user: str | None = None, use_log = True ):
+                user: str | None = None,
+                use_log=True):
     assert type in types
     if use_log:
         if type == 0:
@@ -39,10 +39,13 @@ def add_message(message: str,
     msg = Message(message, time.time(), type, vault, user, details)
     AppState.messages[(vault, user)].append(msg)
     with _lock:
-        if len(AppState.messages[(vault, user)]) > 2 * MESSAGE_LIST_SIZE:
+        if len(AppState.messages[(
+                vault,
+                user)]) > 2 * AppState.config.vaults[vault].message_list_size:
             AppState.messages[(vault, user)] = sorted(
                 AppState.messages[(vault, user)],
-                key=lambda x: (x.is_read, -x.time))[:MESSAGE_LIST_SIZE]
+                key=lambda x: (x.is_read, -x.time)
+            )[:AppState.config.vaults[vault].message_list_size]
 
 
 def get_messages(

@@ -20,8 +20,9 @@ from obsiflask.messages import add_message
 import re
 from obsiflask.bases.filter import FieldFilter
 from obsiflask.graph import Graph, GraphRepr
-from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN, SEARCH_PREVIEW_CHARS
+from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN
 
+SEARCH_PREVIEW_CHARS = 100
 punct = re.compile('\W+')
 
 def generate_formula(

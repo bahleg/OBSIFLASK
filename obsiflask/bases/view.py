@@ -4,12 +4,11 @@ from obsiflask.bases.file_info import FileInfo
 from obsiflask.messages import add_message
 from obsiflask.utils import logger
 import pandas as pd
-from obsiflask.consts import MaxViewErrors
 from obsiflask.bases.cache import BaseCache
 from obsiflask.consts import COVER_KEY
 
 NAN_CONST = 0
-
+MAX_VIEW_ERRORS = 50
 
 def convert_field(x):
     if x is None:
@@ -96,10 +95,10 @@ class View:
 
         if problems:
             use_log = True
-            if len(problems) > MaxViewErrors:
+            if len(problems) > MAX_VIEW_ERRORS:
                 for p in problems:
                     logger.warning(p)
-                problems = problems[:MaxViewErrors] + [
+                problems = problems[:MAX_VIEW_ERRORS] + [
                     '...', 'See  system logs'
                 ]
                 use_log = False
