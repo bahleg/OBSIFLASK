@@ -1,29 +1,42 @@
-from flask import abort, request
+"""
+The module provides a logic for the page with file/directory operations
+"""
+
 from pathlib import Path
+import shutil
+
+from flask import request
 from flask import render_template, redirect, url_for
-from obsiflask.pages.renderer import get_markdown
+
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 from obsiflask.messages import add_message
-from flask import redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired
-import shutil
 
 
 class FileOpForm(FlaskForm):
+    """
+    A form to selecct operation
+    """
     operation = SelectField('File operation',
                             choices=[('new', '📄 New file'),
                                      ('delete', '🗑️ Delete file'),
                                      ('copy', '🗐 Copy file'),
                                      ('move', '➜ Move file')])
     target = StringField('Target file', validators=[DataRequired()])
+    """
+    here target is the mfile to manipulate
+    """
     template = SelectField('File type/Template to use',
                            choices=[('0_no', '📄 empty file'),
                                     ('1_dir', ('📁 New folder'))])
     destination = StringField('Destination')
+    """
+    the auxiliary field. used only for copy/move operations
+    """
     ok = SubmitField()
 
     def __init__(self, vault, *args, **kwargs):
@@ -31,7 +44,7 @@ class FileOpForm(FlaskForm):
         self.vault = vault
 
     def validate(self, **kwargs):
-        rv = FlaskForm.validate(self, **kwargs)  # сначала проверяем все поля
+        rv = FlaskForm.validate(self, **kwargs)  # checking fields at first
         if not rv:
             return False
         target = (AppState.indices[self.vault].path /
@@ -65,7 +78,18 @@ class FileOpForm(FlaskForm):
         return True
 
 
-def create_file_op(vault, form: FileOpForm):
+def create_file_op(vault: str, form: FileOpForm) -> bool:
+    """
+    Creation of the file/folder operation
+
+    Args:
+        vault (str): vault name
+        form (FileOpForm): form
+
+    Returns:
+        bool: True if success
+    """
+
     try:
         path = AppState.indices[vault].path / Path(form.target.data)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -87,7 +111,6 @@ def create_file_op(vault, form: FileOpForm):
         AppState.indices[vault].refresh()
         return True
     except Exception as e:
-        logger.error(f'problem during file creating {path.name}: {e}')
         add_message(f'Could not create file {form.target.data}',
                     type=2,
                     vault=vault,
@@ -95,7 +118,14 @@ def create_file_op(vault, form: FileOpForm):
         return False
 
 
-def delete_file_op(vault, form: FileOpForm):
+def delete_file_op(vault: str, form: FileOpForm):
+    """
+    Delete file/folder operation
+
+    Args:
+        vault (str): vault name
+        form (FileOpForm): form
+    """
     try:
         path = AppState.indices[vault].path / Path(form.target.data)
         if path.is_dir():
@@ -106,14 +136,24 @@ def delete_file_op(vault, form: FileOpForm):
         add_message(f'File {form.target.data} deleted', 0, vault)
 
     except Exception as e:
-        logger.error(f'problem during file deletion {path.name}: {e}')
         add_message(f'Could not delete file {form.target.data}',
                     type=2,
                     vault=vault,
                     details=repr(e))
 
 
-def copy_move_file(vault, form: FileOpForm, copy):
+def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
+    """
+    Copy/Move operation
+
+    Args:
+        vault (str): vault name
+        form (FileOpForm): form 
+        copy (bool): if False, will perform move instead of copy
+
+    Returns:
+        bool: True on success
+    """
     if copy:
         op_label = 'Copy'
     else:
@@ -132,7 +172,7 @@ def copy_move_file(vault, form: FileOpForm, copy):
                 shutil.copy(path, dst)
         else:
             shutil.move(path, dst)
-        
+
         AppState.indices[vault].refresh()
         add_message(f'{op_label} {form.target.data}: successful', 0, vault)
         return True
@@ -145,7 +185,16 @@ def copy_move_file(vault, form: FileOpForm, copy):
         return False
 
 
-def render_fileop(vault):
+def render_fileop(vault: str) -> str:
+    """
+    Rendering logic
+
+    Args:
+        vault (str): vault name
+
+    Returns:
+        str: Flask-rendered page
+    """
     navtree = render_tree(AppState.indices[vault], vault, True)
     form = FileOpForm(vault)
     back_url = url_for('renderer_root', vault=vault)
