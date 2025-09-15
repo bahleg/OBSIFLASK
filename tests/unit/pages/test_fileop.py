@@ -1,6 +1,3 @@
-import pytest
-import shutil
-
 from obsiflask.pages.fileop import FileOpForm, create_file_op, delete_file_op, copy_move_file
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
@@ -31,10 +28,10 @@ def test_create_folder(tmp_path):
     app = _make_app(tmp_path)
     with app.app_context():
         form = FileOpForm('vault1',
-                            data={
-                                "target": "folder",
-                                "template": "1_dir"
-                            })
+                          data={
+                              "target": "folder",
+                              "template": "1_dir"
+                          })
         assert create_file_op('vault1', form)
         assert (tmp_path / "folder").is_dir()
 
