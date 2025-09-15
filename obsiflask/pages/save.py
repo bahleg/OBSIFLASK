@@ -1,11 +1,29 @@
+"""
+The module represents a page to save file
+"""
 from pathlib import Path
+
 from flask import jsonify
+
 from obsiflask.utils import logger
 from obsiflask.file_index import FileIndex
-from obsiflask.messages import add_message
+from obsiflask.messages import add_message, type_to_int
 
 
-def make_save(path, content, index: FileIndex, vault: str):
+def make_save(path: str, content: str, index: FileIndex,
+              vault: str) -> tuple[str, int]:
+    """
+    Saves the file and returns results for flask
+
+    Args:
+        path (str): path to save file
+        content (str): content to save
+        index (FileIndex): vault file index
+        vault (str): vault name
+
+    Returns:
+        tuple[str,int]: result message and code
+    """
     path = Path(path)
     parent = Path(path).parent
 
@@ -19,6 +37,6 @@ def make_save(path, content, index: FileIndex, vault: str):
         add_message(f'Saved file: {path.name}', 0, vault)
         return jsonify({"status": "ok"}), 200
     except Exception as e:
-        logger.error(f'problems with saving file {path}: {e}')
-        add_message(f'Cannot save file: {path.name}: {e}', 2, vault, repr(e))
-        return f'Cannot save: {e}', 402
+        add_message(f'Cannot save file: {path.name}: {e}',
+                    type_to_int['error'], vault, repr(e))
+        return f'Cannot save: {e}', 400
