@@ -72,7 +72,8 @@ def parse_embedding(text, full_path, index: FileIndex, vault):
         link_path = index.resolve_wikilink(path,
                                            full_path,
                                            False,
-                                           escape=False, relative=False)
+                                           escape=False,
+                                           relative=False)
         relative_link = str(link_path).startswith('http://') or str(
             link_path).startswith('https://')
 

@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Excalidraw: <a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</h1>
+<h1>Excalidraw: <code><a
+    href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</code></h1>
 <div id="save-status">(saved)</div>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='excalidraw/excalidraw.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='excalidraw_editor.css') }}">
 <script>
   window.EXCALIDRAW_ASSET_PATH = "{{ url_for('static', filename='excalidraw/assets/') }}";
 </script>
@@ -17,98 +19,14 @@
     }
   }
   </script>
-<style>
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
 
-  #app {
-    width: 100%;
-    height: 100%;
-    max-width: 100vw;
-    max-height: 100vh;
-  }
-
-
-
-     #flo-download-btn {
-    position: fixed;
-    top: 20px;
-    right: 120px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-  }
-
-  #flo-download-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-  }
-
-
-
-
-
-  #flo-save-btn {
-    position: fixed;
-    top: 20px;
-    right: 70px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-  }
-
-  #flo-save-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-  }
-
-    #flo-toggle-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-  }
-
-  #flo-toggle-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-  }
-
-</style>
-
-<a id="flo-download-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i class="bi bi-download"></i></a>
-<a id="flo-toggle-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
-<a id="flo-save-btn" href=""><i class="bi bi-floppy"></i></a>
-
+<div class="flo-btn-group">
+  <a id="flo-download-btn" class="flo-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i
+      class="bi bi-download"></i></a>
+  <a id="flo-toggle-btn" class="flo-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i
+      class="bi bi-eye"></i></a>
+  <a id="flo-save-btn" class="flo-btn" href=""><i class="bi bi-floppy"></i></a>
+</div>
 
 <div id="app"></div>
 <div id="save-status">(saved)</div>
@@ -119,7 +37,8 @@
   import { Excalidraw } from "https://esm.sh/@excalidraw/excalidraw@0.18.0?deps=react@18.2.0,react-dom@18.2.0";
 
   const initialData = {{ excalidraw_json| safe }};
-  const SAVE_DELAY = 5000; // 10 секунд
+  const SAVE_DELAY = {{ injected_vars["config"].vaults[vault].autosave_time * 1000 }};
+
   let isDirty = false;
   let saveTimeout = null;
   let currentData = initialData;
@@ -175,7 +94,7 @@
 
           if (!initialized) {
             initialized = true;
-            return; // игнорируем первый вызов
+            return; // first call ignoring
           }
 
           currentData = { type: "excalidraw", version: 2, source: "flask", elements, appState };
@@ -195,7 +114,7 @@
   const root = ReactDOM.createRoot(document.getElementById("app"));
   root.render(React.createElement(App));
 
-  // Предупреждение при уходе со страницы
+  //  warning when leaving
   window.addEventListener("beforeunload", (e) => {
     if (isDirty) {
       e.preventDefault();
@@ -207,7 +126,7 @@
 
   // ручная кнопка 💾
   saveBtn.addEventListener('click', (e) => {
-    e.preventDefault(); // чтобы не перезагружалась страница
+    e.preventDefault(); // prevent from reload
     saveDocument();
   });
 </script>

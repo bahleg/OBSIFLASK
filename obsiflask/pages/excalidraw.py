@@ -1,6 +1,9 @@
-from pathlib import Path 
-from flask import render_template, redirect, url_for, abort
-from obsiflask.pages.renderer import get_markdown
+"""
+The module describes rendering logic for Excalidraw editor page
+"""
+
+from pathlib import Path
+from flask import render_template, abort
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
@@ -20,19 +23,30 @@ default_excalidraw = """{
   "files": {}
 }"""
 
-def render_excalidraw(vault, path, real_path):
+
+def render_excalidraw(vault: str, path: str, real_path: str) -> str:
+    """
+  Rendering logic
+
+  Args:
+      vault (str): vault name
+      path (str): path w.r.t. vault
+      real_path (str): filesystem path
+
+  Returns:
+      str: html rendered code
+  """
     text = None
     try:
         with open(real_path) as inp:
             text = inp.read()
             if len(text.strip()) == 0:
                 text = default_excalidraw
-
-    except:
-        logger.warning(f'attempt to load non-text file: {real_path}')
+  
+    except Exception as e:
+        logger.warning(f'attempt to load non-text file: {real_path}: {e}')
     if text is None:
-        return abort(500)
-    
+        return abort(400)
     return render_template('excalidraw_editor.html',
                            excalidraw_json=text,
                            path=path,
@@ -40,4 +54,6 @@ def render_excalidraw(vault, path, real_path):
                            navtree=render_tree(AppState.indices[vault], vault,
                                                True),
                            page_editor=True,
-                           home=AppState.config.vaults[vault].home_file, curdir = Path(path).parent, curfile=path)
+                           home=AppState.config.vaults[vault].home_file,
+                           curdir=Path(path).parent,
+                           curfile=path)

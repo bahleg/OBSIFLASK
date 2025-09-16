@@ -1,50 +1,13 @@
 {% extends 'base.html' %}
-<link rel="stylesheet" href="{{ url_for('static', filename='editor.css') }}">
 
 {% block content %}
 <h1>Editor:
   <code><a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</code>
 </h1>
+<link rel="stylesheet" href="{{ url_for('static', filename='editor.css') }}">
+
 <div id="save-status">(saved)</div>
 
-<style>
-  html,
-  body {
-    height: 100%;
-    margin: 0;
-  }
-
-  #container {
-    display: flex;
-    height: calc(100vh - 80px);
-    /* под футер/заголовок */
-    width: 100%;
-    border: 1px solid #ccc;
-  }
-
-  /* Редактор слева */
-  #editor {
-    font-family: monospace;
-    height: 100%;
-    width: 50%;
-    /* стартовая ширина редактора */
-    min-width: 1024px;
-    /* чтобы не сжимался слишком сильно */
-    border-right: 3px solid #888;
-    /* разделительная линия */
-    padding: 10px;
-    resize: horizontal;
-    /* пользователь может растягивать */
-    overflow: auto;
-  }
-
-  /* Превью справа */
-  #preview {
-    flex-grow: 1;
-    padding: 10px;
-    overflow: auto;
-  }
-</style>
 <div class="flo-btn-group">
   <a class="flo-btn" title="Download" id="flo-download-btn"
     href="{{url_for('get_file', vault = vault, subpath = path)}}"><i class="bi bi-download"></i></a>
@@ -57,15 +20,7 @@
   <textarea id="editor" class="form-control">{{markdown_text}}</textarea>
   <div id="preview" class="d-none d-lg-block">{{markdown_html|safe}}</div>
 </div>
-<style>
-  @media (max-width: 991.98px) {
-    #editor {
-      width: 100% !important;
-      min-width: auto;
-      border-right: none;
-    }
-  }
-</style>
+
 
 
 
