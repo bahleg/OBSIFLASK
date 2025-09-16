@@ -3,6 +3,7 @@ temp/
 example/.obsidian
 src/assets/favicon
 tests/assets
+assets
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

@@ -53,4 +53,4 @@ The broken links are rendered in a special way: [[This is broken link]].
 # ⚠️ Notes about file index
 The file index is updated periodically (by default, every 5 minutes, configurable in the [config](https://github.com/bahleg/OBSIFLASK/blob/main/src/obsiflask/config.py)). It is also refreshed after each file operation.  This logic will be refactored in the future.
 
-Keep in mind: if you move a file outside of your vault, it may temporarily disappear from the index.
+Keep in mind: if you move a file from outside of your vault, it may be temporary hidden in the index.

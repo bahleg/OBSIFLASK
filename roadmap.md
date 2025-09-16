@@ -4,6 +4,7 @@ Planned features to be implemented (tentative order):
 
 ## Major features
 - Improved Markdown editor
+- Dark theme
 - Autocompletion
 - Improved navigation tree  
 - Multi-user support
@@ -20,7 +21,7 @@ Planned features to be implemented (tentative order):
 - Enhanced Bases support  
   - Links in Bases
 - Icon support  
-- Bookmarks
+- Bookmarks (and permalinks)
 - Obsidian config usage   
 - Read-only vaults or parts of vaults  
 - PWA support (tentative)  

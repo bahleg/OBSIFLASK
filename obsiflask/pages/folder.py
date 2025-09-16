@@ -1,36 +1,49 @@
-from flask import abort
+"""
+The module represents a rendering page for fodlers
+"""
 from pathlib import Path
-from flask import render_template, redirect, url_for
-from obsiflask.pages.renderer import get_markdown
+
+from flask import render_template, url_for, abort
+
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
-from obsiflask.utils import logger
 
 
-def render_folder(vault, subpath):
+def render_folder(vault: str, subpath: str) -> None | str:
+    """
+    A rendering logic for folders
+
+    Args:
+        vault (str): vault name
+        subpath (str): path (wrt vault)
+
+    Returns:
+        None | str: error code or resulting rendered page
+    """
     navtree = render_tree(AppState.indices[vault], vault, True)
-    abspath = AppState.indices[vault].path.absolute().resolve()
+    abspath = AppState.indices[vault].path.resolve()
     target = (abspath / subpath).resolve()
-    if  abspath != target and not abspath in list(target.parents):
-        return abort(402)
+    if abspath != target and abspath not in target.parents:
+        return abort(400)
 
-    files_folders = Path(abspath / subpath).absolute().glob('*')
+    files_folders = Path(abspath / subpath).resolve().glob('*')
     folders = []
     files = []
-    for f in sorted(files_folders, key = lambda x:x.name):
+    for f in sorted(files_folders, key=lambda x: x.name):
         if not f.is_dir():
             files.append((str(f.relative_to(abspath)), f.name))
         else:
             folders.append((str(f.relative_to(abspath)), f.name))
     parent = Path(abspath / subpath).parent
-    if parent == abspath:
+    if Path(abspath / subpath).resolve() == abspath:
         parent_url = url_for('get_folder_root', vault=vault)
     elif abspath in list(target.parents):
-        parent_url = url_for('get_folder', subpath = parent.relative_to(abspath), vault=vault)
+        parent_url = url_for('get_folder',
+                             subpath=parent.relative_to(abspath),
+                             vault=vault)
     else:
-        parent_url = None 
-    
-        
+        parent_url = None
+
     return render_template('folder.html',
                            subpath=subpath,
                            navtree=navtree,
@@ -38,4 +51,6 @@ def render_folder(vault, subpath):
                            folders=folders,
                            home=AppState.config.vaults[vault].home_file,
                            page_editor=False,
-                           vault=vault, parent_url = parent_url, curdir = subpath)
+                           vault=vault,
+                           parent_url=parent_url,
+                           curdir=subpath)
