@@ -4,6 +4,7 @@
 {% from 'bootstrap5/table.html' import render_table %}
 {% from 'shared.html' import render_footer %}
 
+
 {% include "flask-favicon.html" %}
 <!DOCTYPE html>
 <html lang="en">
@@ -21,7 +22,7 @@
     </title>
     {{ bootstrap.load_css() }}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='buttons.css') }}">
 
 
 </head>
