@@ -6,7 +6,6 @@
 
 {% include "flask-favicon.html" %}
 <!DOCTYPE html>
-<link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
 <html lang="en">
 
 <head>
@@ -60,14 +59,14 @@
                             </a>
                         </div>
                         <div class="col">
-                            <a href="{{url_for('fileop', vault=vault)}}?curdir={{curdir}}&curfile={{curfile}}"
+                            <a href="{{url_for('fileop', vault=vault, curdir=curdir, curfile=curfile)}}"
                                 class="btn btn-primary w-100" title="File operations">
                                 <i class="bi bi-file-earmark d-none d-sm-inline"></i>
                                 <span class="d-inline d-sm-none"><small>Files</small></span>
                             </a>
                         </div>
                         <div class="col">
-                            <a href="{{url_for('messages', vault=vault)}}?unread=0" class="btn btn-primary w-100"
+                            <a href="{{url_for('messages', vault=vault, unread=0)}}" class="btn btn-primary w-100"
                                 title="Vault messages">
                                 <i class="bi bi-chat-right-text d-none d-sm-inline"></i>
                                 <span class="d-inline d-sm-none"><small>Msg.</small></span>
@@ -92,7 +91,6 @@
                 </div>
 
 
-                <p>
                 <div class="collapse show" id="navtreeCollapse">
                     <div class="card p-3 flex-grow-1 mb-2" style="max-height: 480px;  overflow-y:auto;">
                         {{ navtree|safe }}
