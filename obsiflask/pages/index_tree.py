@@ -1,12 +1,27 @@
-from pathlib import Path
-
-from collections import defaultdict
+"""
+A rendering nav tree logic
+"""
 from obsiflask.file_index import FileIndex
 from flask import url_for
 from obsiflask.app_state import AppState
 
 
-def render_tree(tree, vault, edit=False, level=0):
+def render_tree(tree: dict[str, dict | str],
+                vault: str,
+                edit: bool = False,
+                level: int = 0) -> str:
+    """
+    A recursive function for rendering tree
+
+    Args:
+        tree (dict[str, dict|str]): tree object
+        vault (str): vault name
+        edit (bool, optional): flag if we're in editor state. Defaults to False.
+        level (int, optional): nesting level. Defaults to 0.
+
+    Returns:
+        str: returned html
+    """
     rel_path = AppState.indices[vault].path
 
     if isinstance(tree, FileIndex):
@@ -16,17 +31,16 @@ def render_tree(tree, vault, edit=False, level=0):
         root = False
 
     html = f"<ul class=\"list-unstyled\" style=\"padding-left:{level * 3}px;\">"
-    
+
     for name, child in tree.items():
         if child:  # папка
             if root:
                 url = url_for('get_folder_root', vault=vault)
-                root = False 
+                root = False
             else:
                 url = url_for('get_folder',
-                            vault=vault,
-                            subpath=name.relative_to(rel_path))
-            
+                              vault=vault,
+                              subpath=name.relative_to(rel_path))
 
             html += f"<li class=\"mb-1\"> <span class=\"fw-bold\"><a class=\"text-decoration-none\" href=\"{url}\">📁 {name.name}{render_tree(child, vault, edit, level=level+1)}</a></span></li>"
         else:  # файл
