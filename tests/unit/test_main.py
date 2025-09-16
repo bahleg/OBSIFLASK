@@ -1,7 +1,4 @@
-import pytest
-
 from obsiflask.main import run
-from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig
 
 def test_app_runs():

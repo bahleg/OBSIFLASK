@@ -1,20 +1,40 @@
-from flask import render_template, redirect, url_for
-import mistune
+"""
+Logic for markdown rendering
+"""
 import re
+from pathlib import Path
+
+import mistune
+from flask import render_template, redirect, url_for
+import frontmatter
+from markupsafe import Markup
+
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.file_index import FileIndex
-from pathlib import Path
-from urllib import parse
 from obsiflask.utils import logger
-import frontmatter
-from markupsafe import Markup
-from obsiflask.consts import wikilink
+from obsiflask.consts import wikilink, re_tag_embed
 
-re_tag_embed = re.compile(r'!\[\[([^\]]+)\]\]')
+IFRAME_TEMPLATE = """
+                           <script>
+function resizeIframe_#() {
+    const iframe = document.getElementById('#');
+    try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        iframe.style.height = doc.body.scrollHeight + 'px';
+    } catch (e) {
+        console.warn("Cannot access to iframe (cross-origin)");
+    }
+}
+document.getElementById('#').addEventListener('load', resizeIframe_#);</script>
+                           
+                           """
 
 
 def plugin_mermaid(md):
+    """
+    mermaid handler
+    """
     if not isinstance(md.renderer, mistune.HTMLRenderer):
         return
 
@@ -28,7 +48,19 @@ def plugin_mermaid(md):
     md.renderer.block_code = block_code
 
 
-def parse_frontmatter(text, name):
+def parse_frontmatter(text: str, name: str) -> str:
+    """
+    Frontmatter processor.
+    Returns a markdown, 
+    where frontmatter properties are put into special "properties" section
+
+    Args:
+        text (str): text to parse
+        name (str): name of file for logging
+
+    Returns:
+        str: processed file
+    """
     try:
         metadata, content = frontmatter.parse(text)
 
@@ -44,7 +76,18 @@ def parse_frontmatter(text, name):
         return text
 
 
-def make_link(link, path: Path, index: FileIndex):
+def make_link(link: re.Match, path: Path, index: FileIndex) -> str:
+    """
+    Resolves wiki links
+
+    Args:
+        link (re.Match): found regex for wikilink
+        path (Path): file path. needs for wikilink resolution
+        index (FileIndex): file index
+
+    Returns:
+        str: corrected link
+    """
     alias = link.group(2)
     name = link.group(1).strip()
     if not alias:
@@ -62,7 +105,20 @@ def make_link(link, path: Path, index: FileIndex):
     return f"???{alias}???"
 
 
-def parse_embedding(text, full_path, index: FileIndex, vault):
+def parse_embedding(text: str, full_path: Path, index: FileIndex,
+                    vault: str) -> str:
+    """
+    A handler for resolving embedding tags in markdown
+
+    Args:
+        text (str): text to process
+        full_path (Path): file path
+        index (FileIndex): file index
+        vault (str): vault name
+
+    Returns:
+        str: markdown
+    """
     matches = re_tag_embed.finditer(text)
     offset = 0
     buf = []
@@ -88,7 +144,7 @@ def parse_embedding(text, full_path, index: FileIndex, vault):
                 if not relative_link:
                     link_path = url_for('get_file',
                                         vault=vault,
-                                        subpath=link_path)
+                                        subpath=Markup.escape(link_path))
                 buf.append(f'<img src="{link_path}" style="max-width:100%;">')
             elif '.' in path and path.split('.')[-1] in {'base'}:
                 link_path = url_for('base', vault=vault, subpath=link_path)
@@ -96,20 +152,7 @@ def parse_embedding(text, full_path, index: FileIndex, vault):
                 buf.append(
                     f'<hr/><iframe id={id_name} src="{link_path}?raw=1"  style="width:95%"></iframe><hr/>'
                 )
-                buf.append("""
-                           <script>
-function resizeIframe_#() {
-    const iframe = document.getElementById('#');
-    try {
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        iframe.style.height = doc.body.scrollHeight + 'px';
-    } catch (e) {
-        console.warn("Невозможно получить доступ к iframe (cross-origin)");
-    }
-}
-document.getElementById('#').addEventListener('load', resizeIframe_#);</script>
-                           
-                           """.replace('#', id_name))
+                buf.append(IFRAME_TEMPLATE.replace('#', id_name))
             else:
                 link_path = url_for('get_file', vault=vault, subpath=link_path)
                 buf.append(f'[{path}]({link_path})')
@@ -120,7 +163,26 @@ document.getElementById('#').addEventListener('load', resizeIframe_#);</script>
     return ''.join(buf)
 
 
-def pre_parse(text, full_path, index, vault):
+def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
+    """
+    An entrypoint for preprocessing markdown logic
+
+    Args:
+        full_path (Path): path to file
+        index (FileIndex): file index
+        vault (str): vault name
+
+    Returns:
+        str: preprocessed document
+    """
+    with open(full_path) as inp:
+        text = inp.read()
+    markdown = mistune.create_markdown(escape=False,
+                                       plugins=[
+                                           'table', 'strikethrough',
+                                           'task_lists', 'mark', plugin_mermaid
+                                       ])
+
     text = parse_frontmatter(text, Path(full_path).name)
     text = parse_embedding(text, full_path, index, vault)
     offset = 0
@@ -131,21 +193,22 @@ def pre_parse(text, full_path, index, vault):
         buf.append(make_link(m, full_path, index))
         offset = m.span()[1]
     buf.append(text[offset:])
-
-    return ''.join(buf)
-
-
-def get_markdown(real_path, index, vault):
-    with open(real_path) as inp:
-        text = inp.read()
-    markdown = mistune.create_markdown(
-        escape=False,
-        plugins=['table', 'strikethrough', 'task_lists', plugin_mermaid])
-    html = markdown(pre_parse(text, real_path, index, vault))
+    html = markdown(''.join(buf))
     return html
 
 
-def render_renderer(vault, path, real_path):
+def render_renderer(vault: str, path: str, real_path: Path) -> str:
+    """
+    Logic for rendering
+
+    Args:
+        vault (str): vault name
+        path (str): path w.r.t. vault
+        real_path (Path): full path in the filesystem
+
+    Returns:
+        str: rendered html 
+    """
     if str(path).endswith('.base'):
         return redirect(url_for('base', vault=vault, subpath=path))
     if str(path).endswith('.excalidraw'):
@@ -155,9 +218,9 @@ def render_renderer(vault, path, real_path):
     if not str(path).endswith('.md'):
         return redirect(url_for('get_file', vault=vault, subpath=path))
     return render_template('renderer.html',
-                           markdown_text=get_markdown(real_path,
-                                                      AppState.indices[vault],
-                                                      vault),
+                           markdown_text=preprocess(real_path,
+                                                    AppState.indices[vault],
+                                                    vault),
                            path=path,
                            vault=vault,
                            navtree=render_tree(AppState.indices[vault], vault,

@@ -23,6 +23,7 @@ The editor supports basic Markdown features, including:
 * [links](https://github.com/bahleg/OBSIFLASK) and [[Files, directories and links | wikilins (see details here)]]
 * ~~different~~ *text* **styles**
 * Frontmatter properties: are represented as a separate block of the page, see [[frontmatter example]].
+*  ==marked== text 
 ## Mermaid support
 
 Mermaid is supported :) 

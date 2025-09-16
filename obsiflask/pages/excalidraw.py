@@ -42,7 +42,7 @@ def render_excalidraw(vault: str, path: str, real_path: str) -> str:
             text = inp.read()
             if len(text.strip()) == 0:
                 text = default_excalidraw
-  
+
     except Exception as e:
         logger.warning(f'attempt to load non-text file: {real_path}: {e}')
     if text is None:

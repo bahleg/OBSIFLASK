@@ -22,7 +22,7 @@ def test_render_editor_success(flask_app):
     fake_content = "# Hello World"
 
     with patch("builtins.open", mock_open(read_data=fake_content)), \
-         patch("obsiflask.pages.editor.get_markdown", return_value="<h1>Hello World</h1>") as mock_md, \
+         patch("obsiflask.pages.editor.preprocess", return_value="<h1>Hello World</h1>") as mock_md, \
          patch("obsiflask.pages.editor.render_template") as mock_render, \
          patch("obsiflask.pages.editor.render_tree", return_value="<ul></ul>"):
 

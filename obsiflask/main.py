@@ -13,7 +13,7 @@ from obsiflask.utils import init_logger
 from obsiflask.pages.editor import render_editor
 from obsiflask.pages.file import get_file as page_get_file
 from obsiflask.pages.index import render_index
-from obsiflask.pages.renderer import render_renderer, get_markdown
+from obsiflask.pages.renderer import render_renderer, preprocess
 from obsiflask.pages.save import make_save
 from obsiflask.tasks import run_tasks
 from obsiflask.app_state import AppState
@@ -185,7 +185,7 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
-        markdown = get_markdown(real_path, AppState.indices[vault], vault)
+        markdown = preprocess(real_path, AppState.indices[vault], vault)
         return jsonify({'content': markdown})
 
     @app.route('/save/<vault>/<path:subpath>', methods=['PUT'])

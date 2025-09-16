@@ -5,7 +5,7 @@ from pathlib import Path
 
 from flask import render_template, redirect, url_for, Response
 
-from obsiflask.pages.renderer import get_markdown
+from obsiflask.pages.renderer import preprocess
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
@@ -33,7 +33,7 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
         text = None
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))
-    markdown = get_markdown(real_path, AppState.indices[vault], vault)
+    markdown = preprocess(real_path, AppState.indices[vault], vault)
     return render_template('editor.html',
                            markdown_text=text,
                            path=path,

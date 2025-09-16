@@ -22,5 +22,9 @@ Regex for wikilink
 """
 hashtag = re.compile('#[\w\-]+')
 """
-Rege for hashtag
+Regex for hashtag
+"""
+re_tag_embed = re.compile(r'!\[\[([^\]]+)\]\]')
+"""
+Regex for embedded links
 """

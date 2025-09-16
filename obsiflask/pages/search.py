@@ -9,7 +9,6 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from cmap import Colormap
 from flask import render_template, redirect, url_for, request, stream_template
-from obsiflask.pages.renderer import get_markdown
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
