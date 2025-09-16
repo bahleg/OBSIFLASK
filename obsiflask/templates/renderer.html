@@ -1,86 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Showing: <a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</h1>
+<link rel="stylesheet" href="{{ url_for('static', filename='renderer.css') }}">
 
-<style>
-  html,
-  body {
-    height: 100%;
-    margin: 0;
-  }
+<h1>Showing
+  <code><a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</code>
+</h1>
 
-  #container {
-    height: 100%;
-    width: 100%;
-    flex: 1;
-    overflow-y: auto;
-    /* прокрутка, если контента больше */
-  }
-
-  #flo-toggle-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-  }
-
-  #flo-toggle-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-  }
-
-      #flo-download-btn {
-    position: fixed;
-    top: 20px;
-    right: 70px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-  }
-
-  #flo-download-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-  }
-
-
-
-</style>
-
-<a id="flo-download-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i class="bi bi-download"></i></a>
-<a id="flo-toggle-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i class="bi bi-pencil"></i></a>
-
-<style>
-  @media (max-width: 767.98px) {
-    #flo-toggle-btn {
-      padding: 4px 6px;
-      font-size: 14px;
-      top: auto;
-      bottom: 15px;
-      /* переносим вниз */
-      right: 15px;
-    }
-
-
-  }
-</style>
+<div class="flo-btn-group">
+  <a id="flo-toggle-btn" class=" flo-btn" title="Edit mode" href="{{url_for('editor', vault = vault, subpath = path)}}"><i
+      class="bi bi-pencil"></i></a>
+    <a id="flo-download-btn" class=" flo-btn" title="Download" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i
+      class="bi bi-download"></i></a>
+  
+</div>
 <div id="container">
   {{ markdown_text|safe }}
 </div>

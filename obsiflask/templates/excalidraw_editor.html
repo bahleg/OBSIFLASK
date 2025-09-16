@@ -21,11 +21,12 @@
   </script>
 
 <div class="flo-btn-group">
+  <a id="flo-save-btn" class="flo-btn" href=""><i class="bi bi-floppy"></i></a>
+  <a id="flo-toggle-btn" class="flo-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i
+      class="bi bi-pencil"></i></a>
+
   <a id="flo-download-btn" class="flo-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i
       class="bi bi-download"></i></a>
-  <a id="flo-toggle-btn" class="flo-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i
-      class="bi bi-eye"></i></a>
-  <a id="flo-save-btn" class="flo-btn" href=""><i class="bi bi-floppy"></i></a>
 </div>
 
 <div id="app"></div>

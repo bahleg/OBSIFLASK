@@ -9,11 +9,13 @@
 <div id="save-status">(saved)</div>
 
 <div class="flo-btn-group">
-  <a class="flo-btn" title="Download" id="flo-download-btn"
-    href="{{url_for('get_file', vault = vault, subpath = path)}}"><i class="bi bi-download"></i></a>
-  <a class="flo-btn" title="View mode" id="flo-toggle-btn"
-    href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
   <a class="flo-btn" title="Save" id="flo-save-btn"><i class="bi bi-floppy"></i></a>
+    <a class="flo-btn" title="View mode" id="flo-toggle-btn"
+    href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
+
+    <a class="flo-btn" title="Download" id="flo-download-btn"
+    href="{{url_for('get_file', vault = vault, subpath = path)}}"><i class="bi bi-download"></i></a>
+
 </div>
 
 <div id="container">
