@@ -107,7 +107,7 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
     flaskFavicon = FlaskFavicon()
     flaskFavicon.init_app(app)
     flaskFavicon.register_favicon(
-        str(Path(__file__).resolve().parent / 'static/logo.png'), 'default')
+        str(Path(__file__).resolve().parent / 'static/logo_small.png'), 'default')
 
     Bootstrap5(app)
 
