@@ -207,8 +207,8 @@
         // first request at start
         fetchMessages();
 
-        // then asking every second 
-        setInterval(fetchMessages, 1000);
+        // then asking every time set in config
+        setInterval(fetchMessages, {{ injected_vars["config"].vaults[vault].message_fetch_time * 1000 }});
     </script>
 
 

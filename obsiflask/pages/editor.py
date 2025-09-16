@@ -1,18 +1,35 @@
+"""
+This module represents editor page logic
+"""
 from pathlib import Path
-from flask import render_template, redirect, url_for
+
+from flask import render_template, redirect, url_for, Response
+
 from obsiflask.pages.renderer import get_markdown
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
-from obsiflask.utils import logger
+from obsiflask.messages import add_message, type_to_int
 
 
-def render_editor(vault, path, real_path):
+def render_editor(vault: str, path: str, real_path: str) -> str | Response:
+    """
+    Render editor function
+
+    Args:
+        vault (str): vault name
+        path (str): path w.r.t. vault root
+        real_path (str): filesystem path
+
+    Returns:
+        str| Response: html page or redirect
+    """
     text = None
     try:
         with open(real_path) as inp:
             text = inp.read()
-    except:
-        logger.warning(f'attempt to load non-text file: {real_path}')
+    except Exception as e:
+        add_message(f'attempt to load non-text file: {path}',
+                    type_to_int['error'], vault, repr(e))
         text = None
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))

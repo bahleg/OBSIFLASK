@@ -167,6 +167,14 @@ class VaultConfig:
     """
     This amount of messages will be stored in the vault
     """
+    message_fetch_time: int = 1
+    """
+    Take messages from server each message_fetch_time seconds
+    """
+    autosave_time: int = 10
+    """
+    Save documents each autosave_time seconds
+    """
 
 
 @dataclass
