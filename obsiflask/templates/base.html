@@ -14,11 +14,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <title>
-            {% if injected_vars['config'].vaults[vault].short_title %}
-                {{injected_vars['config'].vaults[vault].short_title}} (OBSIFLASK)
-            {% else %}
-                OBSIFLASK
-            {% endif %}
+        {% if injected_vars['config'].vaults[vault].short_title %}
+        {{injected_vars['config'].vaults[vault].short_title}} (OBSIFLASK)
+        {% else %}
+        OBSIFLASK
+        {% endif %}
     </title>
     {{ bootstrap.load_css() }}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -39,10 +39,12 @@
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     {% if page_editor %}
                     <span class="fs-4"><a href="{{url_for('editor_root', vault = vault)}}"
-                            class="text-decoration-none">{{injected_vars['config'].vaults[vault].short_title or "OBSIFLASK"}}</a></span>
+                            class="text-decoration-none">{{injected_vars['config'].vaults[vault].short_title or
+                            "OBSIFLASK"}}</a></span>
                     {% else %}
                     <span class="fs-4"><a href="{{url_for('renderer_root', vault = vault)}}"
-                            class="text-decoration-none">{{injected_vars['config'].vaults[vault].short_title or "OBSIFLASK"}}</a></span>
+                            class="text-decoration-none">{{injected_vars['config'].vaults[vault].short_title or
+                            "OBSIFLASK"}}</a></span>
 
                     {% endif %}
                     <button class="btn btn-sm btn-secondary" id="toggleSidebar">◀</button>
@@ -54,37 +56,36 @@
                         <div class="col">
                             <a href="{{url_for('index')}}" class="btn btn-primary w-100" title="Vault index">
                                 <i class="bi bi-display  d-none d-sm-inline"></i>
-                                 <span class="d-inline d-sm-none"><small>Vaults</small></span>
+                                <span class="d-inline d-sm-none"><small>Vaults</small></span>
                             </a>
                         </div>
                         <div class="col">
                             <a href="{{url_for('fileop', vault=vault)}}?curdir={{curdir}}&curfile={{curfile}}"
                                 class="btn btn-primary w-100" title="File operations">
                                 <i class="bi bi-file-earmark d-none d-sm-inline"></i>
-                                 <span class="d-inline d-sm-none"><small>Files</small></span>
+                                <span class="d-inline d-sm-none"><small>Files</small></span>
                             </a>
                         </div>
-                         <div class="col">
+                        <div class="col">
                             <a href="{{url_for('messages', vault=vault)}}?unread=0" class="btn btn-primary w-100"
                                 title="Vault messages">
                                 <i class="bi bi-chat-right-text d-none d-sm-inline"></i>
-                                 <span class="d-inline d-sm-none"><small>Msg.</small></span>
+                                <span class="d-inline d-sm-none"><small>Msg.</small></span>
                             </a>
                         </div>
-                       
+
                         <div class="col">
                             <a href="{{url_for('graph', vault=vault)}}" class="btn btn-primary w-100"
                                 title="Global graph">
                                 <i class="bi bi-bounding-box-circles d-none d-sm-inline"></i>
-                                 <span class="d-inline d-sm-none"><small>Graph</small></span>
+                                <span class="d-inline d-sm-none"><small>Graph</small></span>
                             </a>
                         </div>
 
-                         <div class="col">
-                            <a href="{{url_for('search', vault=vault)}}" class="btn btn-primary w-100"
-                                title="Search">
+                        <div class="col">
+                            <a href="{{url_for('search', vault=vault)}}" class="btn btn-primary w-100" title="Search">
                                 <i class="bi bi-search d-none d-sm-inline"></i>
-                                 <span class="d-inline d-sm-none"><small>Search</small></span>
+                                <span class="d-inline d-sm-none"><small>Search</small></span>
                             </a>
                         </div>
                     </div>
@@ -121,7 +122,7 @@
             {% block content %}{% endblock %}
 
             {% block footer %}
-                {{ render_footer(injected_vars["version"]) }}
+            {{ render_footer(injected_vars["version"]) }}
             {% endblock %}
         </div>
 
@@ -172,7 +173,7 @@
       </div>`;
             alertsContainer.append(wrapper);
 
-            // автоудаление через 5 секунд
+            // auto-remove in 5 secs
             setTimeout(() => {
                 const alertNode = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
                 alertNode.close();
@@ -204,10 +205,10 @@
             }
         }
 
-        // первый запрос сразу
+        // first request at start
         fetchMessages();
 
-        // опрашиваем каждую секунду
+        // then asking every second 
         setInterval(fetchMessages, 1000);
     </script>
 
