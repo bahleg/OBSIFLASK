@@ -55,7 +55,7 @@ jobs:
       - name: Run tests in Docker
         if: env.RUN_TESTS == 'true'
         run: |
-          docker run --rm -v ${{ github.workspace }}/tests:/test $DOCKER_IMAGE_NAME bash /tests/run_docker_tests.sh
+          docker run --rm -v ${{ github.workspace }}/tests:/tests $DOCKER_IMAGE_NAME bash /tests/run_docker_tests.sh
 
       - name: Upload coverage to Codecov
         if: env.RUN_TESTS == 'true'
