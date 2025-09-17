@@ -176,6 +176,7 @@ def generate_text_check_results(
             query = query.lower()
             if ignore_non_words:
                 query = re_non_words.sub(' ', query)
+
         if mode == 'regex':
             query_re = re.compile(query)
 

@@ -4,7 +4,6 @@
 
 <h1 class="mb-4">Search</h1>
 <form action="/" method="get" class="row g-3 align-items-center mb-4" id="searchForm">
-    <!-- Основные поля -->
     <div class="col-auto">
         <label for="q" class="col-form-label">Text search:</label>
     </div>
@@ -29,7 +28,6 @@
         <button type="button" id="goBtn" class="btn btn-primary">Search</button>
     </div>
 
-    <!-- Дополнительные параметры -->
     <div class="col-12 mt-2 extra-param" id="ignoreCaseContainer">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="ignore_case" id="ignore_case" {% if ignore_case
@@ -40,8 +38,8 @@
 
     <div class="col-12 extra-param" id="ignorePunctContainer">
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="ignore_non_words" id="ignore_non_words" {% if ignore_non_words
-                %}checked{% endif %}>
+            <input class="form-check-input" type="checkbox" name="ignore_non_words" id="ignore_non_words" {% if
+                ignore_non_words %}checked{% endif %}>
             <label class="form-check-label" for="ignore_non_words">Ignore non-word chars</label>
         </div>
     </div>
@@ -70,51 +68,48 @@
     function updateExtraParams() {
         const mode = document.getElementById('mode').value;
 
-        // Сначала скрываем все
         document.querySelectorAll('.extra-param').forEach(el => el.style.display = 'none');
 
-        // Для exact, regex, fuzzy показываем ignore_case и ignore_non_words
+        // For exact, regex, fuzzy 
         if (['exact', 'regex', 'fuzzy'].includes(mode)) {
             document.getElementById('ignoreCaseContainer').style.display = 'block';
             document.getElementById('ignorePunctContainer').style.display = 'block';
         }
 
-        // Для fuzzy показываем окно и inclusion ratio
+        // For fuzzy
         if (mode === 'fuzzy') {
             document.getElementById('fuzzyWindowContainer').style.display = 'block';
             document.getElementById('fuzzyRatioContainer').style.display = 'block';
         }
 
-        // Для forward/backward links показываем local link search
+        // For forward/backward links we show local link search
         if (['forward', 'backward'].includes(mode)) {
             document.getElementById('localLinkContainer').style.display = 'block';
         }
     }
 
-    // Обновляем при загрузке страницы
+    // Update
     updateExtraParams();
-
-    // Обновляем при изменении выбора режима
     document.getElementById('mode').addEventListener('change', updateExtraParams);
 </script>
 
 <script>
-document.getElementById('goBtn').addEventListener('click', (e) => {
-    e.preventDefault();  // <--- предотвращаем стандартный сабмит
-    const form = document.getElementById('searchForm');
-    const formData = new FormData(form);
+    document.getElementById('goBtn').addEventListener('click', (e) => {
+        e.preventDefault();  // <--- prevent from submit
+        const form = document.getElementById('searchForm');
+        const formData = new FormData(form);
 
-    // Собираем только непустые поля
-    const params = {};
-    formData.forEach((value, key) => {
-        if (value) params[key] = value;
+        //only non-empty fields
+        const params = {};
+        formData.forEach((value, key) => {
+            if (value) params[key] = value;
+        });
+
+        const queryString = new URLSearchParams(params).toString();
+        const url = '{{ url_for("search", vault=vault) }}' + '?' + queryString;
+        window.location.href = url;
+
     });
-
-    const queryString = new URLSearchParams(params).toString();
-    const url = '{{ url_for("search", vault=vault) }}' + '?' + queryString;
-    window.location.href = url;
-
-});
 </script>
 
 {% if query %}
