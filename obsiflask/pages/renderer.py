@@ -15,20 +15,6 @@ from obsiflask.file_index import FileIndex
 from obsiflask.utils import logger
 from obsiflask.consts import wikilink, re_tag_embed
 
-IFRAME_TEMPLATE = """
-                           <script>
-function resizeIframe_#() {
-    const iframe = document.getElementById('#');
-    try {
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        iframe.style.height = doc.body.scrollHeight + 'px';
-    } catch (e) {
-        console.warn("Cannot access to iframe (cross-origin)");
-    }
-}
-document.getElementById('#').addEventListener('load', resizeIframe_#);</script>
-                           
-                           """
 
 
 def plugin_mermaid(md):
@@ -152,7 +138,7 @@ def parse_embedding(text: str, full_path: Path, index: FileIndex,
                 buf.append(
                     f'<hr/><iframe id={id_name} src="{link_path}?raw=1"  style="width:95%"></iframe><hr/>'
                 )
-                buf.append(IFRAME_TEMPLATE.replace('#', id_name))
+                buf.append('<script>setupIframeResize("#")</script>'.replace('#', id_name))
             else:
                 link_path = url_for('get_file', vault=vault, subpath=link_path)
                 buf.append(f'[{path}]({link_path})')
