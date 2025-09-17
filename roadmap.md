@@ -33,6 +33,7 @@ Planned features to be implemented (tentative order):
   - Basic hotkey support  
   - Command palette  
   - Tags as links rendering
+  - Disable trags parsing in code blocks
   - Saving before turning into the view mode
 - Large files: currently excluded from analysis
 - More unit tests
