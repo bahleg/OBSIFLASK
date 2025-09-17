@@ -1,139 +1,28 @@
 {% extends 'base.html' %}
 {% from 'bases/shared.html' import render_table_view, render_view_list %}
 {% block content %}
-<h1>Base: <a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</h1>
-<br/>
-  
-  {{render_view_list(current_view, all_views)}}
+<h1>Base: <code><a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</code></h1>
 
+{{render_view_list(current_view, all_views)}}
+<p></p>
+<link rel="stylesheet" href="{{ url_for('static', filename='base_views.css') }}">
 <link href="https://unpkg.com/tabulator-tables@5.6.0/dist/css/tabulator.min.css" rel="stylesheet">
 <script src="https://unpkg.com/tabulator-tables@5.6.0/dist/js/tabulator.min.js"></script>
 
 <div id="base-table"></div>
 
-<style>
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  #app {
-    width: 100%;
-    height: 100%;
-    max-width: 100vw;
-    max-height: 100vh;
-  }
-
-    #flo-refresh-btn {
-    position: fixed;
-    top: 20px;
-    right: 170px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-  }
-
-  #flo-refresh-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-  }
 
 
-
-  #flo-download-btn {
-    position: fixed;
-    top: 20px;
-    right: 120px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-  }
-
-  #flo-download-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-  }
-
-
-
-
-
-  #flo-table-btn {
-    position: fixed;
-    top: 20px;
-    right: 70px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-    border: none;
-  }
-
-  #flo-table-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-    border: none;
-  }
-
-  #flo-toggle-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-  }
-
-  #flo-toggle-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-  }
-
-
-  .tabulator-col .tabulator-col-title {
-    white-space: normal !important;
-    word-break: break-word;
-    text-align: center; /* по желанию */
-  }
-</style>
-
-<a id="flo-refresh-btn" href="{{url_for('base', vault = vault, subpath = path)}}?refresh=1&view={{current_view}}"><i class="bi bi-arrow-clockwise"></i></a>
-<a id="flo-download-btn" href="{{url_for('get_file', vault = vault, subpath = path)}}"><i
-    class="bi bi-download"></i></a>
-<a id="flo-toggle-btn" href="{{url_for('editor', vault = vault, subpath = path)}}"><i class="bi bi-pencil"></i></a>
-<button id="flo-table-btn"><i class="bi bi-file-earmark-spreadsheet-fill"></i></i></button>
-
+<div class="flo-btn-group">
+  <a id="flo-table-btn"  title="CSV export"><i class="bi bi-file-earmark-spreadsheet-fill flo-btn"></i></i></a>
+  <a id="flo-refresh-btn"  title="Refresh base" class="flo-btn"  href="{{url_for('base', vault = vault, subpath = path)}}?refresh=1&view={{current_view}}"><i
+      class="bi bi-arrow-clockwise"></i></a>
+  <a id="flo-toggle-btn"  class="flo-btn"   title="Edit mode" href="{{url_for('editor', vault = vault, subpath = path)}}"><i class="bi bi-pencil"></i></a>
+  <a id="flo-download-btn"  class="flo-btn"  title="Download"  href="{{url_for('get_file', vault = vault, subpath = path)}}"><i
+      class="bi bi-download"></i></a>
+  
+  
+</div>
 
 <script>
   {{ render_table_view(table) }}
@@ -149,20 +38,20 @@
 </script>
 
 <script>
-function getQueryParam(name) {
+  function getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(name);
-}
+  }
 
-// --- обработка параметра ---
-const myParam = getQueryParam("refresh");
-if (myParam) {
-    
+  // --- обработка параметра ---
+  const myParam = getQueryParam("refresh");
+  if (myParam) {
+
     // --- убираем параметр из URL ---
     const url = new URL(window.location);
     url.searchParams.delete("refresh"); // удаляем
     window.history.replaceState({}, document.title, url);
-}
+  }
 </script>
 
 {% endblock %}

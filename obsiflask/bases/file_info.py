@@ -71,6 +71,8 @@ class FileInfo:
                 parsed = {}
             self.frontmatter = parsed
             tags = parsed.get('tags', [])
+            if isinstance(tags, str):
+                tags = [tags]
             self._tags = self._tags | set([t.lstrip('#') for t in tags])
         except Exception as e:
 

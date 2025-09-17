@@ -6,14 +6,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<style>
-  .tabulator-col .tabulator-col-title {
-    white-space: normal !important;
-    word-break: break-word;
-    text-align: center;
-    /* по желанию */
-  }
-</style>
+
 
 <head>
   <base target="_top">
@@ -23,8 +16,8 @@
 </head>
 
 <body>
-
-  <h3>Base: <a href="{{url_for('base', vault=vault, subpath=path)}}">{{path}}</a></h3>
+  <link rel="stylesheet" href="{{ url_for('static', filename='base_views.css') }}">
+  <h3>Base: <code><a href="{{url_for('base', vault=vault, subpath=path)}}">{{path}}</a></code></h3>
   <a href="{{url_for('base', vault=vault, subpath=path)}}?refresh=1&view={{current_view}}">Refresh</a>
   <br />
 
@@ -49,7 +42,7 @@
       height: 100%;
       max-width: 100vw;
       max-height: 100vh;
-    }&view={{current_view}}
+    }
   </style>
 
 

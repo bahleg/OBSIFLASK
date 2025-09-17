@@ -1,0 +1,21 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+.tabulator-col .tabulator-col-title {
+white-space: normal !important;
+word-break: break-word;
+text-align: center; /* по желанию */
+}

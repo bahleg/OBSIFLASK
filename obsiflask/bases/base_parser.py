@@ -1,26 +1,46 @@
-from threading import Lock
+"""
+Logic for parsing bases
+"""
+from typing import Callable
+
 from omegaconf import OmegaConf
-from pathlib import Path
+from lark import Lark
+
 from obsiflask.app_state import AppState
 from obsiflask.bases.view import View
 from obsiflask.bases.filter import Filter, FilterAnd, FilterOr, FieldFilter, TrivialFilter
-from obsiflask.utils import logger
 from obsiflask.messages import add_message
 from obsiflask.bases.grammar import FilterTransformer, grammar
-from lark import Lark
-from obsiflask.bases.cache import BaseCache
-import time
 
 class Base:
+    """
+    A general class for bases handling
+    """
 
-    def __init__(self, path):
+    def __init__(self, path: str):
+        """
+        Constructor
+
+        Args:
+            path (str): path to base w.r.t. vault
+        """
         self.formulas = {}
         self.properties = {}
         self.global_filter: Filter = None
         self.views: dict[str, View] = {}
 
 
-def parse_filter(filter_dict: dict, vault):
+def parse_filter(filter_dict: dict, vault) -> Filter:
+    """
+    Parsing filter
+
+    Args:
+        filter_dict (dict): yaml-based config 
+        vault (str): vault name
+
+    Returns:
+        Filter: resulting filter
+    """
     if isinstance(filter_dict, str):
         result = FieldFilter(filter_dict)
         return result
@@ -48,7 +68,20 @@ def parse_filter(filter_dict: dict, vault):
             return TrivialFilter()
 
 
-def parse_view(view: dict, vault: str, formulas, properties, base_path):
+def parse_view(view: dict, vault: str, formulas: list[Callable], properties: dict, base_path: str) -> View:
+    """
+    View parsing
+
+    Args:
+        view (dict): yam-based
+        vault (str): vault name
+        formulas (list[Callable]): list of callables for each formula
+        properties (dict): dictionary of properties
+        base_path (str): real path 
+
+    Returns:
+        View: resulting view
+    """
     result = View(formulas, properties, base_path)
     result.type = view['type']
     if result.type not in ['table', 'cards']:
@@ -71,7 +104,17 @@ def parse_view(view: dict, vault: str, formulas, properties, base_path):
     return result
 
 
-def parse_base(real_path, vault) -> Base:
+def parse_base(real_path: str, vault: str) -> Base:
+    """
+    Base parsing logic
+
+    Args:
+        real_path (str): path to base
+        vault (str): vault name
+
+    Returns:
+        Base: resulting base
+    """
     base = Base(real_path)
     yaml = OmegaConf.load(real_path)
     if 'filters' in yaml:
