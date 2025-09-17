@@ -1,28 +1,46 @@
+"""
+Filtering logic for vault bases
+"""
 from pathlib import Path
-import re
-from obsiflask.bases.grammar import FilterTransformer, grammar
+
 from lark import Lark
+
+from obsiflask.bases.grammar import FilterTransformer, grammar
 from obsiflask.bases.file_info import FileInfo
-from functools import partial
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message
 
-filter_binary_op = re.compile('([^\s]+)\s+([^\s]+)\s+([^\s]+)')
-
-
-class Variable:
-    pass
-
 
 class Filter:
+    """
+    Abstract class to represent a filter
+    """
 
     def check(file: FileInfo) -> bool:
+        """
+        Abstract function to check if file meetgs condition
+
+        Args:
+            file (FileInfo): file to chec
+
+        Returns:
+            bool: True if filter accepts the file
+        """
         raise NotImplementedError()
 
 
 class FilterAnd(Filter):
+    """
+    "And" filter
+    """
 
-    def __init__(self, filters):
+    def __init__(self, filters: list[Filter]):
+        """
+        Constructor
+
+        Args:
+            filters (list[Filter]): filter to check with "AND" operator
+        """
         super().__init__()
         self.children = filters
 
@@ -31,8 +49,17 @@ class FilterAnd(Filter):
 
 
 class FilterOr(Filter):
+    """
+    "Or" filter
+    """
 
-    def __init__(self, filters):
+    def __init__(self, filters: list[Filter]):
+        """
+        Constructor
+
+        Args:
+            filters (list[Filter]): filter to check with "AND" operator
+        """
         super().__init__()
         self.children = filters
 
@@ -41,14 +68,27 @@ class FilterOr(Filter):
 
 
 class TrivialFilter(Filter):
+    """
+    A filter that accepts everything.
+    Written for compatibility
+    """
 
     def check(self, file: FileInfo):
         return True
 
 
 class FieldFilter:
+    """
+    Filter that parses formula and check files against this formula
+    """
 
-    def __init__(self, expr):
+    def __init__(self, expr: str):
+        """
+        Constructor
+
+        Args:
+            expr (str): expression for the filter
+        """
         self.parser = Lark(grammar, start="start", parser="lalr")
         self.exception = None
         self.expr = expr
@@ -70,18 +110,3 @@ class FieldFilter:
                     details=repr(self.exception))
                 return True
         return self.func(file)
-
-
-if __name__ == '__main__':
-    files = list(Path('..').glob('./**/*md'))
-    print(len(files))
-    files = [FileInfo(f, Path('..').resolve()) for f in files]
-    for filter in """file.folder.contains("many_digits")
-        file.tags.containsAny("even", "odd")
-        file.ext == "md"
-        !next.isEmpty()""".splitlines():
-        print('Filter', filter)
-        filter = filter.strip()
-        filter = FieldFilter(filter)
-        filtered = [f for f in files if filter.filter(f)]
-        print(len(filtered))
