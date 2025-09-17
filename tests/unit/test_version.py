@@ -1,40 +1,11 @@
 import importlib.util as util
 
-from obsiflask.version import get_version, bump_version
-
-import pytest
-from unittest.mock import patch
-from obsiflask.version import get_version, version_str
+from obsiflask.version import get_version, bump_version, version_str
 
 
-def fake_check_output_git_commit(*args, **kwargs):
-    if args[0] == ["git", "rev-parse", "--short", "HEAD"]:
-        return "abc123"
-    if args[0] == ["git", "status", "--porcelain"]:
-        return ""
-    return ""
-
-
-def fake_check_output_git_dirty(*args, **kwargs):
-    if args[0] == ["git", "rev-parse", "--short", "HEAD"]:
-        return "abc123"
-    if args[0] == ["git", "status", "--porcelain"]:
-        return " M some_file.py"
-    return ""
-
-
-def fake_check_output_git_fail(*args, **kwargs):
-    raise Exception("git not found")
-
-
-def test_version_short():
-    ver = get_version(True, True)
-    ver2 = get_version(False, True)
-    assert ver == ver2
-    parts = ver.split('.')
-    assert len(parts) == 3
-    for p in parts:
-        int(p)
+def test_get_version():
+    res = get_version()
+    assert res == version_str
 
 
 def test_bump_version(tmp_path):

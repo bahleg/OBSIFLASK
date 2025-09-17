@@ -6,43 +6,8 @@ import subprocess
 version_str = '0.7.2'
 
 
-def get_version(pep_version=True, short: bool = False) -> str:
-    """
-    Returns version in two options: version as version_str and with additional suffix, if
-    we see that git repo is dirty (doesn't contain unchanged git version)
-
-    Args:
-        pep_version (bool, optional): if set, will use "+" as delimiter. Defaults to True.
-        short (bool, optional): if set, will use a semver-like version without git suffix. Defaults to False.
-
-    Returns:
-        str: formatted version
-    """
-    delim_char = '+' if pep_version else '-'
-
-    # checking git commit
-    try:
-        commit = subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            stderr=subprocess.DEVNULL,
-            text=True).strip()
-        # checking if our commit is dirty
-        dirty = subprocess.check_output(["git", "status", "--porcelain"],
-                                        text=True).strip()
-        if dirty:
-            commit += ".local"
-    except Exception as e:
-        commit = None
-
-    if short:
-        return version_str
-
-    if not dirty:
-        ver = version_str
-    else:
-        ver = f"{version_str}{delim_char}{commit}"
-
-    return ver
+def get_version() -> str:
+    return version_str
 
 
 def bump_version(path_to_save: str | None = None) -> str:
