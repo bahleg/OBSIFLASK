@@ -55,8 +55,17 @@ jobs:
       - name: Run tests in Docker
         if: env.RUN_TESTS == 'true'
         run: |
-          docker run --rm $DOCKER_IMAGE_NAME bash /tests/run_docker_tests.sh
-      
+          docker run --rm -v ${{ github.workspace }}/tests:/test $DOCKER_IMAGE_NAME bash /tests/run_docker_tests.sh
+
+      - name: Upload coverage to Codecov
+        if: env.RUN_TESTS == 'true'
+        uses: codecov/codecov-action@v4
+        with:
+          file: /tests/coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+
       - name: Log in to Docker Hub
         if: env.PUBLISH_DOCKER == 'true'
         uses: docker/login-action@v2
