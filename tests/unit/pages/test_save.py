@@ -47,8 +47,9 @@ def test_make_save_failure(fake_index, app):
     # path with incorrect chars
     bad_path = "/invalid_path/<>/file.txt"
 
-    with app.app_context():
-        resp, code = make_save(bad_path, "data", fake_index, "vault1")
+    with patch("builtins.open", side_effect=OSError("mock error")):
+        with app.app_context():
+            resp, code = make_save(bad_path, "data", fake_index, "vault1")
 
     assert code == 400
     assert "Cannot save" in resp
