@@ -2,6 +2,7 @@
 Version handling module
 """
 import subprocess
+
 version_str = '0.7.2'
 
 
@@ -14,21 +15,19 @@ def get_version(pep_version=True, short: bool = False) -> str:
         short (bool, optional): if set, will use a semver-like version without git suffix. Defaults to False.
 
     Returns:
-        str: _description_
+        str: formatted version
     """
     delim_char = '+' if pep_version else '-'
 
-    # пытаемся получить git commit
+    # checking git commit
     try:
         commit = subprocess.check_output(
             ["git", "rev-parse", "--short", "HEAD"],
             stderr=subprocess.DEVNULL,
-            text=True
-        ).strip()
-        # проверяем, есть ли несохранённые изменения
-        dirty = subprocess.check_output(
-            ["git", "status", "--porcelain"], text=True
-        ).strip()
+            text=True).strip()
+        # checking if our commit is dirty
+        dirty = subprocess.check_output(["git", "status", "--porcelain"],
+                                        text=True).strip()
         if dirty:
             commit += ".local"
     except Exception:
@@ -37,12 +36,11 @@ def get_version(pep_version=True, short: bool = False) -> str:
     if short:
         return version_str
     if commit:
-        ver = f"{version_str}{delim_char}{commit}"
+        ver = version_str
     else:
-        ver = f"{version_str}{delim_char}local"
+        ver = f"{version_str}{delim_char}{commit}"
 
     return ver
-
 
 
 def bump_version(path_to_save: str | None = None) -> str:
@@ -71,7 +69,6 @@ def bump_version(path_to_save: str | None = None) -> str:
     path_to_save = path_to_save or __file__
     with open(path_to_save, 'w') as out:
         out.write(result)
-
 
 
 if __name__ == '__main__':
