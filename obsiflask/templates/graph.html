@@ -1,57 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='graph.css') }}">
+
 <h1>Global graph</h1>
 {% if fast %}
 <h5><span class="text-danger">Warning: using simplified graph representation: too complex graph </span></h5>
 {% endif %}
-<a id="flo-refresh-btn" href="{{url_for('graph', vault = vault)}}?refresh=1"><i class="bi bi-arrow-clockwise"></i></a>
-<button id="toggle-panel"><i class="bi bi-gear-wide-connected"></i></button>
+<div class="flo-btn-group">
+  <a id="flo-refresh-btn" class="flo-btn" href="{{url_for('graph', vault = vault, refresh=1)}}"><i
+      class="bi bi-arrow-clockwise"></i></a>
+  <button id="toggle-panel"><i class="bi bi-gear-wide-connected"></i></button>
+</div>
 
-<style>
-  #control-panel {
-    position: fixed;
-    top: 60px;
-    right: 0;
-    width: 250px;
-    height: auto;
-    background: var(--bs-body-bg);
-    color: var(--bs-body-color);
-    border-left: 1px solid var(--bs-border-color, #ccc);
-    padding: 15px;
-    z-index: 2000;
-    transition: transform 0.3s ease;
-
-  }
-
-  #control-panel.hidden {
-    transform: translateX(200%);
-  }
-
-
-
-  #control-panel label {
-    display: block;
-    margin-top: 10px;
-    font-size: 0.9rem;
-  }
-</style>
-<div id="control-panel" style="
-    position: fixed;
-    top: 60px;
-    right: 20px;
-    width: 240px;
-    padding: 10px;
-    background: var(--bs-body-bg);
-    color: var(--bs-body-color);
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    z-index: 1000;
-    font-size: 14px;
-    max-height: 70vh;      
-    overflow-y: auto;      
-    overflow-x: hidden;    
-">
+<div id="control-panel">
   <h5>Graph Settings</h5>
 
   <label>Node spacing: <span id="repulsion-val">{{nodespacing}}</span></label>
@@ -69,137 +31,77 @@
   <button id="apply-forces" class="btn btn-sm btn-secondary">Apply graph forces</button>
 
   <hr>
-<div class="mb-3 d-flex align-items-center">
-  <div class="form-check me-3 mb-0 d-flex align-items-center">
-    <input type="checkbox" class="form-check-input me-2" id="tags" {% if include_tags %} checked {% endif %}>
-    <label class="form-check-label mb-0" for="tags">Include tags</label>
+  <div class="mb-3 d-flex align-items-center">
+    <div class="form-check me-3 mb-0 d-flex align-items-center">
+      <input type="checkbox" class="form-check-input me-2" id="tags" {% if include_tags %} checked {% endif %}>
+      <label class="form-check-label mb-0" for="tags">Include tags</label>
+    </div>
+    <label for="color" class="form-label mb-0 me-2">Color</label>
+    <input type="text" class="form-control form-control-sm" id="color" style="width: 90px;" value="{{tag_color}}">
   </div>
-  <label for="color" class="form-label mb-0 me-2">Color</label>
-  <input type="text" class="form-control form-control-sm"
-         id="color" style="width: 90px;" value="{{tag_color}}">
+
+
+
+
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" id="backlinks" {% if backlinks %} checked {% endif %}>
+    <label class="form-check-label" for="backlinks">Backlinks</label>
+  </div>
+
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" id="fast" {% if force_fast_disable %} checked {% endif %}>
+    <label class="form-check-label" for="fast">Disable graph simplification</label>
+  </div>
+
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" id="clustering" {% if force_clustering %} checked {% endif %}>
+    <label class="form-check-label" for="fast">Perform clustering</label>
+  </div>
+
+
+  <div class="mb-3">
+    <label for="filters" class="form-label">Filters</label>
+    <textarea class="form-control" id="filters" rows="5">{{filters}}</textarea>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <button id="rebuild" class="btn btn-primary w-100">Show filtered graph</button>
+
 </div>
 
 
-
-
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="backlinks" {% if backlinks %} checked {% endif %}>
-      <label class="form-check-label" for="backlinks">Backlinks</label>
-    </div>
-
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="fast" {% if force_fast_disable %} checked {% endif %}>
-      <label class="form-check-label" for="fast">Disable graph simplification</label>
-    </div>
-
-      <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="clustering" {% if force_clustering %} checked {% endif %}>
-      <label class="form-check-label" for="fast">Perform clustering</label>
-    </div>
-
-
-    <div class="mb-3">
-      <label for="filters" class="form-label">Filters</label>
-      <textarea class="form-control" id="filters" rows="5">{{filters}}</textarea>
-    </div>
-
-    <!-- Сообщение об ошибке -->
-    <button id="rebuild" class="btn btn-primary w-100">Show filtered graph</button>
- 
-</div>
-
-
-
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-  }
-
-  #cy {
-    width: 100vw;
-    height: 100vh;
-    display: block;
-  }
-
-
-  #flo-refresh-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-
-  }
-
-  #toggle-panel:hover {
-    background: #555;
-    /* эффект при наведении */
-    border: none;
-  }
-
-
-  #toggle-panel {
-    position: fixed;
-    top: 20px;
-    right: 70px;
-    z-index: 1000;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    /* убираем подчёркивание */
-    display: inline-block;
-    /* чтобы padding работал корректно */
-    border: none;
-  }
-
-  #flo-refresh-btn:hover {
-    background: #555;
-    /* эффект при наведении */
-  }
-</style>
 <script src="https://unpkg.com/cytoscape@3.30.4/dist/cytoscape.min.js"></script>
 <script src="https://unpkg.com/layout-base/layout-base.js"></script>
 <script src="https://unpkg.com/cose-base/cose-base.js"></script>
 <script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
 
 <div id="cy">
-{% if legend|length > 1 %}
-<div id="legend" style="position: absolute; top: 20px; left: 20px; 
+  {% if legend|length > 1 %}
+  <div id="legend" style="position: absolute; top: 20px; left: 20px; 
                             background: var(--bs-body-bg);
     color: var(--bs-body-color);
     border-radius: 5px;
      padding: 10px;
                         border: 1px solid #ccc; border-radius: 5px; z-index: 1000;">
-  <h6>Legend</h6>
-  {% for text, color in legend %}
-  <div><span style="display:inline-block;width:12px;height:12px;background:{{color}};margin-right:5px;"></span> {{text}}</div>
-  {% endfor %}
+    <h6>Legend</h6>
+    {% for text, color in legend %}
+    <div><span style="display:inline-block;width:12px;height:12px;background:{{color}};margin-right:5px;"></span>
+      {{text}}</div>
+    {% endfor %}
   </div>
   {% endif %}
 </div>
 <script>
 
   function getRandomSample(collection, k) {
-  const arr = collection.toArray();
-  // алгоритм Фишера–Йетса
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    const arr = collection.toArray();
+    // алгоритм Фишера–Йетса
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, k);
   }
-  return arr.slice(0, k);
-}
 
   const root = document.documentElement;
 
@@ -219,20 +121,20 @@
   const elements = [];
 
   // Узлы
- graphData.node_labels.forEach((label, i) => {
-  elements.push({
-    data: {
-      id: "n" + i,
-      label: label,
-      size: graphData.sizes[i],
-      href: graphData.href[i],
-      
-    },
-    style: {
-      'background-color': graphData.colors[i]  // индивидуальный цвет
-    }
+  graphData.node_labels.forEach((label, i) => {
+    elements.push({
+      data: {
+        id: "n" + i,
+        label: label,
+        size: graphData.sizes[i],
+        href: graphData.href[i],
+
+      },
+      style: {
+        'background-color': graphData.colors[i]  // индивидуальный цвет
+      }
+    });
   });
-});
 
 
   // Рёбра
@@ -281,37 +183,38 @@
         }
       },
 
-      
-       {
-      selector: '.faded',
-      style: {
-        'opacity': 0.25,
-      }
-    },
+
+      {
+        selector: '.faded',
+        style: {
+          'opacity': 0.25,
+        }
+      },
 
     ],
-    layout: { name: 'fcose', 
-    // Устанавливаем начальные значения
-    nodeRepulsion: {{ nodespacing }},
-    idealEdgeLength: {{ edgelength }},
-    edgeElasticity: {{ stiffness }},
-    gravity: {{ compression }},
-      {% if fast %}
-        numIter: 500, 
-        animate: false,
+    layout: {
+      name: 'fcose',
+      // Устанавливаем начальные значения
+      nodeRepulsion: {{nodespacing }},
+  idealEdgeLength: {{ edgelength }},
+  edgeElasticity: {{ stiffness }},
+  gravity: {{ compression }},
+  {% if fast %}
+  numIter: 500,
+    animate: false,
       {% else %}
-        numIter: 2500,
-         animate: true,
+  numIter: 2500,
+    animate: true,
       {% endif %}
      },
 
-    // Настройки рендера
-    renderer: {
-      name: 'canvas',
+  // Настройки рендера
+  renderer: {
+    name: 'canvas',
       webgl: {{ use_webgl }},
-  showFps: {{ debug_graph }},
-  webglDebug: {{ debug_graph }},
-    }
+    showFps: {{ debug_graph }},
+    webglDebug: {{ debug_graph }},
+  }
   });
 
   let activeNode = null;
@@ -340,7 +243,7 @@
       activeNode.addClass('highlighted');
       neighborhood.addClass('highlighted');
       otherElements.addClass('faded');
-      
+
       // Показываем текст на активной ноде
       activeNode.style({
         'content': activeNode.data('label'),
@@ -351,17 +254,17 @@
         'z-index': 1000
       });
 
-    // Условие: если соседей не слишком много, показываем их текст
-    const maxNeighborsWithLabels = 10;
-    const neighbors = neighborhood.nodes();
-    if (neighbors.size() < maxNeighborsWithLabels) {
-      neighbors.style({
-        'content': function(ele) { return ele.data('label'); },
-        'text-opacity': 0.5,
-        'z-index': 999
-      });
-    }
-    else{
+      // Условие: если соседей не слишком много, показываем их текст
+      const maxNeighborsWithLabels = 10;
+      const neighbors = neighborhood.nodes();
+      if (neighbors.size() < maxNeighborsWithLabels) {
+        neighbors.style({
+          'content': function (ele) { return ele.data('label'); },
+          'text-opacity': 0.5,
+          'z-index': 999
+        });
+      }
+      else {
 
         // сбрасываем стили у всех
         neighbors.style({
@@ -370,7 +273,7 @@
         });
 
         // выбираем случайные maxNeighborsWithLabels
-         const selected = getRandomSample(neighbors, maxNeighborsWithLabels);
+        const selected = getRandomSample(neighbors, maxNeighborsWithLabels);
 
         selected.forEach(ele => {
           ele.style({
@@ -379,9 +282,9 @@
             'z-index': 999
           });
         });
-    }
-    
-     
+      }
+
+
     }
   }
   // Клик по ноде → переход по ссылке
@@ -393,7 +296,7 @@
     showActiveNode(evt.target);
   });
 
-    // Клик по ноде → переход по ссылке
+  // Клик по ноде → переход по ссылке
   cy.on('tapend', 'node', function (evt) {
     showActiveNode(evt.target);
   });
@@ -404,7 +307,7 @@
 
   cy.on('mouseout', 'node', function (evt) {
     showActiveNode(null);
-     // Сначала сбрасываем стили со всех элементов
+    // Сначала сбрасываем стили со всех элементов
     cy.elements().removeClass('faded').style({
       'content': '',
       'z-index': 0
@@ -447,7 +350,7 @@
   if (!getQueryParam("tag-color")) {
     url.searchParams.set("tag-color", "{{tag_color}}")
   };
- if (!getQueryParam("clustering")) {
+  if (!getQueryParam("clustering")) {
     url.searchParams.set("clustering", "{{force_clustering_bool}}")
   };
   if (!getQueryParam("fast")) {
@@ -457,7 +360,7 @@
     url.searchParams.set("backlinks", "{{backlinks_bool}}")
   };
   if (!getQueryParam("filters")) {
-    url.searchParams.set("filters", JSON.stringify({{filters | tojson}}))
+    url.searchParams.set("filters", {{ filters | tojson}})
   };
 
   window.history.replaceState({}, document.title, url);
@@ -493,20 +396,20 @@
       edgeElasticity: springStiffness,
       gravity: gravity,
       {% if fast %}
-        numIter: 500, 
-        animate: false,
+  numIter: 500,
+    animate: false,
       {% else %}
-        numIter: 2500,
-         animate: true,
+  numIter: 2500,
+    animate: true,
       {% endif %}
     });
-    url.searchParams.set("compression", gravity);
-    url.searchParams.set("edgelength", idealEdgeLength);
-    url.searchParams.set("stiffness", springStiffness);
-    url.searchParams.set("nodespacing", nodeRepulsion);
-    
-    window.history.replaceState({}, document.title, url);
-    layout.run();
+  url.searchParams.set("compression", gravity);
+  url.searchParams.set("edgelength", idealEdgeLength);
+  url.searchParams.set("stiffness", springStiffness);
+  url.searchParams.set("nodespacing", nodeRepulsion);
+
+  window.history.replaceState({}, document.title, url);
+  layout.run();
   }
 
   document.querySelectorAll("#control-panel input[type='range']").forEach(el => {
@@ -522,38 +425,38 @@
 
 </script>
 <script>
-function rebuildGraph() {
+  function rebuildGraph() {
 
-  const nodeRepulsion = parseFloat(document.getElementById('repulsion').value);
-  const idealEdgeLength = parseFloat(document.getElementById('spring').value);
-  const springStiffness = parseFloat(document.getElementById('stiffness').value);
-  const gravity = parseFloat(document.getElementById('gravity').value);
-
-
-  const tags_checked = Number(document.getElementById('tags').checked);
-  const tags_color = document.getElementById('color').value;
-  const backlinks_checked = Number(document.getElementById('backlinks').checked);
-  const fast_checked =  Number(!document.getElementById('fast').checked);
-  const clustering_checked = Number(document.getElementById('clustering').checked);
-  const filters_text = document.getElementById('filters').value;
+    const nodeRepulsion = parseFloat(document.getElementById('repulsion').value);
+    const idealEdgeLength = parseFloat(document.getElementById('spring').value);
+    const springStiffness = parseFloat(document.getElementById('stiffness').value);
+    const gravity = parseFloat(document.getElementById('gravity').value);
 
 
-  const url = new URL(window.location);
-  url.searchParams.set("compression", gravity);
-  url.searchParams.set("edgelength", idealEdgeLength);
-  url.searchParams.set("stiffness", springStiffness);
-  url.searchParams.set("nodespacing", nodeRepulsion);
+    const tags_checked = Number(document.getElementById('tags').checked);
+    const tags_color = document.getElementById('color').value;
+    const backlinks_checked = Number(document.getElementById('backlinks').checked);
+    const fast_checked = Number(!document.getElementById('fast').checked);
+    const clustering_checked = Number(document.getElementById('clustering').checked);
+    const filters_text = document.getElementById('filters').value;
 
 
-  url.searchParams.set("tags", tags_checked);
-  url.searchParams.set("tag-color", tags_color);
-  url.searchParams.set("backlinks", backlinks_checked);
-  url.searchParams.set("fast", fast_checked);
-  url.searchParams.set("clustering", clustering_checked);
-  url.searchParams.set("filters",  encodeURIComponent(filters_text));
-  window.location.assign(url);
-}
-document.getElementById('rebuild').addEventListener("click", () => {
+    const url = new URL(window.location);
+    url.searchParams.set("compression", gravity);
+    url.searchParams.set("edgelength", idealEdgeLength);
+    url.searchParams.set("stiffness", springStiffness);
+    url.searchParams.set("nodespacing", nodeRepulsion);
+
+
+    url.searchParams.set("tags", tags_checked);
+    url.searchParams.set("tag-color", tags_color);
+    url.searchParams.set("backlinks", backlinks_checked);
+    url.searchParams.set("fast", fast_checked);
+    url.searchParams.set("clustering", clustering_checked);
+    url.searchParams.set("filters", encodeURIComponent(filters_text));
+    window.location.assign(url);
+  }
+  document.getElementById('rebuild').addEventListener("click", () => {
     rebuildGraph();
   });
 </script>

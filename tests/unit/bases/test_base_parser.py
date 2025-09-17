@@ -5,12 +5,12 @@ from obsiflask.bases.filter import FieldFilter, TrivialFilter, FilterAnd, Filter
 from obsiflask.bases.view import View
 from obsiflask.bases.file_info import FileInfo
 from obsiflask.app_state import AppState
+from obsiflask.config import AppConfig, VaultConfig
+from obsiflask.main import run
 
 
 @pytest.fixture
 def dummy_file(tmp_path):
-    from obsiflask.config import AppConfig, VaultConfig
-    from obsiflask.main import run
 
     config = AppConfig(vaults={'vault1': VaultConfig(str(tmp_path))})
     config.vaults['vault1'].base_config.error_on_field_parse = False
