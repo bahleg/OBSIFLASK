@@ -44,12 +44,12 @@ pip install git+https://github.com/bahleg/OBSIFLASK.git
 
 ### Docker
 ```bash bash build_docker.sh
-docker run -p 8000:8000 bahleg13:obsiflask:latest
+docker run -p 8000:8000 bahleg13/obsiflask:latest
 ```
 
 By default docker image uses config from /config.yml. You can use the docker with your config:
 ```
-docker run -p 8000:8000 -v <path to your config>:/config.yml bahleg13:obsiflask:latest
+docker run -p 8000:8000 -v <path to your config>:/config.yml bahleg13/obsiflask:latest
 ```
 
 ## 🤝 Contributing
