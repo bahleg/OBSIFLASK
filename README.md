@@ -7,6 +7,9 @@
 </div>
 
 
+![CI](https://github.com/bahleg/OBSIFLASK/actions/workflows/ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/bahleg/OBSIFLASK/branch/main/graph/badge.svg)](https://codecov.io/gh/bahleg/OBSIFLASK)
+
 **OBSIFLASK** is a lightweight web service for Obsidian vaults, built on Flask.  
 It supports multiple vaults, search and navigation, background tasks, and graph visualization.
 
