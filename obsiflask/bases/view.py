@@ -75,10 +75,10 @@ class View:
                     if AppState.config.vaults[
                             vault].base_config.error_on_field_parse:
                         raise ValueError(
-                            f'could not infer value {r} from {f.path}: {e}')
+                            f'could not infer value {r} from {f.vault_path}: {e}')
                     else:
                         problems.append(
-                            f'could not infer value {r} from {f.path}: {e}')
+                            f'could not infer value {r} from {f.vault_path}: {e}')
                         value = ''
                 if r in self.order and prop_name not in final_order:
                     final_order.append(prop_name)
