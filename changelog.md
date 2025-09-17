@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
 ---
+### [0.8.*] – Tests and Refactoring
+- Added unit-tests for minimal coverage, minor refactoring
 
 ### [0.7.*] – Refactoring
 - Making repo public, build scripts, minor style code refactoring

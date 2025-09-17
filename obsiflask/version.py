@@ -1,9 +1,7 @@
 """
 Version handling module
 """
-import subprocess
-
-version_str = '0.7.3'
+version_str = '0.8.0'
 
 
 def get_version() -> str:
