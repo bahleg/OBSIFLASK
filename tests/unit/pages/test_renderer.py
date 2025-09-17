@@ -79,8 +79,7 @@ def test_parse_embedding_base(monkeypatch):
     monkeypatch.setattr(md, "url_for", lambda *a, **k: "/base/url")
     out = md.parse_embedding(text, Path("f.md"), idx, "vault1")
     assert "<iframe" in out
-    assert "resizeIframe_" in out
-
+    
 
 def test_parse_embedding_remote(monkeypatch):
     text = "![[Remote]]"

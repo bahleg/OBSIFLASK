@@ -1,16 +1,26 @@
+"""
+View class that represents different base views
+"""
+from typing import Callable
+
+import pandas as pd
+
 from obsiflask.app_state import AppState
 from obsiflask.bases.filter import Filter
 from obsiflask.bases.file_info import FileInfo
 from obsiflask.messages import add_message
 from obsiflask.utils import logger
-import pandas as pd
 from obsiflask.bases.cache import BaseCache
 from obsiflask.consts import COVER_KEY
 
 NAN_CONST = 0
 MAX_VIEW_ERRORS = 50
 
+
 def convert_field(x):
+    """
+    A helper to represent values in tabular rendering
+    """
     if x is None:
         return float('nan')
     if not isinstance(x, (int, float, str, bool)):
@@ -20,8 +30,20 @@ def convert_field(x):
 
 
 class View:
+    """
+    View objects represents different views in terms of Obsidian bases
+    """
 
-    def __init__(self, formulas, properties, base_path):
+    def __init__(self, formulas: list[Callable], properties: dict[str, dict],
+                 base_path: str):
+        """
+        Construvctor
+
+        Args:
+            formulas (list[Callable]): list of formulae
+            properties (dict[str, dict]): properties of view
+            base_path (str): path w.r.t. vault
+        """
         self.type = ''
         self.name = ''
         self.filter: Filter = None
@@ -30,16 +52,36 @@ class View:
         self.formulas: list = formulas
         self.properties: dict[str, dict] = properties
         self.base_path = base_path
-        self.global_filter = None 
+        self.global_filter = None
 
-    def gather_files(self, vault):
+    def gather_files(self, vault: str) -> list[FileInfo]:
+        """
+        Gathering files w.r.t. filters
+
+        Args:
+            vault (str): vault name
+
+        Returns:
+            list[FileInfo]: list of files
+        """
         files = [f for f in AppState.indices[vault] if f.is_file()]
         files = [FileInfo(f, vault) for f in files]
         files = [f for f in files if self.global_filter.check(f)]
         files = [f for f in files if self.filter.check(f)]
         return files
 
-    def make_view(self, vault, force_refresh):
+    def make_view(self, vault: str, force_refresh: bool) -> dict:
+        """
+        Renders a view into a json-compatible dict
+
+        Args:
+            vault (str): vault name
+            force_refresh (bool): if set, will drop cache for current view
+
+
+        Returns:
+            dict: resulting dict
+        """
         if not force_refresh:
             cached, found_in_cache = BaseCache.get_from_cache(
                 vault, self.base_path, self.name)
@@ -75,10 +117,12 @@ class View:
                     if AppState.config.vaults[
                             vault].base_config.error_on_field_parse:
                         raise ValueError(
-                            f'could not infer value {r} from {f.path}: {e}')
+                            f'could not infer value {r} from {f.vault_path}: {e}'
+                        )
                     else:
                         problems.append(
-                            f'could not infer value {r} from {f.path}: {e}')
+                            f'could not infer value {r} from {f.vault_path}: {e}'
+                        )
                         value = ''
                 if r in self.order and prop_name not in final_order:
                     final_order.append(prop_name)

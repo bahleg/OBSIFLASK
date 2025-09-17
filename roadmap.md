@@ -8,6 +8,7 @@ Planned features to be implemented (tentative order):
 - Autocompletion
 - Improved navigation tree  
 - Multi-user support
+- better logic for loggers
 - Refactored file index and graph handling
 - Excalidraw plugin compatibility
 - Encryption support (compatible with Meld plugin)
@@ -32,9 +33,12 @@ Planned features to be implemented (tentative order):
   - Basic hotkey support  
   - Command palette  
   - Tags as links rendering
+  - Disable trags parsing in code blocks
+  - Saving before turning into the view mode
 - Large files: currently excluded from analysis
 - More unit tests
 - More selenium tests
 - Documentation
+   - (doi?) 
 - twine
 - Bases view fixes (sometimes they are too small)

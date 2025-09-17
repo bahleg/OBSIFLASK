@@ -23,7 +23,7 @@ from obsiflask.pages.messages import render_messages
 from obsiflask.pages.excalidraw import render_excalidraw
 from obsiflask.pages.folder import render_folder
 from obsiflask.pages.fileop import render_fileop
-from obsiflask.pages.base import render_base
+from obsiflask.pages.base import render_base_view
 from obsiflask.graph import Graph
 from obsiflask.pages.graph import render_graph
 from obsiflask.pages.search import render_search
@@ -165,7 +165,7 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
-        return render_base(vault, subpath, real_path)
+        return render_base_view(vault, subpath, real_path)
 
     @app.route('/renderer/<vault>')
     def renderer_root(vault):

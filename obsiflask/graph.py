@@ -1,15 +1,24 @@
+"""
+Module for global graph building
+"""
 from pathlib import Path
 from collections import Counter
 from dataclasses import dataclass
+import time
+
+import numpy as np
+from flask import url_for
+
 from obsiflask.app_state import AppState
 from obsiflask.bases.file_info import FileInfo
-from flask import url_for
 from obsiflask.utils import logger
-import time
-import numpy as np
+
 
 @dataclass
 class GraphRepr:
+    """
+    Class representation class
+    """
     node_labels: list[str]
     edges: np.ndarray
     href: list[str]
@@ -18,13 +27,31 @@ class GraphRepr:
 
 
 class Graph:
+    """
+    Class for storing and handling graph information
+    """
 
-    def __init__(self, vault):
+    def __init__(self, vault: str):
+        """
+        Constructor
+
+        Args:
+            vault (str): vault name
+        """
         self.vault = vault
         self.result = None
         self.last_time_built = -1
 
-    def build(self, rebuild=False):
+    def build(self, rebuild: bool = False) -> GraphRepr:
+        """
+        Builds a graph or loads it from cache
+
+        Args:
+            rebuild (bool, optional): if set, will ignore cache for building graph. Defaults to False.
+
+        Returns:
+            GraphRepr: graph representation
+        """
         if (not rebuild) and (
                 time.time() - self.last_time_built
                 < AppState.config.vaults[self.vault].graph_config.cache_time):
@@ -33,10 +60,9 @@ class Graph:
         files = list(AppState.indices[self.vault])
         files = [
             FileInfo(f, self.vault) for f in files
-            if f.is_file() and f.name.endswith('.md')
+            if f.is_file() and f.suffix == ".md"
         ]
         used_tags = {}
-        
 
         nodes = [str(f.get_prop(['file', 'path'])) for f in files]
         node_ids = {}
@@ -71,17 +97,14 @@ class Graph:
                 else:
                     tag_id = len(node_labels)
                     node_labels.append('#' + tag)
-                    
-                    
+
                     used_tags[tag] = tag_id
                 links.append((file_id, tag_id))
                 hrefs.append('')
-        assert len(links) < 2**16-1
-        np_edges = np.zeros((len(links), 2), dtype=np.uint16)
-        for i_id, (i,j) in enumerate(links):
-            np_edges[i_id] = np.array([i, j])
+        assert len(links) < 2**16 - 1, "currently graphs with higher number of edges are not supported"
+        np_edges = np.array(links, dtype=np.uint16)
         self.last_time_built = time.time()
-        
-        self.result = GraphRepr(node_labels, np_edges, hrefs, 
+
+        self.result = GraphRepr(node_labels, np_edges, hrefs,
                                 list(used_tags.values()), files)
         return self.result

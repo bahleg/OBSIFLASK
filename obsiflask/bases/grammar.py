@@ -1,5 +1,9 @@
-from lark import Lark, Transformer, v_args, Tree
+"""
+Grammar module for bases
+"""
 import ast
+
+from lark import Transformer, v_args, Tree
 
 grammar = r"""
 ?start: expr
@@ -47,8 +51,9 @@ NUMBER: /\d+(\.\d+)?/
 %ignore " "
 """
 
+### METHODS IMPLEMENTATION
 
-# Реализация методов
+
 def contains(val, arg):
     return arg in val
 
@@ -60,17 +65,20 @@ def containsAny(val, *args):
 def isEmpty(val):
     return len(val) == 0
 
-def startsWith(val,  *args):
+
+def startsWith(val, *args):
     if len(args) != 1:
         raise ValueError('startsWith requires 1 argument')
     return str(val).startswith(str(args[0]))
+
 
 def hasTag(val, *args):
     if len(args) != 1:
         raise ValueError('hasTag requires 1 argument')
     tag = args[0].lstrip('#')
     return tag in val.get_prop(['tags'])
-    
+
+
 @v_args(inline=True)
 class FilterTransformer(Transformer):
 
@@ -110,10 +118,10 @@ class FilterTransformer(Transformer):
             return lambda ctx: isEmpty(attr(ctx))
         elif method_name == 'startsWith':
             return lambda ctx: startsWith(attr(ctx), *
-                                           [a(ctx) for a in method_args])
+                                          [a(ctx) for a in method_args])
         elif method_name == 'hasTag':
             return lambda ctx: hasTag(attr(ctx), *
-                                           [a(ctx) for a in method_args])
+                                      [a(ctx) for a in method_args])
         else:
             raise ValueError(f"Unknown method {method_name}")
 
@@ -147,7 +155,7 @@ class FilterTransformer(Transformer):
 
     def not_(self, func):
         return lambda ctx: not func(ctx)
-    
+
     def neg_(self, func):
         return lambda ctx: -func(ctx)
 
@@ -168,30 +176,3 @@ class FilterTransformer(Transformer):
 
     def div_(self, a, b):
         return lambda ctx: a(ctx) / b(ctx)
-
-
-# Пример использования
-if __name__ == "__main__":
-    parser = Lark(grammar, start="start", parser="lalr")
-
-    filters = [
-        'file.folder.contains("many_digits")',
-        'file.tags.containsAny("even", "odd")', 'file.ext == "md"',
-        'file.name == file.ext', '!file.tags.contains("odd")',
-        '(file.ext == "md" and file.name != "txt") or file.size > 100',
-        '"even" in file.tags', '"odd" not in file.tags'
-    ]
-
-    ctx = {
-        "file": {
-            "folder": "many_digits_folder",
-            "tags": ["even"],
-            "ext": "md",
-            "name": "md",
-            "size": 123
-        }
-    }
-
-    for f in filters:
-        func = FilterTransformer().transform(parser.parse(f))
-        print(f"{f} -> {func(ctx)}")

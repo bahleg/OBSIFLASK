@@ -47,7 +47,7 @@ def generate_formula_check_results(
         graph_results = graph.build(True)
         for file in graph_results.files:
             if filter.check(file):
-                yield str(file.path), ""
+                yield str(file.vault_path), ""
     except Exception as e:
         add_message('Error during tag search',
                     type_to_int['error'],
@@ -81,7 +81,7 @@ def generate_tags_check_results(
         if tag_id is not None:
             for edge in graph_results.edges:
                 if edge[1] == tag_id:
-                    yield str(graph_results.files[edge[0]].path), ""
+                    yield str(graph_results.files[edge[0]].vault_path), ""
     except Exception as e:
         add_message('Error during tag search',
                     type_to_int['error'],
@@ -116,7 +116,7 @@ def generate_links_check_results(
                 if str(f.path).lstrip('./') == path_version:
                     ids_to_search.add(f_id)
                 if local:
-                    if str(f.path.name).lstrip('./') == path_version:
+                    if str(f.vault_path.name).lstrip('./') == path_version:
                         ids_to_search.add(f_id)
         for edge in graph_results.edges:
             if forward:
@@ -181,11 +181,11 @@ def generate_text_check_results(
 
         graph_results = graph.build(True)
         for file in graph_results.files:
-            if only_md and file.path.suffix != '.md':
+            if only_md and file.vault_path.suffix != '.md':
                 continue
             if os.path.getsize(file.real_path) > MAX_FILE_SIZE_MARKDOWN:
                 logger.warning(
-                    f'skipping {file.path} due to size limit {MAX_FILE_SIZE_MARKDOWN/1024/1024} MB'
+                    f'skipping {file.vault_path} due to size limit {MAX_FILE_SIZE_MARKDOWN/1024/1024} MB'
                 )
             with open(file.real_path) as inp:
                 text = inp.read()
@@ -201,7 +201,7 @@ def generate_text_check_results(
                     res = compare_fuzzy(query, text, fuzzy_window_coef,
                                         inclusion_percent)
                 if res:
-                    yield str(file.path), res
+                    yield str(file.vault_path), res
 
     except Exception as e:
         add_message('Error during text search',

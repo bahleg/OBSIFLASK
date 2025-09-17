@@ -1,29 +1,34 @@
-from flask import render_template, redirect, url_for, render_template_string, request, abort
-import mistune
-import re
-from obsiflask.app_state import AppState
-from obsiflask.file_index import FileIndex
+"""
+Base rendering logic
+"""
 from pathlib import Path
-from urllib import parse
-from obsiflask.utils import logger
-import frontmatter
-from markupsafe import Markup
+
+from flask import render_template, url_for, request
+
+from obsiflask.app_state import AppState
 from obsiflask.bases.base_parser import parse_base
 from obsiflask.pages.index_tree import render_tree
 
 
-def render_base(vault, subpath, real_path):
-    return render_base_view(vault, subpath, real_path)
+def render_base_view(vault: str, subpath: str, real_path: str) -> str:
+    """
+    Rendering logic
 
+    Args:
+        vault (str): vault name
+        subpath (str): path to base
+        real_path (str): real path to base
 
-def render_base_view(vault, subpath, real_path):
+    Returns:
+        str: rendered html
+    """
     base = parse_base(real_path, vault)
     view = request.args.get('view')
     if view is None:
         key = list(base.views.keys())[0]
     else:
         if view not in base.views.keys():
-            return f'Bad view: {view}', 402
+            return f'Bad view: {view}', 400
         key = view
 
     if request.args.get('refresh'):

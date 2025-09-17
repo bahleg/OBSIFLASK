@@ -40,9 +40,9 @@
 
     <div class="col-12 extra-param" id="ignorePunctContainer">
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="ignore_punct" id="ignore_punct" {% if ignore_punct
+            <input class="form-check-input" type="checkbox" name="ignore_non_words" id="ignore_non_words" {% if ignore_non_words
                 %}checked{% endif %}>
-            <label class="form-check-label" for="ignore_punct">Ignore punctuation</label>
+            <label class="form-check-label" for="ignore_non_words">Ignore non-word chars</label>
         </div>
     </div>
 
@@ -73,7 +73,7 @@
         // Сначала скрываем все
         document.querySelectorAll('.extra-param').forEach(el => el.style.display = 'none');
 
-        // Для exact, regex, fuzzy показываем ignore_case и ignore_punct
+        // Для exact, regex, fuzzy показываем ignore_case и ignore_non_words
         if (['exact', 'regex', 'fuzzy'].includes(mode)) {
             document.getElementById('ignoreCaseContainer').style.display = 'block';
             document.getElementById('ignorePunctContainer').style.display = 'block';
