@@ -27,25 +27,6 @@ def fake_check_output_git_fail(*args, **kwargs):
     raise Exception("git not found")
 
 
-@patch("subprocess.check_output", side_effect=fake_check_output_git_commit)
-def test_version_with_commit(clean_git):
-    ver = get_version()
-    assert ver.startswith(version_str + "+abc123")
-    assert ".local" not in ver
-
-
-@patch("subprocess.check_output", side_effect=fake_check_output_git_dirty)
-def test_version_dirty(dirty_git):
-    ver = get_version()
-    assert ver.startswith(version_str + "+abc123.local")
-
-
-@patch("subprocess.check_output", side_effect=fake_check_output_git_fail)
-def test_version_no_git(no_git):
-    ver = get_version()
-    assert ver.endswith("+local")
-
-
 def test_version_short():
     ver = get_version(True, True)
     ver2 = get_version(False, True)

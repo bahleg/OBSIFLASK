@@ -8,7 +8,8 @@ version_str = '0.7.2'
 
 def get_version(pep_version=True, short: bool = False) -> str:
     """
-    Returns version
+    Returns version in two options: version as version_str and with additional suffix, if
+    we see that git repo is dirty (doesn't contain unchanged git version)
 
     Args:
         pep_version (bool, optional): if set, will use "+" as delimiter. Defaults to True.
@@ -30,12 +31,13 @@ def get_version(pep_version=True, short: bool = False) -> str:
                                         text=True).strip()
         if dirty:
             commit += ".local"
-    except Exception:
+    except Exception as e:
         commit = None
 
     if short:
         return version_str
-    if commit:
+
+    if not dirty:
         ver = version_str
     else:
         ver = f"{version_str}{delim_char}{commit}"
