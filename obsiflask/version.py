@@ -3,7 +3,7 @@ Version handling module
 """
 import subprocess
 
-version_str = '0.7.2'
+version_str = '0.7.3'
 
 
 def get_version() -> str:
