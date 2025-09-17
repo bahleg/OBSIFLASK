@@ -59,8 +59,9 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: env.RUN_TESTS == 'true'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           file: /tests/coverage.xml
           flags: unittests
           name: codecov-umbrella
