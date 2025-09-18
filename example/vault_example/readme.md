@@ -7,7 +7,7 @@ This vault shows basic functionality currently implemented in [OBSIFLASK](https:
 * [[Bases support| 🗄️ Bases support]]
 * [[Graph support| 🕸 Graph support]]
 * [[Other functionality | 🖱️ Other functionality]]
-
+	
 
 Other info, [including installation](https://github.com/bahleg/OBSIFLASK?tab=readme-ov-file#-getting-started),
 [changelog](https://github.com/bahleg/OBSIFLASK/blob/main/changelog.md) and [features roadmap](https://github.com/bahleg/OBSIFLASK/blob/main/roadmap.md) can be found in the [repo](https://github.com/bahleg/OBSIFLASK). 
