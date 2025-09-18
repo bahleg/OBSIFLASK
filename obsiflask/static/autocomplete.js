@@ -93,13 +93,8 @@ cm.on("keydown", async (cmInstance, e) => {
   if (e.key === "Tab") {
     const cursor = cm.getCursor();
     const line = cm.getLine(cursor.line).substring(0, cursor.ch);
-    if (/^[\s\t]*$/.test(line)) {
-      // пустая строка → обычный таб
-      return;
-    } else {
       e.preventDefault();
       await triggerAutocomplete();
-    }
   }
 });
 

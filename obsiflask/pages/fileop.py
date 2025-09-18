@@ -98,7 +98,7 @@ def create_file_op(vault: str, form: FileOpForm) -> bool:
         path.parent.mkdir(parents=True, exist_ok=True)
         if form.template.data.startswith('0_'):
             path.touch()
-            HintIndex.update_file(form.target.data)
+            HintIndex.update_file(vault, form.target.data)
         elif form.template.data.startswith('1_'):
             path.mkdir(parents=True)
         else:

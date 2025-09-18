@@ -28,7 +28,7 @@ from obsiflask.pages.base import render_base_view
 from obsiflask.graph import GraphRepr, Graph
 from obsiflask.pages.graph import render_graph
 from obsiflask.pages.search import render_search
-from obsiflask.pages.hint import get_hint, HintIndex, MAX_HINT
+from obsiflask.pages.hint import get_hint, HintIndex, MAX_HINT, NaiveStringIndex
 
 
 def check_vault(vault: str) -> tuple[str, int] | None:
@@ -85,7 +85,11 @@ def logic_init(cfg: AppConfig):
         AppState.graphs[vault] = Graph(vault)
 
     for vault in cfg.vaults:
+        HintIndex.string_file_indices_per_vault[vault] = NaiveStringIndex()
+        HintIndex.string_tag_indices_per_vault[vault] = NaiveStringIndex()
+        
         AppState.graphs[vault].build(dry=True, populate_hint_files = True)
+
         
 
     AppState.inject_vars()

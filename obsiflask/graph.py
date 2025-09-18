@@ -138,7 +138,12 @@ class Graph:
                     ]
                     HintIndex.default_files_per_user[(self.vault,
                                                       None)] = best_files
-
+            all_files = set([str(f.vault_path) for f in result.files]) | set(
+                [str(f.vault_path.name) for f in result.files])
+            HintIndex.string_file_indices_per_vault[self.vault].update_index(
+                all_files)
+            HintIndex.string_tag_indices_per_vault[self.vault].update_index(
+                set(used_tags))
             if dry:
                 return result
 
