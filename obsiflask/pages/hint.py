@@ -11,7 +11,14 @@ Note, this number is approximate. Can be slightly more
 MAX_HINT_LEN = 32
 
 NGRAM_SIZE = 4
-# TODO: pruning
+"""
+TODO: 
+    1. Pruning
+    2. "#" 
+    3. tags: []
+    4. [[]]
+    5. tests
+"""
 context_pattern = re.compile(r'("[^"]*$|[^\s]+)$')
 
 
