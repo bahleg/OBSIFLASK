@@ -23,7 +23,12 @@
     {{ bootstrap.load_css() }}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='buttons.css') }}">
-
+    {% if injected_vars['config'].default_user_config.theme_contrast_light %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='contrast_light.css') }}">
+    {% endif %}
+    {% if injected_vars['config'].default_user_config.theme_contrast_dark %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='contrast_dark.css') }}">
+    {% endif %}
 
 </head>
 

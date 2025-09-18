@@ -1,0 +1,10 @@
+body[data-bs-theme="light"] {
+  --bs-body-bg: #ffffff;
+  --bs-body-color: #212529;
+
+  --bs-card-bg: #f8f9fa;
+  --bs-card-border-color: #ced4da;
+
+  --bs-navbar-bg: #ffffff;
+  --bs-navbar-color: #212529;
+}

@@ -19,6 +19,18 @@ class UserConfig:
     """"
     Bootstrap theme from bootswatch
     """
+    theme_contrast_light: bool = False 
+    """
+    Some themes from bootswatch are not well adapted for 
+    light mode.
+    For them we make and adjustment if set.
+    """
+    theme_contrast_dark: bool = False 
+    """
+    Some themes from bootswatch are not well adapted for 
+    dark mode.
+    For them we make and adjustment if set.
+    """
     default_graph_node_spacing: int = 4500
     """
     Default value for node spacing parameter in graph rendering

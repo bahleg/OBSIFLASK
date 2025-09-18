@@ -1,0 +1,11 @@
+body[data-bs-theme="dark"] {
+  --bs-body-bg: #121212;
+  --bs-body-color: #f8f9fa;
+
+  --bs-card-bg: #1e1e1e;
+  --bs-card-border-color: #2c2c2c;
+
+  /* Navbar / header */
+  --bs-navbar-bg: #1e1e1e;
+  --bs-navbar-color: #f8f9fa;
+}
