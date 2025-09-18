@@ -1,7 +1,9 @@
 """
 Version handling module
 """
+
 version_str = '0.9.1'
+
 
 
 def get_version() -> str:
