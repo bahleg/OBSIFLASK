@@ -16,3 +16,6 @@ flask_params: # these params will be propagated into flask app.run(**kwargs)
   debug: true
   use_reloader: false
   host: 0.0.0.0
+default_user_config:
+  bootstrap_theme: Darkly
+  theme_contrast_light: true

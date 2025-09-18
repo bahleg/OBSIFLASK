@@ -10,6 +10,10 @@
 <html lang="en">
 
 <head>
+     {{ bootstrap.load_js() }}
+
+     <script src="{{url_for('static', filename='darkmode.js')}}"></script> 
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -225,10 +229,7 @@
 
 
 
-    {{ bootstrap.load_js() }}
-
-     <script src="{{url_for('static', filename='darkmode.js')}}"></script> 
-
+   
 
     <script type="module">
         import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
