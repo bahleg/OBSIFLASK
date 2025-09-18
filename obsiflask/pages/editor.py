@@ -34,7 +34,7 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))
     markdown = preprocess(real_path, AppState.indices[vault], vault)
-    advanced_editor = request.args.get('adanved-editor')
+    advanced_editor = request.args.get('advanced-editor')
 
     try:
         advanced_editor = int(advanced_editor) != 0

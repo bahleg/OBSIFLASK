@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% if advanced_editor %}
+<link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+<script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='editor_advanced.css') }}">
+{% else %}
+<link rel="stylesheet" href="{{ url_for('static', filename='editor_simple.css') }}">
+{% endif %}
+
 <h1>Editor:
   <code><a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</code>
 </h1>
@@ -27,6 +35,45 @@
   <textarea id="editor" style="width: 100%;" class="form-control">{{markdown_text}}</textarea>
   {% endif %}
 </div>
+
+{% if advanced_editor %}
+<script>
+  var easyMDE = new EasyMDE({
+    element: document.getElementById("editor"),
+    spellChecker: false,
+    status: false,
+    toolbar: [
+      "bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|",
+      {
+        name: "unchecked-checkbox",
+        action: function customFunction(editor) {
+          const cm = editor.codemirror;
+          const selectedText = cm.getSelection();
+          const output = "- [ ] " + selectedText;
+          cm.replaceSelection(output);
+        },
+        className: "fa fa-square-o",
+        title: "Add TODO",
+      },
+      {
+        name: "checked-checkbox",
+        action: function customFunction(editor) {
+          const cm = editor.codemirror;
+          const selectedText = cm.getSelection();
+          const output = "- [x] " + selectedText;
+          cm.replaceSelection(output);
+        },
+        className: "fa fa-check-square-o",
+        title: "Add checked TODO",
+      },
+      "|", "link", "image", "|", "preview", "side-by-side", "fullscreen"
+    ]
+  });
+  {% if not preview %}
+  document.querySelector('.EasyMDEContainer').style.width = "100%";
+  {% endif %}
+</script>
+{% endif %}
 
 
 
@@ -60,9 +107,19 @@
     }, 5000);
   }
 
+  {% if preview %}
+  function isPreviewVisible() {
+    const computedStyle = window.getComputedStyle(preview);
+    return computedStyle.display !== 'none';
+  }
+  {% endif %}
 
   function saveDocument() {
+    {% if advanced_editor %}
+    const content = easyMDE.value();
+    {% else %}
     const content = editor.value;
+    {% endif %}
     fetch('{{url_for("save_file", vault=vault, subpath=path)}}', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -74,7 +131,7 @@
           save_status.innerText = '(saved)'
           {% if preview %}
           // review update only if the preview is shown
-          if (!preview.classList.contains('d-none')) {
+          if (isPreviewVisible()) {
             return fetch('{{ url_for("preview", vault=vault, subpath=path) }}')
               .then(res => res.json())
               .then(data => {
@@ -91,6 +148,14 @@
       .catch(err => console.error(err));
   }
 
+  {% if advanced_editor %}
+  easyMDE.codemirror.on("change", () => {
+    isDirty = true;
+    save_status.innerText = '(unsaved)';
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(saveDocument, SAVE_DELAY);
+  });
+  {% else %}
   // autosave each SAVE_DELAY seconds
   editor.addEventListener('input', () => {
     isDirty = true;
@@ -98,6 +163,7 @@
     if (saveTimeout) clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveDocument, SAVE_DELAY);
   });
+  {% endif %}
 
   // save button
   saveBtn.addEventListener('click', (e) => {
