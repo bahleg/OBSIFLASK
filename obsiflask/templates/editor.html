@@ -1,13 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% if advanced_editor %}
+
 <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
 <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='editor_advanced.css') }}">
-{% else %}
-<link rel="stylesheet" href="{{ url_for('static', filename='editor_simple.css') }}">
-{% endif %}
 
 <h1>Editor:
   <code><a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</code>
@@ -17,8 +13,8 @@
 <div id="save-status">(saved)</div>
 
 <div class="flo-btn-group">
-   <a class="flo-btn" title="Autocomplete" id="flo-autocomplete-btn"><i class="bi bi-alphabet"></i></a>
-  
+  <a class="flo-btn" title="Autocomplete" id="flo-autocomplete-btn"><i class="bi bi-alphabet"></i></a>
+
   <a class="flo-btn" title="Save" id="flo-save-btn"><i class="bi bi-floppy"></i></a>
   <a class="flo-btn" title="View mode" id="flo-toggle-btn"
     href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
@@ -38,7 +34,6 @@
   {% endif %}
 </div>
 
-{% if advanced_editor %}
 <script>
   var easyMDE = new EasyMDE({
     element: document.getElementById("editor"),
@@ -75,8 +70,8 @@
   document.querySelector('.EasyMDEContainer').style.width = "100%";
   {% endif %}
 </script>
-{% endif %}
-<div id="autocomplete" style="position:absolute; display:none; background:white; border:1px solid #ccc; z-index:1000;"></div>
+<div id="autocomplete" style="position:absolute; display:none; background:white; border:1px solid #ccc; z-index:1000;">
+</div>
 
 
 
@@ -93,7 +88,7 @@
   const SAVE_DELAY = {{ injected_vars["config"].vaults[vault].autosave_time * 1000 }};
   let isDirty = false;
 
-  
+
   function showAlert(message, type = 'success') {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = `
@@ -118,11 +113,7 @@
   {% endif %}
 
   function saveDocument() {
-    {% if advanced_editor %}
     const content = easyMDE.value();
-    {% else %}
-    const content = editor.value;
-    {% endif %}
     fetch('{{url_for("save_file", vault=vault, subpath=path)}}', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -151,22 +142,12 @@
       .catch(err => console.error(err));
   }
 
-  {% if advanced_editor %}
   easyMDE.codemirror.on("change", () => {
     isDirty = true;
     save_status.innerText = '(unsaved)';
     if (saveTimeout) clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveDocument, SAVE_DELAY);
   });
-  {% else %}
-  // autosave each SAVE_DELAY seconds
-  editor.addEventListener('input', () => {
-    isDirty = true;
-    save_status.innerText = '(unsaved)'
-    if (saveTimeout) clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(saveDocument, SAVE_DELAY);
-  });
-  {% endif %}
 
   // save button
   saveBtn.addEventListener('click', (e) => {
@@ -189,7 +170,7 @@
   });
 </script>
 <script>
-    async function fetchSuggestions(context) {
+  async function fetchSuggestions(context) {
     let resp = await fetch('{{url_for("show_hint", vault = vault, context=context)}}', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -200,83 +181,10 @@
 
 
 </script>
+<script>
+  let url_autocomplete = '{{url_for("show_hint", vault=vault)}}'
+</script>
 <script src="{{url_for('static', filename='autocomplete.js')}}"></script>
-{% if advanced_editor %}
-<script>
-  const cm = easyMDE.codemirror;
-  cm.on("keydown", async (cmInstance, e) => {
-    if (e.key === "Tab") {
-      const cursor = cm.getCursor();
-      const line = cm.getLine(cursor.line).substring(0, cursor.ch);
-      e.preventDefault();
-
-      // context
-      let context = line;
-      for (let i = cursor.line - 1; i >= 0 && context.length < 256; i--) {
-        context = cm.getLine(i) + "\n" + context;
-      }
-      context = context.slice(-256);
-
-      // cursor pos
-      const coords = cm.cursorCoords(cursor, "page");
-
-      await triggerAutocomplete(context, cm, { left: coords.left, top: coords.bottom });
-    }
-
-  });
-</script>
-{% else %}
-<script>
-  const textarea = document.getElementById("editor");
-  textarea.addEventListener("keydown", async e => {
-    if (e.key === "Tab") {
-      const start = textarea.selectionStart;
-      const lineStart = textarea.value.lastIndexOf("\n", start - 1) + 1;
-      const line = textarea.value.substring(lineStart, start);
-
-      e.preventDefault();
-
-      // context
-      const context = textarea.value.substring(Math.max(0, start - 256), start);
-
-      // menu coords
-      const pos = textarea.selectionStart;
-      const coords = getCaretCoordinates(textarea, pos);
-      await triggerAutocomplete(context, textarea, coords);
-
-    }
-  });
-
-</script>
-<script>
-
-  const autocompleteBtn = document.getElementById('flo-autocomplete-btn');
-
-autocompleteBtn.addEventListener('click', async () => {
-  let editor = textarea; // или easyMDE.codemirror, если используешь MDE
-  let pos, context, coords;
-
-  if (editor instanceof HTMLTextAreaElement) {
-    pos = editor.selectionStart;
-    context = editor.value.substring(Math.max(0, pos - 256), pos);
-    coords = getCaretCoordinates(editor, pos); //textarea function
-  } else if (editor && editor.getCursor) {
-    // CodeMirror / EasyMDE
-    const cm = editor;
-    const cursor = cm.getCursor();
-    // context
-    let line = cm.getLine(cursor.line).substring(0, cursor.ch);
-    for (let i = cursor.line - 1; i >= 0 && line.length < 256; i--) {
-      line = cm.getLine(i) + "\n" + line;
-    }
-    context = line.slice(-256);
-    coords = cm.cursorCoords(cursor, "page");
-  }
-
-  await triggerAutocomplete(context, editor, coords);
-});
-</script>
-{% endif %}
 
 
 

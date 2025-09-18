@@ -34,12 +34,6 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))
     markdown = preprocess(real_path, AppState.indices[vault], vault)
-    advanced_editor = request.args.get('advanced-editor')
-
-    try:
-        advanced_editor = int(advanced_editor) != 0
-    except Exception:
-        advanced_editor = AppState.config.default_user_config.advanced_editor
 
     preview = request.args.get('preview')
     try:
@@ -58,5 +52,4 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
                            home=AppState.config.vaults[vault].home_file,
                            curdir=Path(path).parent,
                            curfile=path,
-                           advanced_editor=advanced_editor,
                            preview=preview)

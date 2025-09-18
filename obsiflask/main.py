@@ -27,7 +27,7 @@ from obsiflask.pages.base import render_base_view
 from obsiflask.graph import Graph
 from obsiflask.pages.graph import render_graph
 from obsiflask.pages.search import render_search
-
+from obsiflask.pages.hint import get_hint
 
 def check_vault(vault: str) -> tuple[str, int] | None:
     """
@@ -201,8 +201,8 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
     def show_hint(vault):
         data = request.get_json()
         context = data.get('context')
-        return [{'text': 'TODAY', 'erase': 0},{'text': 'TODAYm5', 'erase': 5}]
- 
+        return get_hint(vault, context)
+        
 
     @app.route('/file/<vault>/<path:subpath>')
     def get_file(vault, subpath):

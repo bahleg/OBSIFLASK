@@ -55,10 +55,7 @@ class UserConfig:
     """
     If disabled, will hide preview in the editor page
     """
-    advanced_editor: bool = True
-    """
-    If disabled, will use an html text area instead of advanced markdown editor
-    """
+    
 
 
 @dataclass

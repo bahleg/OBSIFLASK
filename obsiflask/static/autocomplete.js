@@ -1,45 +1,23 @@
-let autocompleteIndex = -1;
-let autocompleteItems = [];
-
-
-  async function triggerAutocomplete(context, editor, coords) {
-    const suggestions = await fetchSuggestions(context);
-    if (suggestions.length > 0) {
-      showSuggestions(suggestions, coords.left, coords.top, s => insertCompletion(editor, s));
-    }
-  }
-
-
-function insertCompletion(editor, suggestion) {
-  if (editor instanceof HTMLTextAreaElement) {
-    let start = editor.selectionStart;
-    let end = editor.selectionEnd;
-    let before = editor.value.substring(0, start - suggestion.erase);
-    let after = editor.value.substring(end);
-    editor.value = before + suggestion.text + after;
-    let pos = before.length + suggestion.text.length;
-    editor.selectionStart = editor.selectionEnd = pos;
-    editor.focus();
-  } else if (editor && editor.replaceRange) {
-    // Codemirror (EasyMDE)
-    const cm = editor;
-    const cursor = cm.getCursor();
-    let from = { line: cursor.line, ch: cursor.ch - suggestion.erase };
-    cm.replaceRange(suggestion.text, from, cursor);
-  }
+const cm = easyMDE.codemirror;
+const menu = document.getElementById("autocomplete");
+async function fetchSuggestions(context) {
+  const resp = await fetch(url_autocomplete, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ context })
+  });
+  return await resp.json(); // [{text: "...", erase: N}, ...]
 }
 
-
 function showSuggestions(suggestions, x, y, onSelect) {
-  const menu = document.getElementById("autocomplete");
   menu.innerHTML = "";
   autocompleteIndex = -1;
   autocompleteItems = suggestions;
 
   suggestions.forEach((s, i) => {
     const item = document.createElement("div");
-    item.textContent = s.text;
-    item.className = "item";
+    item.textContent = s.short;
+    item.className = "dropdown-item";
     item.onmouseenter = () => highlightItem(i);
     item.onmousedown = e => {
       e.preventDefault();
@@ -58,7 +36,6 @@ function showSuggestions(suggestions, x, y, onSelect) {
 }
 
 function hideSuggestions() {
-  const menu = document.getElementById("autocomplete");
   menu.style.display = "none";
   autocompleteIndex = -1;
   autocompleteItems = [];
@@ -66,81 +43,66 @@ function hideSuggestions() {
 }
 
 function highlightItem(index) {
-  const menu = document.getElementById("autocomplete");
-  const items = menu.querySelectorAll(".item");
-  items.forEach((el, i) => {
-    el.classList.toggle("active", i === index);
-  });
+  const items = menu.querySelectorAll(".dropdown-item");
+  items.forEach((el, i) => el.classList.toggle("active", i === index));
   autocompleteIndex = index;
 }
 
 function handleAutocompleteKeys(e) {
-  const menu = document.getElementById("autocomplete");
   if (menu.style.display === "none") return;
 
   if (e.key === "ArrowDown") {
     e.preventDefault();
-    if (autocompleteIndex < autocompleteItems.length - 1) {
-      highlightItem(autocompleteIndex + 1);
-    }
+    if (autocompleteIndex < autocompleteItems.length - 1) highlightItem(autocompleteIndex + 1);
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
-    if (autocompleteIndex > 0) {
-      highlightItem(autocompleteIndex - 1);
-    }
+    if (autocompleteIndex > 0) highlightItem(autocompleteIndex - 1);
   } else if (e.key === "Enter") {
     if (autocompleteIndex >= 0) {
       e.preventDefault();
       const s = autocompleteItems[autocompleteIndex];
-      const onSelect = menu.querySelectorAll(".item")[autocompleteIndex].onmousedown;
-      onSelect({ preventDefault: () => {} });
+      insertCompletion(cm, s);
+      hideSuggestions();
     }
   } else if (e.key === "Escape") {
     hideSuggestions();
   }
 }
 
-function getCaretCoordinates(textarea, position) {
-  const div = document.createElement("div");
-  const style = window.getComputedStyle(textarea);
-
-  // Скопировать стили, которые влияют на рендер текста
-  const properties = [
-    "boxSizing","width","height","overflowX","overflowY",
-    "borderTopWidth","borderRightWidth","borderBottomWidth","borderLeftWidth",
-    "paddingTop","paddingRight","paddingBottom","paddingLeft",
-    "fontStyle","fontVariant","fontWeight","fontStretch","fontSize",
-    "fontSizeAdjust","lineHeight","fontFamily","textAlign","textTransform",
-    "textIndent","textDecoration","letterSpacing","wordSpacing","tabSize","MozTabSize"
-  ];
-  properties.forEach(prop => {
-    div.style[prop] = style[prop];
-  });
-
-  div.style.position = "absolute";
-  div.style.whiteSpace = "pre-wrap";
-  div.style.wordWrap = "break-word";
-  div.style.visibility = "hidden";
-
-  // Текст до курсора
-  div.textContent = textarea.value.substring(0, position);
-
-  // Каретка
-  const span = document.createElement("span");
-  span.textContent = textarea.value.substring(position) || "."; 
-  div.appendChild(span);
-
-  document.body.appendChild(div);
-  const rect = span.getBoundingClientRect();
-  const taRect = textarea.getBoundingClientRect();
-
-  // Учитываем скролл внутри textarea
-  const coords = {
-    left: taRect.left + (rect.left - div.getBoundingClientRect().left) - textarea.scrollLeft,
-    top: taRect.top + (rect.top - div.getBoundingClientRect().top) - textarea.scrollTop + parseInt(style.lineHeight || "16", 10)
-  };
-
-  document.body.removeChild(div);
-  return coords;
+function insertCompletion(cm, suggestion) {
+  const cursor = cm.getCursor();
+  const from = { line: cursor.line, ch: cursor.ch - suggestion.erase };
+  cm.replaceRange(suggestion.text, from, cursor);
+  cm.focus();
 }
 
+async function triggerAutocomplete() {
+  const cursor = cm.getCursor();
+  let context = cm.getLine(cursor.line).substring(0, cursor.ch);
+  for (let i = cursor.line - 1; i >= 0 && context.length < 256; i--) {
+    context = cm.getLine(i) + "\n" + context;
+  }
+  context = context.slice(-256);
+  const coords = cm.cursorCoords(cursor, "page");
+  const suggestions = await fetchSuggestions(context);
+  if (suggestions.length > 0) showSuggestions(suggestions, coords.left, coords.bottom, s => insertCompletion(cm, s));
+}
+
+// ========================== События ==========================
+cm.on("keydown", async (cmInstance, e) => {
+  if (e.key === "Tab") {
+    const cursor = cm.getCursor();
+    const line = cm.getLine(cursor.line).substring(0, cursor.ch);
+    if (/^[\s\t]*$/.test(line)) {
+      // пустая строка → обычный таб
+      return;
+    } else {
+      e.preventDefault();
+      await triggerAutocomplete();
+    }
+  }
+});
+
+document.getElementById("flo-autocomplete-btn").addEventListener("click", async () => {
+  await triggerAutocomplete();
+});
