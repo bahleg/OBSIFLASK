@@ -24,3 +24,7 @@ OBSIFLASK also supports different **search modes**, which can be found on the [s
 - Link search (forward and backward)
     
 - Filter search, similar to Bases filters (see [[Bases support]] for details)
+
+# 🌗 Dark/Light mode
+
+The dark/light mode changing is available. By default OBSIFLASK uses system settings. The dark mode is automatically loaded for the corresponding bootstrap theme, see [config](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py)

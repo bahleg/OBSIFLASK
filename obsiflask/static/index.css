@@ -1,0 +1,15 @@
+body {
+    padding: 2rem;
+}
+
+h1 {
+    margin-bottom: 2rem;
+}
+
+.vault-card {
+    transition: transform 0.2s;
+}
+
+.vault-card:hover {
+    transform: translateY(-5px);
+}
