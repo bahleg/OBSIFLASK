@@ -20,20 +20,20 @@ def test_render_editor_success(flask_app):
     path = "file.md"
     real_path = "/fake/path/file.md"
     fake_content = "# Hello World"
+    with flask_app.test_request_context():
+        with patch("builtins.open", mock_open(read_data=fake_content)), \
+            patch("obsiflask.pages.editor.preprocess", return_value="<h1>Hello World</h1>") as mock_md, \
+            patch("obsiflask.pages.editor.render_template") as mock_render, \
+            patch("obsiflask.pages.editor.render_tree", return_value="<ul></ul>"):
 
-    with patch("builtins.open", mock_open(read_data=fake_content)), \
-         patch("obsiflask.pages.editor.preprocess", return_value="<h1>Hello World</h1>") as mock_md, \
-         patch("obsiflask.pages.editor.render_template") as mock_render, \
-         patch("obsiflask.pages.editor.render_tree", return_value="<ul></ul>"):
-
-        render_editor(vault, path, real_path)
-        mock_md.assert_called_once()
-        mock_render.assert_called_once()
-        args, kwargs = mock_render.call_args
-        assert "markdown_text" in kwargs
-        assert kwargs["markdown_text"] == fake_content
-        assert kwargs["vault"] == vault
-        assert kwargs["markdown_html"] == "<h1>Hello World</h1>"
+            render_editor(vault, path, real_path)
+            mock_md.assert_called_once()
+            mock_render.assert_called_once()
+            args, kwargs = mock_render.call_args
+            assert "markdown_text" in kwargs
+            assert kwargs["markdown_text"] == fake_content
+            assert kwargs["vault"] == vault
+            assert kwargs["markdown_html"] == "<h1>Hello World</h1>"
 
 
 def test_render_editor_file_error(flask_app):
@@ -42,12 +42,13 @@ def test_render_editor_file_error(flask_app):
     real_path = "/fake/path/file.md"
 
     # eror simmulation
-    with patch("builtins.open", side_effect=IOError("cannot read")), \
-         patch("obsiflask.pages.editor.add_message") as mock_msg, \
-         patch("obsiflask.pages.editor.redirect") as mock_redirect, \
-         patch("obsiflask.pages.editor.url_for", return_value="/renderer"):
+    with flask_app.test_request_context():
+        with patch("builtins.open", side_effect=IOError("cannot read")), \
+            patch("obsiflask.pages.editor.add_message") as mock_msg, \
+            patch("obsiflask.pages.editor.redirect") as mock_redirect, \
+            patch("obsiflask.pages.editor.url_for", return_value="/renderer"):
 
-        result = render_editor(vault, path, real_path)
-        mock_msg.assert_called_once()
-        mock_redirect.assert_called_once()
-        assert result == mock_redirect.return_value
+            result = render_editor(vault, path, real_path)
+            mock_msg.assert_called_once()
+            mock_redirect.assert_called_once()
+            assert result == mock_redirect.return_value
