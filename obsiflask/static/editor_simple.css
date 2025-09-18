@@ -1,0 +1,24 @@
+/* Adaptive */
+
+
+#editor {
+  font-family: monospace;
+  width: 50%;
+  min-height: 95vh;
+  min-width: 1024px;
+  border-right: 3px solid #888;
+  padding: 10px;
+  resize: horizontal;
+  overflow: auto;
+}
+
+
+@media (max-width: 991.98px) {
+  #editor {
+    height: auto;
+    min-height: 95vh;
+    width: 100% !important;
+    min-width: auto;
+    border-right: none;
+  }
+}

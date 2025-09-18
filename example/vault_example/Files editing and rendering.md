@@ -8,6 +8,17 @@ The Markdown editor consists of two panes:
 On small screens (e.g. mobile devices), the preview is hidden.
 You can switch between the editor and the rendered view using the button in the top-right corner.
 
+You can also disable this preview in the [config](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py).
+
+
+### Edit modes
+Currenly, OBSIFLASK allows to use two editor modes:
+* A vanilla HTML text editor
+* An editor based on [easyMDE](https://github.com/Ionaru/easy-markdown-editor).
+
+You can select one of the modes in the [config](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py).
+
+
 ## ⚠️ Attention 
 
 Currently, files are automatically saved every 5 seconds.  

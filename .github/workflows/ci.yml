@@ -37,18 +37,6 @@ jobs:
         with:
           python-version: 3.12
 
-      - name: Bump version
-        if: env.BUMP_VERSION == 'true'
-        run: |
-          python obsiflask/version.py
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add obsiflask/version.py
-          git commit -m "Bump version [ci skip]"
-          GIT_VERSION=$(python -c 'from obsiflask.version import get_version; print(get_version().strip())')
-          git tag "v$GIT_VERSION"
-          echo "Version bumped and tagged"
-
       - name: Build Docker image
         run: docker build -t $DOCKER_IMAGE_NAME .
 
@@ -85,6 +73,18 @@ jobs:
           docker push bahleg13/obsiflask:${DOCKER_VERSION}
           
 
+      - name: Bump version
+        if: env.BUMP_VERSION == 'true'
+        run: |
+          GIT_VERSION=$(python -c 'from obsiflask.version import get_version; print(get_version().strip())')
+          python obsiflask/version.py
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add obsiflask/version.py
+          git commit -m "Bump version [ci skip]"
+          git tag "v$GIT_VERSION"
+          echo "Version bumped and tagged"
+          
       - name: Push version bump and tag
         if: env.BUMP_VERSION == 'true'
         run: |

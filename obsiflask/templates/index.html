@@ -11,33 +11,29 @@
     <title>OBSIFLASK</title>
     {{ bootstrap.load_css() }}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        body {
-            padding: 2rem;
-        }
-
-        h1 {
-            margin-bottom: 2rem;
-        }
-
-        .vault-card {
-            transition: transform 0.2s;
-        }
-
-        .vault-card:hover {
-            transform: translateY(-5px);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
 
 <body>
-    <div class="container">
-        <h1 class="text-center d-flex align-items-center justify-content-center gap-2">
+    <div class="topbar">
+        
+                <h1 class="text-center d-flex align-items-center justify-content-center gap-2">
+    
             <img src="{{ url_for('static', filename='logo_small.png') }}" alt="Logo"
                 style="height: 1.5em; width: 1.5em; border-radius: 50%; background-color: var(--bs-body-color); padding: 2px;">
-
+        
             OBSIFLASK
         </h1>
+        <br/>
+        <div class="container">
+        <button id="themeToggle" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-moon"></i> Dark/Light mode
+        </button>
+        </div>
+    </div>
+    <hr>
+    <div class="container">
+
         <h2 class="mb-4">Available Vaults</h2>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -60,6 +56,7 @@
     {{ render_footer(injected_vars["version"]) }}
     {% endblock %}
     {{ bootstrap.load_js() }}
+     <script src="{{url_for('static', filename='darkmode.js')}}"></script> 
 </body>
 
 </html>

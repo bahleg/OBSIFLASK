@@ -88,6 +88,13 @@
                                 <span class="d-inline d-sm-none"><small>Search</small></span>
                             </a>
                         </div>
+
+                        <div class="col">
+                            <a id="themeToggle" class="btn btn-primary w-100" title="Dark/Light mode">
+                                <i class="bi bi-moon d-none d-sm-inline"></i>
+                                <span class="d-inline d-sm-none"><small>Theme</small></span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -215,6 +222,7 @@
 
     {{ bootstrap.load_js() }}
 
+     <script src="{{url_for('static', filename='darkmode.js')}}"></script> 
 
 
     <script type="module">
