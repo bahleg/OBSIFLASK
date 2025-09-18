@@ -197,6 +197,13 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
         content = data.get('content', '')
         return make_save(real_path, content, AppState.indices[vault], vault)
 
+    @app.route('/hint/<vault>', methods=['POST'])
+    def show_hint(vault):
+        data = request.get_json()
+        context = data.get('context')
+        return [{'text': 'TODAY', 'erase': 0},{'text': 'TODAYm5', 'erase': 5}]
+ 
+
     @app.route('/file/<vault>/<path:subpath>')
     def get_file(vault, subpath):
         real_path = resolve_path(vault, subpath)
