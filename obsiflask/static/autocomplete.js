@@ -32,7 +32,7 @@ function showSuggestions(suggestions, x, y, onSelect) {
   menu.style.display = "block";
 
   document.addEventListener("click", hideSuggestions, { once: true });
-  document.addEventListener("keydown", handleAutocompleteKeys);
+  document.addEventListener("keydown", handleAutocompleteKeys, true);
 }
 
 function hideSuggestions() {
@@ -53,18 +53,23 @@ function handleAutocompleteKeys(e) {
 
   if (e.key === "ArrowDown") {
     e.preventDefault();
+    e.stopPropagation();
     if (autocompleteIndex < autocompleteItems.length - 1) highlightItem(autocompleteIndex + 1);
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
+    e.stopPropagation();
     if (autocompleteIndex > 0) highlightItem(autocompleteIndex - 1);
   } else if (e.key === "Enter") {
     if (autocompleteIndex >= 0) {
       e.preventDefault();
+      e.stopPropagation();
       const s = autocompleteItems[autocompleteIndex];
       insertCompletion(cm, s);
       hideSuggestions();
     }
   } else if (e.key === "Escape") {
+    e.preventDefault();
+    e.stopPropagation();
     hideSuggestions();
   }
 }

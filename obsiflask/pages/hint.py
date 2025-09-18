@@ -12,7 +12,7 @@ MAX_HINT_LEN = 32
 
 NGRAM_SIZE = 4
 # TODO: pruning
-context_pattern = re.compile(r'("[^"]*$|[\w.]+)$')
+context_pattern = re.compile(r'("[^"]*$|[^\s]+)$')
 
 
 class NaiveStringIndex:
