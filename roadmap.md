@@ -40,3 +40,4 @@ Planned features to be implemented (tentative order):
    - (doi?) 
 - twine
 - Bases view fixes (sometimes they are too small)
+- toolbar customization
