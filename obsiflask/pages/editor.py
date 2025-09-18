@@ -3,7 +3,7 @@ This module represents editor page logic
 """
 from pathlib import Path
 
-from flask import render_template, redirect, url_for, Response
+from flask import render_template, redirect, url_for, Response, request
 
 from obsiflask.pages.renderer import preprocess
 from obsiflask.pages.index_tree import render_tree
@@ -34,6 +34,19 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))
     markdown = preprocess(real_path, AppState.indices[vault], vault)
+    advanced_editor = request.args.get('adanved-editor')
+
+    try:
+        advanced_editor = int(advanced_editor) != 0
+    except Exception:
+        advanced_editor = AppState.config.default_user_config.advanced_editor
+
+    preview = request.args.get('preview')
+    try:
+        preview = int(preview) != 0
+    except Exception:
+        preview = AppState.config.default_user_config.editor_preview
+
     return render_template('editor.html',
                            markdown_text=text,
                            path=path,
@@ -44,4 +57,6 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
                            page_editor=True,
                            home=AppState.config.vaults[vault].home_file,
                            curdir=Path(path).parent,
-                           curfile=path)
+                           curfile=path,
+                           advanced_editor=advanced_editor,
+                           preview=preview)

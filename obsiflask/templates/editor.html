@@ -10,17 +10,22 @@
 
 <div class="flo-btn-group">
   <a class="flo-btn" title="Save" id="flo-save-btn"><i class="bi bi-floppy"></i></a>
-    <a class="flo-btn" title="View mode" id="flo-toggle-btn"
+  <a class="flo-btn" title="View mode" id="flo-toggle-btn"
     href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
 
-    <a class="flo-btn" title="Download" id="flo-download-btn"
+  <a class="flo-btn" title="Download" id="flo-download-btn"
     href="{{url_for('get_file', vault = vault, subpath = path)}}"><i class="bi bi-download"></i></a>
 
 </div>
 
 <div id="container">
+
+  {% if preview %}
   <textarea id="editor" class="form-control">{{markdown_text}}</textarea>
   <div id="preview" class="d-none d-lg-block">{{markdown_html|safe}}</div>
+  {% else %}
+  <textarea id="editor" style="width: 100%;" class="form-control">{{markdown_text}}</textarea>
+  {% endif %}
 </div>
 
 
@@ -67,7 +72,7 @@
         if (res.ok) {
           isDirty = false;
           save_status.innerText = '(saved)'
-
+          {% if preview %}
           // review update only if the preview is shown
           if (!preview.classList.contains('d-none')) {
             return fetch('{{ url_for("preview", vault=vault, subpath=path) }}')
@@ -80,6 +85,7 @@
                 }
               });
           }
+          {% endif %}
         }
       })
       .catch(err => console.error(err));

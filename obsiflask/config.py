@@ -39,6 +39,14 @@ class UserConfig:
     """
     Default colormap for graphs
     """
+    editor_preview: bool = True
+    """
+    If disabled, will hide preview in the editor page
+    """
+    advanced_editor: bool = True
+    """
+    If disabled, will use an html text area instead of advanced markdown editor
+    """
 
 
 @dataclass
