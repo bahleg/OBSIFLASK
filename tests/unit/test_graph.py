@@ -3,6 +3,7 @@ import pytest
 from obsiflask.graph import Graph, GraphRepr
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
+from obsiflask.hint import HintIndex
 from obsiflask.main import run
 
 
@@ -41,3 +42,15 @@ def test_graph_build_cache(app):
         first_result = graph.build(rebuild=True)
         cached_result = graph.build(rebuild=False)
         assert cached_result is first_result
+
+def test_graph_hint_index_handling(app, tmp_path):
+    with app.test_request_context():
+        vault = 'vault1'
+        (tmp_path/"tagged.md").write_text('this is #tag')
+        graph = Graph(vault)
+        HintIndex.default_files_per_user[()]
+        dry_result = graph.build(dry=True, populate_hint_files=False, populate_hint_tags=False)
+        #assert  HintIndex.default_files_per_user[('vault1', None)] == []
+        #assert  HintIndex.default_tags_per_user[('vault1', None)] == []
+        assert graph.result is None
+        

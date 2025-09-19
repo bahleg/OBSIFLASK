@@ -13,7 +13,7 @@ from flask import url_for
 from obsiflask.app_state import AppState
 from obsiflask.bases.file_info import FileInfo
 from obsiflask.utils import logger
-from obsiflask.pages.hint import MAX_HINT, HintIndex
+from obsiflask.hint import MAX_HINT
 
 
 @dataclass
@@ -128,22 +128,20 @@ class Graph:
                         str(result.node_labels[result.tags[i]].lstrip('#'))
                         for i in np.argsort(degs[result.tags])[:MAX_HINT]
                     ]
-                    HintIndex.default_tags_per_user[(self.vault,
-                                                     None)] = best_tags
+                    AppState.hints[self.vault].default_tags_per_user[(
+                        self.vault, None)] = best_tags
 
                 if populate_hint_files:
                     best_files = [
                         str(result.files[i].vault_path) for i in np.argsort(
                             degs[:len(result.files)])[:MAX_HINT]
                     ]
-                    HintIndex.default_files_per_user[(self.vault,
-                                                      None)] = best_files
+                    AppState.hints[self.vault].default_files_per_user[(
+                        self.vault, None)] = best_files
             all_files = set([str(f.vault_path) for f in result.files]) | set(
                 [str(f.vault_path.name) for f in result.files])
-            HintIndex.string_file_indices_per_vault[self.vault].update_index(
-                all_files)
-            HintIndex.string_tag_indices_per_vault[self.vault].update_index(
-                set(used_tags))
+            AppState.hints[self.vault].string_file_index.update_index(all_files)
+            AppState.hints[self.vault].string_tag_index.update_index(set(used_tags))
             if dry:
                 return result
 

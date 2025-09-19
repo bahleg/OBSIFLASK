@@ -25,10 +25,11 @@ from obsiflask.pages.excalidraw import render_excalidraw
 from obsiflask.pages.folder import render_folder
 from obsiflask.pages.fileop import render_fileop
 from obsiflask.pages.base import render_base_view
-from obsiflask.graph import GraphRepr, Graph
+from obsiflask.graph import Graph
 from obsiflask.pages.graph import render_graph
 from obsiflask.pages.search import render_search
-from obsiflask.pages.hint import get_hint, HintIndex, MAX_HINT, NaiveStringIndex
+from obsiflask.pages.hint import get_hint
+from obsiflask.hint import HintIndex, NaiveStringIndex
 
 
 def check_vault(vault: str) -> tuple[str, int] | None:
@@ -85,11 +86,7 @@ def logic_init(cfg: AppConfig):
         AppState.graphs[vault] = Graph(vault)
 
     for vault in cfg.vaults:
-        HintIndex.string_file_indices_per_vault[vault] = NaiveStringIndex(
-            vaultcfg.autocomplete_ngram_order,
-            vaultcfg.autocomplete_max_ngrams,
-            vaultcfg.autocomplete_max_ratio_in_key)
-        HintIndex.string_tag_indices_per_vault[vault] = NaiveStringIndex(
+        AppState.hints[vault] = HintIndex(
             vaultcfg.autocomplete_ngram_order,
             vaultcfg.autocomplete_max_ngrams,
             vaultcfg.autocomplete_max_ratio_in_key)

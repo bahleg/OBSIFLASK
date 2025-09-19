@@ -11,6 +11,7 @@ class AppState:
     messages: dict[tuple[str, str], list["Message"]] = {}  # obsiflask.messages
     injected_vars_jinja: dict = {'version': get_version()}
     graphs: dict[str, "Graph"] = {}  # obsiflask.graph
+    hints: dict[str, "HintIndex"] = {}
 
     @staticmethod
     def inject_vars():
