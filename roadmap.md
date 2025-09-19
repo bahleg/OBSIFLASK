@@ -26,6 +26,7 @@ Planned features to be implemented (tentative order):
 
 ## Minor features and fixes
 - Cluster color settings
+- Job tracking?
 - rename by click
 - UI refactoring  
   - Basic hotkey support  
