@@ -25,7 +25,8 @@ Planned features to be implemented (tentative order):
 - PWA support (tentative)  
 
 ## Minor features and fixes
-- Cluster color settings  
+- Cluster color settings
+- rename by click
 - UI refactoring  
   - Basic hotkey support  
   - Command palette  
@@ -33,6 +34,7 @@ Planned features to be implemented (tentative order):
   - Disable trags parsing in code blocks
   - Saving before turning into the view mode
 - Large files: currently excluded from analysis
+- switch markdown preview to mde?
 - More unit tests
 - More selenium tests
 - Documentation
