@@ -155,11 +155,6 @@
     saveDocument();
   });
 
-  saveBtn.addEventListener('click', (e) => {
-    e.preventDefault(); // prevent from reloading
-    saveDocument();
-  });
-
   // warning when leaving the page
   window.addEventListener('beforeunload', (e) => {
     if (isDirty) {
