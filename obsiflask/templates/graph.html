@@ -313,7 +313,7 @@
       'z-index': 0
     });
   });
-
+document.getElementById('cy').style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-body-bg').trim();
 </script>
 
 
@@ -459,5 +459,35 @@
   document.getElementById('rebuild').addEventListener("click", () => {
     rebuildGraph();
   });
+</script>
+
+<script>
+  function updateGraphTheme() {
+  const root = document.documentElement;
+  const textColor = getComputedStyle(root).getPropertyValue('--bs-body-color').trim();
+  const primaryColor = getComputedStyle(root).getPropertyValue('--bs-primary').trim();
+  const edgeColor = getComputedStyle(root).getPropertyValue('--bs-secondary').trim();
+
+  cy.style()
+    .selector('node')
+      .style({
+        'color': textColor,
+        'background-color': primaryColor,
+      })
+    .selector('edge')
+      .style({
+        'line-color': edgeColor,
+        'target-arrow-color': edgeColor
+      })
+    .update();
+}
+
+const observer = new MutationObserver(() => {
+  updateGraphTheme();
+});
+
+observer.observe(document.body, { attributes: true, attributeFilter: ['data-bs-theme'] });
+
+
 </script>
 {% endblock %}

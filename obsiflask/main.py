@@ -78,19 +78,23 @@ def logic_init(cfg: AppConfig):
         AppState.messages[(vault, None)] = []
     # app resources
     run_tasks({vault: cfg.vaults[vault].tasks for vault in cfg.vaults})
-    for vault in cfg.vaults:
+    for vault, vaultcfg in cfg.vaults.items():
         AppState.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
                                             cfg.vaults[vault].template_dir,
                                             vault)
         AppState.graphs[vault] = Graph(vault)
 
     for vault in cfg.vaults:
-        HintIndex.string_file_indices_per_vault[vault] = NaiveStringIndex()
-        HintIndex.string_tag_indices_per_vault[vault] = NaiveStringIndex()
-        
-        AppState.graphs[vault].build(dry=True, populate_hint_files = True)
+        HintIndex.string_file_indices_per_vault[vault] = NaiveStringIndex(
+            vaultcfg.autocomplete_ngram_order,
+            vaultcfg.autocomplete_max_ngrams,
+            vaultcfg.autocomplete_max_ratio_in_key)
+        HintIndex.string_tag_indices_per_vault[vault] = NaiveStringIndex(
+            vaultcfg.autocomplete_ngram_order,
+            vaultcfg.autocomplete_max_ngrams,
+            vaultcfg.autocomplete_max_ratio_in_key)
 
-        
+        AppState.graphs[vault].build(dry=True, populate_hint_files=True)
 
     AppState.inject_vars()
 

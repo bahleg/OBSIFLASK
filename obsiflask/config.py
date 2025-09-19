@@ -192,6 +192,11 @@ class VaultConfig:
     """
     Save documents each autosave_time seconds
     """
+    autocomplete_max_ngrams: int = 10000
+    autocomplete_ngram_order: int = 4
+    autocomplete_max_ratio_in_key: float = .1
+    
+    
 
 
 @dataclass

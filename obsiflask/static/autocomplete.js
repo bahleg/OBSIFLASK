@@ -93,13 +93,24 @@ async function triggerAutocomplete() {
   if (suggestions.length > 0) showSuggestions(suggestions, coords.left, coords.bottom, s => insertCompletion(cm, s));
 }
 
-// ========================== События ==========================
+function isLineEmptyOrIndentOnly(line) {
+  return /^[\s\t]*$/.test(line);
+}
+
+// ========================== Events ==========================
 cm.on("keydown", async (cmInstance, e) => {
+  const cursor = cm.getCursor();
+  const line = cm.getLine(cursor.line).substring(0, cursor.ch);
+      
   if (e.key === "Tab") {
-    const cursor = cm.getCursor();
-    const line = cm.getLine(cursor.line).substring(0, cursor.ch);
+    if (isLineEmptyOrIndentOnly(line)) {
+      return;
+    } else {
+
+      
       e.preventDefault();
       await triggerAutocomplete();
+    }
   }
 });
 
