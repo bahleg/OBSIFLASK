@@ -11,15 +11,11 @@ Note, this number is approximate. Can be slightly more
 """
 MAX_HINT_LEN = 32
 
-"""
-TODO: 
-    3. tags: []
-    5. tests
-"""
 context_pattern = re.compile(r'("[^"]*$|[^\s]+)$')
 hashtag_pattern = re.compile(r'#\w*$')
 d_brackets_pattern = re.compile(r'\[\[[^\]]*$')
-
+taglist_pattern = re.compile(r'^\s*tags:\s+\[.*?(?:,|\[)?\s*([^\],]*)$')
+taglist_start_pattern = re.compile(r'^\s*tags:\s*$')
 
 class NaiveStringIndex:
 
@@ -164,6 +160,40 @@ def hashtag_hint(vault: str, context: str):
     } for r in tags_results]
 
 
+def taglist_hint(vault: str, context: str):
+    found = taglist_pattern.search(context)
+    brackets_wrap = lambda x: x
+    if found is None:
+        found2 = taglist_start_pattern.search(context)
+        if found2 is None:
+            return None
+        else:
+            found_text = ''
+            brackets_wrap = lambda x: f' [{x}]' 
+    else:
+        found_text = found.group(1).strip()
+    if len(found_text) == 0:  # new list element
+        return [{
+            'text': brackets_wrap(r),
+            'erase': 0
+        } for r in HintIndex.default_tags_per_user[(vault, None)][:MAX_HINT]]
+        
+
+    tags_results = HintIndex.string_tag_indices_per_vault[vault].search(
+        found_text.strip("'"))
+    found_text_len = len(found_text)
+    if len(tags_results) == 0:
+        return [{
+            'text':  brackets_wrap(r),
+            'erase': found_text_len
+        } for r in HintIndex.default_tags_per_user[(vault, None)][:MAX_HINT]]
+
+    return [{
+        'text':  brackets_wrap(r[0]),
+        'erase': found_text_len
+    } for r in tags_results]
+
+
 def double_brackets_hint(vault: str, context: str):
     found = d_brackets_pattern.search(context)
     if found is None:
@@ -180,19 +210,22 @@ def double_brackets_hint(vault: str, context: str):
         if short not in default_files_set:
             default_files_add.append(short)
             default_files_set.add(short)
-    default_files = default_files_add+default_files
+    default_files = default_files_add + default_files
     if len(found_text) == 2:  # only '[['
         return [{'text': r + ']]', 'erase': 0} for r in default_files]
 
     file_results = HintIndex.string_file_indices_per_vault[vault].search(
         found_text[2:])[:MAX_HINT]
-    found_text_len = len(found_text)-2
+    found_text_len = len(found_text) - 2
     if len(file_results) == 0:
         return [{
             'text': r + ']]',
             'erase': found_text_len
         } for r in default_files]
-    return [{'text': r[0]+']]', 'erase': found_text_len} for r in file_results]
+    return [{
+        'text': r[0] + ']]',
+        'erase': found_text_len
+    } for r in file_results]
 
 
 def simple_hint(vault: str):
@@ -214,7 +247,7 @@ def simple_hint(vault: str):
 
 def get_hint(vault: str, context: str):
     result = None
-    for hinter in [hashtag_hint, double_brackets_hint, context_hint]:
+    for hinter in [hashtag_hint,  double_brackets_hint, taglist_hint, context_hint]:
         result = hinter(vault, context)
         if result is not None:
             break
