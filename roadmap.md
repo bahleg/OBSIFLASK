@@ -26,7 +26,8 @@ Planned features to be implemented (tentative order):
 - PWA support (tentative)  
 
 ## Minor features and fixes
-- Cluster color settings  
+- Cluster color settings
+- rename by click
 - UI refactoring  
   - Basic hotkey support  
   - Command palette  
