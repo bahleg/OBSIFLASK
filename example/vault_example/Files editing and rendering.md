@@ -18,6 +18,12 @@ Currenly, OBSIFLASK allows to use two editor modes:
 
 You can select one of the modes in the [config](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py).
 
+### Autocompletion
+OBSIFLASK supports autocompletion: depending on the context, it suggests
+links, tags, or the current date as hints.
+
+To trigger autocompletion, press <Tab> on a non-empty string or click the "abc" button.
+
 
 ## ⚠️ Attention 
 

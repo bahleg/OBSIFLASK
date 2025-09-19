@@ -128,20 +128,21 @@ class Graph:
                         str(result.node_labels[result.tags[i]].lstrip('#'))
                         for i in np.argsort(degs[result.tags])[:MAX_HINT]
                     ]
-                    AppState.hints[self.vault].default_tags_per_user[(
-                        self.vault, None)] = best_tags
+                    AppState.hints[self.vault].default_tags = best_tags
 
                 if populate_hint_files:
                     best_files = [
                         str(result.files[i].vault_path) for i in np.argsort(
                             degs[:len(result.files)])[:MAX_HINT]
                     ]
-                    AppState.hints[self.vault].default_files_per_user[(
-                        self.vault, None)] = best_files
+                    AppState.hints[self.vault].populate_default_files(
+                        None, best_files)
             all_files = set([str(f.vault_path) for f in result.files]) | set(
                 [str(f.vault_path.name) for f in result.files])
-            AppState.hints[self.vault].string_file_index.update_index(all_files)
-            AppState.hints[self.vault].string_tag_index.update_index(set(used_tags))
+            AppState.hints[self.vault].string_file_index.update_index(
+                all_files)
+            AppState.hints[self.vault].string_tag_index.update_index(
+                set(used_tags))
             if dry:
                 return result
 

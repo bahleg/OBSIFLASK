@@ -1,10 +1,9 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from obsiflask.pages.save import make_save
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
-from obsiflask.pages.hint import HintIndex
 from obsiflask.main import run
 
 
@@ -19,21 +18,21 @@ def app(tmp_path):
 def test_make_save_existing_file(tmp_path, app):
     file_path = tmp_path / "file.txt"
     file_path.write_text("old content")
-    HintIndex.default_files_per_user[('vault1', None)] = [] # cleaning for test
+    AppState.hints['vault1'].populate_default_files(None, []) # cleaning for test
     with app.app_context():
         resp, code = make_save(str(file_path), "new content",
                                AppState.indices['vault1'], "vault1")
-    assert HintIndex.default_files_per_user[('vault1', None)][0] == str(file_path.relative_to(tmp_path))
+    assert AppState.hints['vault1'].default_files_per_user[None][0] == str(file_path.relative_to(tmp_path))
     assert code == 200
     assert file_path.read_text() == "new content"
 
 
 def test_make_save_new_file_triggers_refresh(tmp_path, app):
     file_path = tmp_path / "newfile.txt"
-    HintIndex.default_files_per_user[('vault1', None)] = [] # cleaning for test
+    AppState.hints['vault1'].populate_default_files(None, []) # cleaning for test
     with app.app_context():
         resp, code = make_save(str(file_path), "hello world", AppState.indices['vault1'], "vault1")
-    assert HintIndex.default_files_per_user[('vault1', None)][0] == str(file_path.relative_to(tmp_path))
+    assert AppState.hints['vault1'].default_files_per_user[None][0] == str(file_path.relative_to(tmp_path))
     assert code == 200
     assert file_path.read_text() == "hello world"
 

@@ -34,7 +34,7 @@ def make_save(path: str, content: str, index: FileIndex,
             f.write(content)
         if not exists:
             index.refresh()
-        AppState.hints[vault].update_file(vault, str(Path(path).resolve().relative_to(index.path)))
+        AppState.hints[vault].update_file(str(Path(path).resolve().relative_to(index.path)))
         add_message(f'Saved file: {path.name}', 0, vault)
         return jsonify({"status": "ok"}), 200
     except Exception as e:

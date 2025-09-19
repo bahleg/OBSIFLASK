@@ -29,7 +29,7 @@ from obsiflask.graph import Graph
 from obsiflask.pages.graph import render_graph
 from obsiflask.pages.search import render_search
 from obsiflask.pages.hint import get_hint
-from obsiflask.hint import HintIndex, NaiveStringIndex
+from obsiflask.hint import HintIndex
 
 
 def check_vault(vault: str) -> tuple[str, int] | None:
