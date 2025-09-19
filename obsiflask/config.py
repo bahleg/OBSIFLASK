@@ -55,10 +55,7 @@ class UserConfig:
     """
     If disabled, will hide preview in the editor page
     """
-    advanced_editor: bool = True
-    """
-    If disabled, will use an html text area instead of advanced markdown editor
-    """
+    
 
 
 @dataclass
@@ -195,6 +192,11 @@ class VaultConfig:
     """
     Save documents each autosave_time seconds
     """
+    autocomplete_max_ngrams: int = 10000
+    autocomplete_ngram_order: int = 4
+    autocomplete_max_ratio_in_key: float = .1
+    
+    
 
 
 @dataclass

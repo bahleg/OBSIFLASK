@@ -2,10 +2,29 @@ body[data-bs-theme="dark"] {
   --bs-body-bg: #121212;
   --bs-body-color: #f8f9fa;
 
-  --bs-card-bg: #1e1e1e;
+  --bs-card-bg: #f8f9fa;
   --bs-card-border-color: #2c2c2c;
 
-  /* Navbar / header */
+
+
+  --bs-btn-bg: #2c2c2c;
+  --bs-btn-color: #f8f9fa;
+  --bs-btn-border-color: #444444;
+  --bs-btn-hover-bg: #3a3a3a;
+  --bs-btn-hover-border-color: #5a5a5a;
+
   --bs-navbar-bg: #1e1e1e;
   --bs-navbar-color: #f8f9fa;
+
+  --bs-link-color: #4dabf7;
+  --bs-link-hover-color: #339af0;
+
+  --bs-table-bg: #1e1e1e;
+  --bs-table-striped-bg: #2c2c2c;
+  --bs-table-border-color: #3a3a3a;
+}
+
+body[data-bs-theme="dark"] .card {
+  background-color: #2c2c2c;
+  border-color: #f8f9fa;
 }

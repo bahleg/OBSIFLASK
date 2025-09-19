@@ -10,6 +10,9 @@
 <html lang="en">
 
 <head>
+     {{ bootstrap.load_js() }}
+
+    
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -33,7 +36,7 @@
 </head>
 
 <body>
-
+    
 
     <div class="d-flex" id="wrapper" style="height:100vh; overflow:hidden;">
 
@@ -225,10 +228,7 @@
 
 
 
-    {{ bootstrap.load_js() }}
-
-     <script src="{{url_for('static', filename='darkmode.js')}}"></script> 
-
+   
 
     <script type="module">
         import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
@@ -238,7 +238,9 @@
 
 
 
-
 </body>
+ <script src="{{url_for('static', filename='darkmode.js')}}"></script> 
+
+
 
 </html>

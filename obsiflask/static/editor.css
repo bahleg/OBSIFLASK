@@ -27,3 +27,93 @@
   padding: 0.75rem;
   background-color: var(--bs-body-bg);
 }
+
+#autocomplete {
+  position: absolute;
+  display: none;
+  background-color: var(--bs-dropdown-bg, #fff);  /* фон dropdown по теме */
+  border: 1px solid var(--bs-border-color, rgba(0,0,0,.15));
+  border-radius: 0.375rem;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+  z-index: 1050;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: var(--bs-font-sans-serif, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Элементы автодополнения */
+#autocomplete .dropdown-item {
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  color: var(--bs-body-color, #212529);
+  background-color: transparent;
+  white-space: nowrap;
+}
+
+/* Наведение / активный элемент */
+#autocomplete .dropdown-item.active,
+#autocomplete .dropdown-item:hover {
+  background-color: var(--bs-primary, #0d6efd);
+  color: var(--bs-white, #fff);
+}
+/* CodeMirror редактор */
+#container {
+  display: flex;           /* flex-контейнер */
+}
+.EasyMDEContainer {
+     width: 50%;
+}
+.CodeMirror, .CodeMirror-scroll {
+flex-grow: 1;            /* занимает всё доступное место */
+  height: auto;            /* flex-grow контролирует высоту */
+  flex-direction: column;
+  min-height: 100vh; 
+  font-family: monospace;
+  font-size: 1rem;
+  border-right: 3px solid var(--bs-border-color);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+/* Курсор */
+.CodeMirror-cursor {
+  border-left: 1px solid var(--bs-body-color);
+}
+
+/* Gutter (номера строк) */
+.CodeMirror-gutters {
+  background-color: var(--bs-body-bg);
+  border-right: 1px solid var(--bs-border-color);
+}
+
+.editor-toolbar {
+  border-bottom: 1px solid var(--bs-border-color);
+  background-color: var(--bs-body-bg);  /* наследуем фон страницы */
+}
+
+.editor-toolbar button {
+  background-color: var(--bs-secondary-bg, #e9ecef);  /* серый, но не белый */
+  color: var(--bs-body-color);                         /* текст в тему */
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.25rem;
+  margin-right: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.editor-toolbar button:hover {
+  background-color: var(--bs-primary);
+  color: var(--bs-light);  /* текст светлый на синем */
+}
+
+/* for small screens */
+@media (max-width: 991.98px) {
+  .CodeMirror, .CodeMirror-scroll {
+    width: 100% !important;
+    border-right: none;
+  }
+  #preview {
+    display: none;
+  }
+}

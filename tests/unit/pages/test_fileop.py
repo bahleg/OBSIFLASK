@@ -22,6 +22,7 @@ def test_create_empty_file(tmp_path):
                           })
         assert create_file_op('vault1', form)
         assert (tmp_path / "test.md").exists()
+        assert AppState.hints['vault1'].default_files_per_user[None][0] == "test.md"
 
 
 def test_create_folder(tmp_path):
@@ -58,6 +59,7 @@ def test_copy_move_file_copy(tmp_path):
                           })
         assert copy_move_file('vault1', form, copy=True)
         assert (tmp_path / "b.txt").exists()
+        assert AppState.hints['vault1'].default_files_per_user[None][0] == "b.txt"
 
 
 def test_copy_move_file_move(tmp_path):
@@ -73,3 +75,4 @@ def test_copy_move_file_move(tmp_path):
         assert copy_move_file('vault1', form, copy=False)
         assert not f.exists()
         assert (tmp_path / "d.txt").exists()
+        assert AppState.hints['vault1'].default_files_per_user[None][0] == "d.txt"

@@ -28,3 +28,4 @@ re_tag_embed = re.compile(r'!\[\[([^\]]+)\]\]')
 """
 Regex for embedded links
 """
+DATE_FORMAT = '%Y-%m-%d'

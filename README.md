@@ -16,7 +16,7 @@ It supports multiple vaults, search and navigation, background tasks, and graph 
 ---
 
 ## 🚀 Features
-- 🌐 **Web UI** — clean and convenient interface for note browsing  
+- 🌐 **Web UI** — clean and convenient interface for note browsing and edit
 - 📚 **Multi-vault support** — work with multiple vaults at once  
 - 🔎 **Advanced search** — exact search, regex, fuzzy search, tag search, link search, and filter-based search  
 - 📝 **Task scheduler** — run periodic shell tasks per vault with logs and messages  

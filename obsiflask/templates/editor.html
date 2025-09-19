@@ -1,13 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% if advanced_editor %}
+
 <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
 <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='editor_advanced.css') }}">
-{% else %}
-<link rel="stylesheet" href="{{ url_for('static', filename='editor_simple.css') }}">
-{% endif %}
 
 <h1>Editor:
   <code><a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</code>
@@ -17,6 +13,8 @@
 <div id="save-status">(saved)</div>
 
 <div class="flo-btn-group">
+  <a class="flo-btn" title="Autocomplete" id="flo-autocomplete-btn"><i class="bi bi-alphabet"></i></a>
+
   <a class="flo-btn" title="Save" id="flo-save-btn"><i class="bi bi-floppy"></i></a>
   <a class="flo-btn" title="View mode" id="flo-toggle-btn"
     href="{{url_for('renderer', vault = vault, subpath = path)}}"><i class="bi bi-eye"></i></a>
@@ -36,7 +34,6 @@
   {% endif %}
 </div>
 
-{% if advanced_editor %}
 <script>
   var easyMDE = new EasyMDE({
     element: document.getElementById("editor"),
@@ -73,7 +70,8 @@
   document.querySelector('.EasyMDEContainer').style.width = "100%";
   {% endif %}
 </script>
-{% endif %}
+<div id="autocomplete" style="position:absolute; display:none; background:white; border:1px solid #ccc; z-index:1000;">
+</div>
 
 
 
@@ -90,7 +88,7 @@
   const SAVE_DELAY = {{ injected_vars["config"].vaults[vault].autosave_time * 1000 }};
   let isDirty = false;
 
-  // функция для показа алерта
+
   function showAlert(message, type = 'success') {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = `
@@ -115,11 +113,7 @@
   {% endif %}
 
   function saveDocument() {
-    {% if advanced_editor %}
     const content = easyMDE.value();
-    {% else %}
-    const content = editor.value;
-    {% endif %}
     fetch('{{url_for("save_file", vault=vault, subpath=path)}}', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -148,24 +142,19 @@
       .catch(err => console.error(err));
   }
 
-  {% if advanced_editor %}
   easyMDE.codemirror.on("change", () => {
     isDirty = true;
     save_status.innerText = '(unsaved)';
     if (saveTimeout) clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveDocument, SAVE_DELAY);
   });
-  {% else %}
-  // autosave each SAVE_DELAY seconds
-  editor.addEventListener('input', () => {
-    isDirty = true;
-    save_status.innerText = '(unsaved)'
-    if (saveTimeout) clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(saveDocument, SAVE_DELAY);
-  });
-  {% endif %}
 
   // save button
+  saveBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // prevent from reloading
+    saveDocument();
+  });
+
   saveBtn.addEventListener('click', (e) => {
     e.preventDefault(); // prevent from reloading
     saveDocument();
@@ -180,5 +169,23 @@
     }
   });
 </script>
+<script>
+  async function fetchSuggestions(context) {
+    let resp = await fetch('{{url_for("show_hint", vault = vault, context=context)}}', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ context })
+    });
+    return await resp.json(); // [{text: "...", erase: N}, ...]
+  }
+
+
+</script>
+<script>
+  let url_autocomplete = '{{url_for("show_hint", vault=vault)}}'
+</script>
+<script src="{{url_for('static', filename='autocomplete.js')}}"></script>
+
+
 
 {% endblock %}

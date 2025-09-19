@@ -6,13 +6,20 @@ vaults:  # a dict of used vaults
     title: 'OBSIFLASK example vault' # title for the index page
     short_title: 'Example' # title for the sidebar and HTML title
     description: 'This is a vault describing functionality of OBSIFLASK' # description for the index page
+    autocomplete_ngram_order: 3 # by default we look for the autocompletion using 4-grams, but here we we use 3-grams because of short tags
+    autocomplete_max_ratio_in_key: 0.99 # by default we remove keys from the autocompletion if they share 10% of all documents. 
+    # In this example vault we have a base with a very repeating file names, so we dsiable this feaure.
+    
     tasks: # a list of tasks that will be periodically executed in the vault
     - cmd: echo "hello world" 
       interval: 120 # every 2 min
       success: "Echo task for test (every 2 minutes)"
-
+    
 flask_params: # these params will be propagated into flask app.run(**kwargs) 
   port: 8000
   debug: true
   use_reloader: false
   host: 0.0.0.0
+default_user_config:
+  bootstrap_theme: Darkly
+  theme_contrast_light: true

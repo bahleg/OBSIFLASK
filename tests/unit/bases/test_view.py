@@ -17,10 +17,9 @@ def dummy_file(tmp_path):
     config.vaults['vault1'].base_config.error_on_yaml_parse = False
 
     AppState.messages[('vault1', None)] = []
-    run(config, True)
-    # Создаем фиктивный markdown файл
     f = tmp_path / "test.md"
     f.write_text("# Title\nSome content")
+    run(config, True)
     return f
 
 

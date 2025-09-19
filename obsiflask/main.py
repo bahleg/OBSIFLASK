@@ -3,6 +3,7 @@ import datetime
 import logging
 from os.path import abspath
 
+import numpy as np
 from flask import Flask, request, jsonify, redirect, url_for
 from flask_bootstrap import Bootstrap5
 from flask_favicon import FlaskFavicon
@@ -27,6 +28,8 @@ from obsiflask.pages.base import render_base_view
 from obsiflask.graph import Graph
 from obsiflask.pages.graph import render_graph
 from obsiflask.pages.search import render_search
+from obsiflask.pages.hint import get_hint
+from obsiflask.hint import HintIndex
 
 
 def check_vault(vault: str) -> tuple[str, int] | None:
@@ -64,9 +67,33 @@ def resolve_path(vault: str, subpath: str) -> Path | tuple[str, int]:
     real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
     if not real_path.exists():
         return f"Bad path: {subpath}", 400
-    if not real_path.is_relative_to(Path(cfg.vaults[vault].full_path).resolve()):
+    if not real_path.is_relative_to(
+            Path(cfg.vaults[vault].full_path).resolve()):
         return f"Bad path: {subpath}", 400
     return real_path
+
+
+def logic_init(cfg: AppConfig):
+    AppState.config = cfg
+    for vault in cfg.vaults:
+        AppState.messages[(vault, None)] = []
+    # app resources
+    run_tasks({vault: cfg.vaults[vault].tasks for vault in cfg.vaults})
+    for vault, vaultcfg in cfg.vaults.items():
+        AppState.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
+                                            cfg.vaults[vault].template_dir,
+                                            vault)
+        AppState.graphs[vault] = Graph(vault)
+
+    for vault in cfg.vaults:
+        AppState.hints[vault] = HintIndex(
+            vaultcfg.autocomplete_ngram_order,
+            vaultcfg.autocomplete_max_ngrams,
+            vaultcfg.autocomplete_max_ratio_in_key)
+
+        AppState.graphs[vault].build(dry=True, populate_hint_files=True)
+
+    AppState.inject_vars()
 
 
 def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
@@ -84,23 +111,11 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
     # Config and logger initialization
     if cfg is None:
         cfg: AppConfig = load_entrypoint_config(AppConfig)
-    AppState.config = cfg
-    for vault in cfg.vaults:
-        AppState.messages[(vault, None)] = []
     logger = init_logger(cfg.log_path, log_level=cfg.log_level)
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
     logger.debug('initialization')
-
-    # app resources
-    run_tasks({vault: cfg.vaults[vault].tasks for vault in cfg.vaults})
-    for vault in cfg.vaults:
-        AppState.indices[vault] = FileIndex(cfg.vaults[vault].full_path,
-                                            cfg.vaults[vault].template_dir,
-                                            vault)
-        AppState.graphs[vault] = Graph(vault)
-    AppState.inject_vars()
-
+    logic_init(cfg)
     # Flask confguration
     logger.debug('starting app')
     app = Flask(__name__,
@@ -109,7 +124,8 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
     flaskFavicon = FlaskFavicon()
     flaskFavicon.init_app(app)
     flaskFavicon.register_favicon(
-        str(Path(__file__).resolve().parent / 'static/logo_small.png'), 'default')
+        str(Path(__file__).resolve().parent / 'static/logo_small.png'),
+        'default')
 
     Bootstrap5(app)
 
@@ -196,6 +212,12 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
         data = request.get_json()
         content = data.get('content', '')
         return make_save(real_path, content, AppState.indices[vault], vault)
+
+    @app.route('/hint/<vault>', methods=['POST'])
+    def show_hint(vault):
+        data = request.get_json()
+        context = data.get('context')
+        return get_hint(vault, context)
 
     @app.route('/file/<vault>/<path:subpath>')
     def get_file(vault, subpath):

@@ -3,9 +3,8 @@
 Planned features to be implemented (tentative order):
 
 ## Major features
-- Autocompletion
-- Improved navigation tree  
 - Multi-user support
+- Improved navigation tree  
 - better logic for loggers
 - Refactored file index and graph handling
 - Excalidraw plugin compatibility

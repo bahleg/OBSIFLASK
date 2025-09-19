@@ -4,17 +4,19 @@ The module provides a logic for the page with file/directory operations
 
 from pathlib import Path
 import shutil
+import datetime
 
 from flask import request
 from flask import render_template, redirect, url_for
+from flask_wtf import FlaskForm
+from wtforms import StringField, SelectField, SubmitField
+from wtforms.validators import DataRequired
 
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 from obsiflask.messages import add_message
-from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField
-from wtforms.validators import DataRequired
+from obsiflask.consts import DATE_FORMAT
 
 
 class FileOpForm(FlaskForm):
@@ -95,6 +97,7 @@ def create_file_op(vault: str, form: FileOpForm) -> bool:
         path.parent.mkdir(parents=True, exist_ok=True)
         if form.template.data.startswith('0_'):
             path.touch()
+            AppState.hints[vault].update_file(form.target.data)
         elif form.template.data.startswith('1_'):
             path.mkdir(parents=True)
         else:
@@ -170,8 +173,11 @@ def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
                 shutil.copytree(path, dst)
             else:
                 shutil.copy(path, dst)
+                AppState.hints[vault].update_file(form.destination.data)
         else:
             shutil.move(path, dst)
+            if not path.is_dir():
+                AppState.hints[vault].update_file(form.destination.data)
 
         AppState.indices[vault].refresh()
         add_message(f'{op_label} {form.target.data}: successful', 0, vault)
@@ -211,7 +217,7 @@ def render_fileop(vault: str) -> str:
                                vault=vault,
                                subpath=request.args.get('curdir'))
             form.target.data = request.args.get('curdir').rstrip(
-                '/') + '/file.md'
+                '/') + f'/{datetime.datetime.now().strftime(DATE_FORMAT)}.md'
 
         if request.args.get('curdir'):
 
