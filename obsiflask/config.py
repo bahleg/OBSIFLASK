@@ -127,6 +127,11 @@ class Task:
     """
     Message for the error run
     """
+    on_start: bool = False 
+    """
+    If set, will run and then wait.
+    Otherwise, will wait and then run.
+    """
 
 
 @dataclass
