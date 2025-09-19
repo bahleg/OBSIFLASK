@@ -33,6 +33,7 @@ Planned features to be implemented (tentative order):
   - Tags as links rendering
   - Disable trags parsing in code blocks
   - Saving before turning into the view mode
+  - Tabs to spaces
 - Large files: currently excluded from analysis
 - switch markdown preview to mde?
 - More unit tests
