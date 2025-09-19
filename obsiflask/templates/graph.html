@@ -64,7 +64,6 @@
     <textarea class="form-control" id="filters" rows="5">{{filters}}</textarea>
   </div>
 
-  <!-- Сообщение об ошибке -->
   <button id="rebuild" class="btn btn-primary w-100">Show filtered graph</button>
 
 </div>
@@ -95,7 +94,7 @@
 
   function getRandomSample(collection, k) {
     const arr = collection.toArray();
-    // алгоритм Фишера–Йетса
+    // Fisher-Yates shuffle
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -105,14 +104,10 @@
 
   const root = document.documentElement;
 
-  // Основной фон страницы
+  // colors
   const bgColor = getComputedStyle(root).getPropertyValue('--bs-body-bg').trim();
-  // Цвет текста
   const textColor = getComputedStyle(root).getPropertyValue('--bs-body-color').trim();
-
   const edgeColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-secondary').trim();
-
-  // Цвет кнопок/primary (для нод)
   const primaryColor = getComputedStyle(root).getPropertyValue('--bs-primary').trim();
 
 
@@ -120,7 +115,6 @@
 
   const elements = [];
 
-  // Узлы
   graphData.node_labels.forEach((label, i) => {
     elements.push({
       data: {
@@ -131,13 +125,12 @@
 
       },
       style: {
-        'background-color': graphData.colors[i]  // индивидуальный цвет
+        'background-color': graphData.colors[i]  
       }
     });
   });
 
 
-  // Рёбра
   graphData.edges.forEach(([src, dst]) => {
     elements.push({
       data: {
@@ -155,16 +148,16 @@
       {
         selector: 'node',
         style: {
-          'content': '',                  // нет текста
+          'content': '',                  
           'text-valign': 'center',
-          'color': textColor,           // текст под тему
-          'background-color': primaryColor,  // ноды под тему
+          'color': textColor,           
+          'background-color': primaryColor,  
           'width': 'mapData(size, 1, 100, 20, 100)',
           'height': 'mapData(size, 1, 100, 20, 100)',
           'font-size': '24px',
           'cursor': 'pointer',
           'text-opacity': 1,
-          'text-margin-y': -20        // отступ наверх
+          'text-margin-y': -20        // offset to upper position
 
         }
       },
@@ -179,7 +172,7 @@
           'target-arrow-color': edgeColor,
           'target-arrow-shape': 'triangle',
           'curve-style': 'haystack',
-          'haystack-radius': 0.5, // радиус "сдвига", 0..1
+          'haystack-radius': 0.5, 
         }
       },
 
@@ -194,7 +187,7 @@
     ],
     layout: {
       name: 'fcose',
-      // Устанавливаем начальные значения
+      
       nodeRepulsion: {{nodespacing }},
   idealEdgeLength: {{ edgelength }},
   edgeElasticity: {{ stiffness }},
@@ -208,7 +201,6 @@
       {% endif %}
      },
 
-  // Настройки рендера
   renderer: {
     name: 'canvas',
       webgl: {{ use_webgl }},
@@ -219,32 +211,28 @@
 
   let activeNode = null;
   function showActiveNode(newNode) {
-    // Если узел не изменился, ничего не делаем.
-    // Это предотвращает лишние вычисления.
+    // if the active node didn't change, do nothing
     if (activeNode && activeNode.id() === (newNode ? newNode.id() : null)) {
       return;
     }
 
-    // Сначала сбрасываем стили со всех элементов
+    // reset styles from all the nodes
     cy.elements().removeClass('faded').style({
       'content': '',
       'z-index': 0
     });
 
-    // Обновляем активный узел
+    // update active node and apply styles
     activeNode = newNode;
 
-    // Если есть новый активный узел, применяем стили
     if (activeNode) {
       const neighborhood = activeNode.neighborhood();
       const otherElements = cy.elements().difference(neighborhood.union(activeNode));
 
-      // Подсвечиваем ноду и её соседей
       activeNode.addClass('highlighted');
       neighborhood.addClass('highlighted');
       otherElements.addClass('faded');
 
-      // Показываем текст на активной ноде
       activeNode.style({
         'content': activeNode.data('label'),
         'text-valign': 'top',
@@ -254,7 +242,7 @@
         'z-index': 1000
       });
 
-      // Условие: если соседей не слишком много, показываем их текст
+      // if not too many neighbours
       const maxNeighborsWithLabels = 10;
       const neighbors = neighborhood.nodes();
       if (neighbors.size() < maxNeighborsWithLabels) {
@@ -266,13 +254,13 @@
       }
       else {
 
-        // сбрасываем стили у всех
+       
         neighbors.style({
           'content': '',
           'text-opacity': 0
         });
 
-        // выбираем случайные maxNeighborsWithLabels
+        // select randomly maxNeighborsWithLabels
         const selected = getRandomSample(neighbors, maxNeighborsWithLabels);
 
         selected.forEach(ele => {
@@ -287,7 +275,6 @@
 
     }
   }
-  // Клик по ноде → переход по ссылке
   cy.on('tap', 'node', function (evt) {
     const url = evt.target.data('href');
     if (url) {
@@ -296,7 +283,6 @@
     showActiveNode(evt.target);
   });
 
-  // Клик по ноде → переход по ссылке
   cy.on('tapend', 'node', function (evt) {
     showActiveNode(evt.target);
   });
@@ -307,7 +293,6 @@
 
   cy.on('mouseout', 'node', function (evt) {
     showActiveNode(null);
-    // Сначала сбрасываем стили со всех элементов
     cy.elements().removeClass('faded').style({
       'content': '',
       'z-index': 0
@@ -324,13 +309,11 @@ document.getElementById('cy').style.backgroundColor = getComputedStyle(document.
     return urlParams.get(name);
   }
 
-  // --- обработка параметра ---
   const myParam = getQueryParam("refresh");
   if (myParam) {
 
-    // --- убираем параметр из URL ---
 
-    url.searchParams.delete("refresh"); // удаляем
+    url.searchParams.delete("refresh"); 
 
   }
 
