@@ -33,6 +33,7 @@ from obsiflask.hint import HintIndex
 from obsiflask.auth import add_auth_to_app, check_rights
 from obsiflask.pages.auth import render_login, render_logout
 
+
 def check_vault(vault: str) -> tuple[str, int] | None:
     """
     Checks if the vault exists    
@@ -348,18 +349,22 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
-        auth_check_resut = check_rights(None, auth_enabled_required=True, allow_non_auth=True)
+        auth_check_resut = check_rights(None,
+                                        auth_enabled_required=True,
+                                        allow_non_auth=True)
         if auth_check_resut:
             return auth_check_resut
         return render_login()
 
     @app.route('/logout')
     def logout():
-        auth_check_resut = check_rights(None, auth_enabled_required=True, allow_non_auth=False)
+        auth_check_resut = check_rights(None,
+                                        auth_enabled_required=True,
+                                        allow_non_auth=False)
         if auth_check_resut:
             return auth_check_resut
         return render_logout()
-    
+
     if return_app:
         return app
     # Run

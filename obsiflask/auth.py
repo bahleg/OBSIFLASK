@@ -87,9 +87,15 @@ def try_create_db():
         register_user(AppState.config.auth.rootname,
                       AppState.config.auth.default_root_pass,
                       list(AppState.config.vaults.keys()), True)
+        logger.error('TEMPORARY CODE, WARRNING')
+        register_user('user1', 'pass1', [], False)
+        register_user('user2', 'pass2', ['example'], False)
+        
 
 
-def get_username_info(username):
+def get_username_info(username: str | None = None):
+    if username is None:
+        username = flask_login.current_user.username
     db = get_db()
     with _lock:
         user = db.execute('SELECT * FROM users WHERE username = ?',

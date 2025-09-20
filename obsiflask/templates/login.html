@@ -23,6 +23,11 @@
 </head>
 
 <body>
+  <div id="page-content" class="flex-grow-1 p-3" style="overflow:auto;">
+            <div id="page-content-wrapper">
+                {{ render_messages(container=False, dismissible=True, dismiss_animate=True) }}
+            </div>
+
   <div class="container">
   <h1 class="text-center d-flex align-items-center justify-content-center gap-2">
 
@@ -32,6 +37,7 @@
     Log in
   </h1>
   {{ render_form(form) }}
+  </div>
   </div>
   {% block footer %}
   {{ render_footer(injected_vars["version"]) }}

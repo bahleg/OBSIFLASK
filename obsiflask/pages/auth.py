@@ -27,7 +27,7 @@ def render_login() -> str:
     form = LoginForm()
     back_url = url_for('index')
     if form.validate_on_submit():
-        result = login_perform(form.username.data, form.password.data)
+        result = login_perform(form.username.data.lower(), form.password.data)
         if result:
             return redirect(back_url)
         else:
