@@ -2,6 +2,8 @@
 {% include "flask-favicon.html" %}
 {% from 'shared.html' import render_footer %}
 
+{% include "flask-favicon.html" %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,11 +32,21 @@
         
             OBSIFLASK
         </h1>
+        {% if injected_vars['config'].auth.enabled %}
+            <h4 class="text-center d-flex align-items-center justify-content-center gap-2"></h4class>Hello, {{ current_user.username }}!</h4>
+        {% endif %}
+
         <br/>
         <div class="container">
+        
         <button id="themeToggle" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-moon"></i> Dark/Light mode
         </button>
+        {% if injected_vars['config'].auth.enabled %}
+            <a  class="btn btn-outline-secondary btn-sm" href="{{url_for('logout')}}">
+            <i class="bi bi-door-closed"></i> Log out
+            </a>
+        {% endif %}
         </div>
     </div>
     <hr>

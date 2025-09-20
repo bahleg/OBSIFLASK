@@ -19,13 +19,13 @@ class UserConfig:
     """"
     Bootstrap theme from bootswatch
     """
-    theme_contrast_light: bool = False 
+    theme_contrast_light: bool = False
     """
     Some themes from bootswatch are not well adapted for 
     light mode.
     For them we make and adjustment if set.
     """
-    theme_contrast_dark: bool = False 
+    theme_contrast_dark: bool = False
     """
     Some themes from bootswatch are not well adapted for 
     dark mode.
@@ -55,7 +55,7 @@ class UserConfig:
     """
     If disabled, will hide preview in the editor page
     """
-    
+
 
 
 @dataclass
@@ -127,7 +127,7 @@ class Task:
     """
     Message for the error run
     """
-    on_start: bool = False 
+    on_start: bool = False
     """
     If set, will run and then wait.
     Otherwise, will wait and then run.
@@ -200,9 +200,30 @@ class VaultConfig:
     autocomplete_max_ngrams: int = 10000
     autocomplete_ngram_order: int = 4
     autocomplete_max_ratio_in_key: float = .1
-    
-    
 
+
+@dataclass
+class AuthConfig:
+    """
+    Class for multi-user regime
+    """
+    enabled: bool = False
+    """
+    If enabled, will use auth
+    """
+    secret: str | None = None
+    """
+    Auth. secret. If not set, will be generated at startup
+    """
+    db_path: str = './auth.db'
+    """
+    Path so save auth. database
+    """
+    rootname: str = 'root'
+    """
+    The password for the root user
+    """
+    default_root_pass: str = 'root'
 
 @dataclass
 class AppConfig:
@@ -225,4 +246,8 @@ class AppConfig:
     log_level: str = 'DEBUG'
     """
     Log level used for the project: [DEBUG, INFO, WARNING, ERROR]
+    """
+    auth: AuthConfig = field(default_factory=AuthConfig)
+    """
+    Multi-user settings
     """

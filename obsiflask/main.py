@@ -30,7 +30,8 @@ from obsiflask.pages.graph import render_graph
 from obsiflask.pages.search import render_search
 from obsiflask.pages.hint import get_hint
 from obsiflask.hint import HintIndex
-
+from obsiflask.auth import add_auth_to_app, check_rights
+from obsiflask.pages.auth import render_login, render_logout
 
 def check_vault(vault: str) -> tuple[str, int] | None:
     """
@@ -128,6 +129,7 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
         'default')
 
     Bootstrap5(app)
+    add_auth_to_app(app)
 
     app.config['WTF_CSRF_ENABLED'] = False
     app.config[
@@ -144,6 +146,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/edit/<vault>/<path:subpath>')
     def editor(vault, subpath):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
@@ -151,6 +156,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/editor/<vault>')
     def editor_root(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         vault_resolution_result = check_vault(vault)
         if vault_resolution_result:
             return vault_resolution_result
@@ -164,6 +172,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/excalidraw/<vault>/<path:subpath>')
     def excalidraw(vault, subpath):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
@@ -171,6 +182,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/renderer/<vault>/<path:subpath>')
     def renderer(vault, subpath):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
@@ -178,6 +192,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/base/<vault>/<path:subpath>')
     def base(vault, subpath):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
@@ -185,6 +202,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/renderer/<vault>')
     def renderer_root(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         vault_resolution_result = check_vault(vault)
         if vault_resolution_result:
             return vault_resolution_result
@@ -198,6 +218,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/preview/<vault>/<path:subpath>')
     def preview(vault, subpath):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
@@ -206,6 +229,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/save/<vault>/<path:subpath>', methods=['PUT'])
     def save_file(vault, subpath):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
@@ -215,12 +241,18 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/hint/<vault>', methods=['POST'])
     def show_hint(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         data = request.get_json()
         context = data.get('context')
         return get_hint(vault, context)
 
     @app.route('/file/<vault>/<path:subpath>')
     def get_file(vault, subpath):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
@@ -228,6 +260,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/folder/<vault>/<path:subpath>')
     def get_folder(vault, subpath):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
@@ -237,6 +272,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
     @app.route('/folder/<vault>')
     @app.route('/folder/<vault>/')
     def get_folder_root(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         vault_resolution_result = check_vault(vault)
         if vault_resolution_result:
             return vault_resolution_result
@@ -244,6 +282,9 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/static/<path:subpath>')
     def get_static(vault, subpath):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
@@ -251,23 +292,38 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/')
     def index():
+        auth_check_resut = check_rights(None)
+        if auth_check_resut:
+            return auth_check_resut
         return render_index()
 
     @app.route('/tree/<vault>')
     def tree(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         AppState.indices[vault].refresh()
         return render_tree(AppState.indices[vault], vault)
 
     @app.route('/graph/<vault>')
     def graph(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         return render_graph(vault)
 
     @app.route('/search/<vault>')
     def search(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         return render_search(vault)
 
     @app.route('/messages/<vault>')
     def messages(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         unread = request.args.get('unread', default='1')
         raw = request.args.get('raw', default='0')
         try:
@@ -285,8 +341,25 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
 
     @app.route('/fileop/<vault>', methods=['GET', 'POST'])
     def fileop(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
         return render_fileop(vault)
 
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        auth_check_resut = check_rights(None, auth_enabled_required=True, allow_non_auth=True)
+        if auth_check_resut:
+            return auth_check_resut
+        return render_login()
+
+    @app.route('/logout')
+    def logout():
+        auth_check_resut = check_rights(None, auth_enabled_required=True, allow_non_auth=False)
+        if auth_check_resut:
+            return auth_check_resut
+        return render_logout()
+    
     if return_app:
         return app
     # Run
