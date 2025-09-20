@@ -20,7 +20,7 @@ from flask_login import logout_user
 class LoginForm(FlaskForm):
     username = StringField('User')
     password = PasswordField('Password')
-    ok = SubmitField('Login')
+    ok = SubmitField('Log in')
 
 
 def render_login() -> str:

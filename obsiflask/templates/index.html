@@ -23,9 +23,20 @@
             <i class="bi bi-moon"></i> Dark/Light mode
         </button>
         {% if injected_vars['config'].auth.enabled %}
+        
+        <a class="btn btn-outline-secondary btn-sm" href="">
+            <i class="bi bi-person"></i> User settings
+        </a>
+
+        {% if current_user.is_root %}
+        <a class="btn btn-outline-secondary btn-sm" href="{{url_for('root')}}">
+            <i class="bi bi-gear-fill"></i> Root panel
+        </a>
+        {% endif %}
         <a class="btn btn-outline-secondary btn-sm" href="{{url_for('logout')}}">
             <i class="bi bi-door-closed"></i> Log out
         </a>
+        
         {% endif %}
     </div>
 </div>

@@ -32,7 +32,7 @@ from obsiflask.pages.hint import get_hint
 from obsiflask.hint import HintIndex
 from obsiflask.auth import add_auth_to_app, check_rights
 from obsiflask.pages.auth import render_login, render_logout
-
+from obsiflask.pages.root import render_root
 
 def check_vault(vault: str) -> tuple[str, int] | None:
     """
@@ -364,6 +364,16 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
         if auth_check_resut:
             return auth_check_resut
         return render_logout()
+
+    @app.route('/root')
+    def root():
+        auth_check_resut = check_rights(None,
+                                        auth_enabled_required=True,
+                                        allow_non_auth=False, root_required=True)
+        if auth_check_resut:
+            return auth_check_resut
+        return render_root()
+
 
     if return_app:
         return app

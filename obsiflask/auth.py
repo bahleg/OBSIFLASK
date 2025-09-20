@@ -16,9 +16,10 @@ _lock = Lock()
 
 class User(flask_login.UserMixin):
 
-    def __init__(self, id: int, username):
+    def __init__(self, id: int, username, is_root):
         self.id = id
         self.username = username
+        self.is_root = is_root
 
 
 def get_db(create_ok: bool = False):
@@ -90,7 +91,6 @@ def try_create_db():
         logger.error('TEMPORARY CODE, WARRNING')
         register_user('user1', 'pass1', [], False)
         register_user('user2', 'pass2', ['example'], False)
-        
 
 
 def get_username_info(username: str | None = None):
@@ -101,6 +101,13 @@ def get_username_info(username: str | None = None):
         user = db.execute('SELECT * FROM users WHERE username = ?',
                           (username, )).fetchone()
     return user
+
+
+def get_users():
+    db = get_db()
+    with _lock:
+        users = db.execute('SELECT * FROM users').fetchall()
+    return list(map(dict, users))
 
 
 def add_auth_to_app(app: Flask):
@@ -125,7 +132,7 @@ def add_auth_to_app(app: Flask):
             user = db.execute('SELECT * FROM users WHERE id = ?',
                               (user_id, )).fetchone()
         if user:
-            return User(user['id'], user['username'])
+            return User(user['id'], user['username'], user['is_root'] != 0)
         else:
             logger.warning(f'an attempt to find user with id={user_id}')
 
@@ -137,7 +144,7 @@ def login_perform(username, passwd):
                           (username, )).fetchone()
 
     if user and check_password_hash(user['password_hash'], passwd):
-        flask_login.login_user(User(user['id'], user['username']),
+        flask_login.login_user(User(user['id'], user['username'], user['is_root'] != 0),
                                remember=True)
         return True
     return False

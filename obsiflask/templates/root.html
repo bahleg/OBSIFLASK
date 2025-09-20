@@ -1,13 +1,14 @@
-{% extends 'base.html' %}
-{% from 'functions.html' import render_projects %}
+
+{% extends 'base_novault.html' %}
+{% from 'bootstrap5/form.html' import render_form%}
+
 {% block content %}
-
-
 <h1>Root panel</h1>
 <h2> New user create</h2>
-{{render_form(new_user_form)}}
+  {{ render_form(form) }}
+  <hr/>
 
-<br/>
+  <br/>
 <h2> Users</h2>
 
 <table class="table">
@@ -16,13 +17,14 @@
 
       <th scope="col">User</th>
       <th scope="col"> Role </th>
+      <th scope="col"> Vaults </th>
       <th scope="col"> Actions </th>
 
     </tr>
   </thead>
   <tbody>
 
-    {% for user in users["users"] %}
+    {% for user in users %}
     <tr>
       <td>{{user["username"]}}</td>
 
@@ -33,6 +35,12 @@
       <td>User</td>
       {% endif %}
       <td>
+        <input value="{{user['vaults']}}">
+      </td>
+
+      <td>
+        <a href="">Update vaults</a>
+
         {% if user["is_root"] %}
         <a href="{{url_for('root', user_to_change_rights=user['username'])}}">Drop root rights</a>
         {% else %}
@@ -50,12 +58,6 @@
 
   </tbody>
 </table>
-
-<!-- making navbar active-->
-<script>
-  document.getElementById("nav-root").classList.add("active")
-</script>
-
-
+<hr/><a class="btn btn-secondary" href="{{url_for('index')}}">To index</a>
 
 {% endblock %}
