@@ -16,6 +16,7 @@ class AppState:
     hints: dict[str, "HintIndex"] = {}
     session_tracker: dict[tuple[str, str], tuple[str, datetime]] = {
     }  # user, ip -> details, datetime
+    users_per_vault: dict[str, set] = {}
 
     @staticmethod
     def inject_vars():

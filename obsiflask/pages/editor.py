@@ -9,7 +9,7 @@ from obsiflask.pages.renderer import preprocess
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
-
+from obsiflask.auth import get_user
 
 def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     """
@@ -29,7 +29,7 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
             text = inp.read()
     except Exception as e:
         add_message(f'attempt to load non-text file: {path}',
-                    type_to_int['error'], vault, repr(e))
+                    type_to_int['error'], vault, repr(e), user=get_user())
         text = None
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))

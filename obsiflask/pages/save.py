@@ -35,9 +35,9 @@ def make_save(path: str, content: str, index: FileIndex,
         if not exists:
             index.refresh()
         AppState.hints[vault].update_file(str(Path(path).resolve().relative_to(index.path)), get_user())
-        add_message(f'Saved file: {path.name}', 0, vault)
+        add_message(f'Saved file: {path.name}', 0, vault, user=get_user())
         return jsonify({"status": "ok"}), 200
     except Exception as e:
         add_message(f'Cannot save file: {path.name}: {e}',
-                    type_to_int['error'], vault, repr(e))
+                    type_to_int['error'], vault, repr(e), user=get_user())
         return f'Cannot save: {e}', 400

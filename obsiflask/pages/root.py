@@ -20,16 +20,6 @@ from obsiflask.auth import get_db, login_perform, get_users, get_username_info, 
 from flask_login import logout_user
 
 
-def prettify_timedelta(td: datetime.timedelta):
-    if td.days > 0:
-        return f'{td.days} days ago'
-    if td.seconds > 3600:
-        return f'{td.seconds//3600} hours ago'
-    if td.seconds > 60:
-        return f'{td.seconds//60} minutes ago'
-    return f'{td.seconds} seconds ago'
-
-
 def check_vaults(vaults):
     vaults = json.loads(vaults)
     if not isinstance(vaults, list):

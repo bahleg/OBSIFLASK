@@ -31,7 +31,7 @@ def render_login() -> str:
         if result:
             return redirect(back_url)
         else:
-            flash('Could not login', 'error')
+            flash('Could not log in', 'error')
 
     return render_template('login.html', form=form)
 

@@ -34,6 +34,7 @@ from obsiflask.auth import add_auth_to_app, check_rights
 from obsiflask.pages.auth import render_login, render_logout
 from obsiflask.pages.root import render_root
 from obsiflask.pages.sessions import render_sessions
+from obsiflask.pages.user import render_user
 
 
 def check_vault(vault: str) -> tuple[str, int] | None:
@@ -88,8 +89,9 @@ def logic_init(cfg: AppConfig):
                                             cfg.vaults[vault].template_dir,
                                             vault)
         AppState.graphs[vault] = Graph(vault)
-
+        AppState.users_per_vault[vault] = set()
     for vault in cfg.vaults:
+
         AppState.hints[vault] = HintIndex(
             vaultcfg.autocomplete_ngram_order,
             vaultcfg.autocomplete_max_ngrams,
@@ -378,6 +380,16 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
             if auth_check_resut:
                 return auth_check_resut
             return render_root()
+
+        @app.route('/user', methods=['GET', 'POST'])
+        def user():
+            auth_check_resut = check_rights(None,
+                                            auth_enabled_required=True,
+                                            allow_non_auth=False,
+                                            root_required=False)
+            if auth_check_resut:
+                return auth_check_resut
+            return render_user()
 
     if AppState.config.auth.enabled or AppState.config.auth.sessions_without_auth:
 

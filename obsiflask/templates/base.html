@@ -211,7 +211,7 @@
                         else if (msg.type === 2) type = 'danger';
 
                         showAlert(
-                            msg.message + (msg.user ? `<br><pre>${msg.user}</pre></div>` : ''),
+                            msg.message + (msg.user ? `<br><pre>${msg.details}</pre></div>` : ''),
                             type
                         );
                     }

@@ -6,6 +6,7 @@ from flask import jsonify, render_template
 from obsiflask.messages import get_messages
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
+from obsiflask.auth import get_user
 
 
 def render_messages(vault: str, unread: bool, raw: bool = False) -> str:
@@ -20,7 +21,7 @@ def render_messages(vault: str, unread: bool, raw: bool = False) -> str:
     Returns:
         str: rendered html string
     """
-    messages = get_messages(vault, unread=unread)
+    messages = get_messages(vault, unread=unread, user=get_user())
     if raw:
         return jsonify(messages)
     return render_template('messages.html',

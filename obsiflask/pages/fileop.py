@@ -111,14 +111,14 @@ def create_file_op(vault: str, form: FileOpForm) -> bool:
             if not found:
                 raise ValueError(f'could not find template {template_name}')
             shutil.copy(t, path)
-        add_message(f'File {form.target.data} created', 0, vault)
+        add_message(f'File {form.target.data} created', 0, vault, user=get_user())
         AppState.indices[vault].refresh()
         return True
     except Exception as e:
         add_message(f'Could not create file {form.target.data}',
                     type=2,
                     vault=vault,
-                    details=repr(e))
+                    details=repr(e), user=get_user())
         return False
 
 
@@ -137,13 +137,13 @@ def delete_file_op(vault: str, form: FileOpForm):
         else:
             path.unlink()
         AppState.indices[vault].refresh()
-        add_message(f'File {form.target.data} deleted', 0, vault)
+        add_message(f'File {form.target.data} deleted', 0, vault, user=get_user())
 
     except Exception as e:
         add_message(f'Could not delete file {form.target.data}',
                     type=2,
                     vault=vault,
-                    details=repr(e))
+                    details=repr(e), user=get_user())
 
 
 def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
@@ -183,14 +183,14 @@ def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
                                                   get_user())
 
         AppState.indices[vault].refresh()
-        add_message(f'{op_label} {form.target.data}: successful', 0, vault)
+        add_message(f'{op_label} {form.target.data}: successful', 0, vault, user=get_user())
         return True
     except Exception as e:
         logger.error(f'problem during file {op_label} {path.name}: {e}')
         add_message(f'Could not {op_label} file {form.target.data}',
                     type=2,
                     vault=vault,
-                    details=repr(e))
+                    details=repr(e), user=get_user())
         return False
 
 

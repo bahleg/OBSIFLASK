@@ -30,6 +30,16 @@ def make_user_adjustments(user: str):
     for vault in AppState.hints:
         hi: HintIndex = AppState.hints[vault]
         hi.default_files_per_user[user] = copy(hi.default_files_per_user[None])
+        AppState.messages[(vault, user)] = []
+        
+def make_user_vault_adjustment(user: str, vaults: list[str]):
+    vaults = set(vaults)
+    for vault in AppState.users_per_vault:
+        if vault in vaults:
+            AppState.users_per_vault[vault].add(user)
+        else:
+            if user in AppState.users_per_vault[vault]:
+                AppState.users_per_vault.pop(user)
 
 
 class User(flask_login.UserMixin):
@@ -81,6 +91,8 @@ def update_user(username, field, value):
         with db:
             db.execute(f"UPDATE users SET {field} = ? WHERE username = ?",
                        (value, username))
+    if field == 'vaults':
+        make_user_vault_adjustment(username, json.loads(value))
 
 
 def register_user(username: str, passwd: str, vaults: list[str], root=False):
@@ -98,6 +110,7 @@ def register_user(username: str, passwd: str, vaults: list[str], root=False):
                 'INSERT INTO users (username, password_hash, is_root, vaults) VALUES (?, ?, ?, ?)',
                 (username, password_hash, root, json.dumps(vaults)))
     make_user_adjustments(username)
+    make_user_vault_adjustment(user, vaults)
 
 
 def try_create_db():
@@ -160,6 +173,8 @@ def add_auth_to_app(app: Flask):
     login_manager.init_app(app)
     for user in get_users():
         make_user_adjustments(user['username'])
+        make_user_vault_adjustment(user['username'],
+                                   json.loads(user['vaults']))
 
     @login_manager.user_loader
     def load_user(user_id):
