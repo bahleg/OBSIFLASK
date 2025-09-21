@@ -50,10 +50,22 @@ def close_db(e=None):
         db.close()
 
 
+def delete_user(username):
+    db = get_db()
+    with db:
+        db.execute("DELETE from users WHERE username = ?", (username, ))
+
+
+def update_user(username, field, value):
+    assert field in ['password_hash', 'is_root', 'vaults']
+    db = get_db()
+    with _lock:
+        with db:
+            db.execute(f"UPDATE users SET {field} = ? WHERE username = ?",
+                       (value, username))
+
+
 def register_user(username: str, passwd: str, vaults: list[str], root=False):
-    for v in vaults:
-        if v not in AppState.config.vaults:
-            raise ValueError(f'Bad vault for user: {v}')
     db = get_db(False)
     with _lock:
         user = db.execute('SELECT * FROM users WHERE username = ?',
@@ -88,9 +100,6 @@ def try_create_db():
         register_user(AppState.config.auth.rootname,
                       AppState.config.auth.default_root_pass,
                       list(AppState.config.vaults.keys()), True)
-        logger.error('TEMPORARY CODE, WARRNING')
-        register_user('user1', 'pass1', [], False)
-        register_user('user2', 'pass2', ['example'], False)
 
 
 def get_username_info(username: str | None = None):
@@ -144,7 +153,8 @@ def login_perform(username, passwd):
                           (username, )).fetchone()
 
     if user and check_password_hash(user['password_hash'], passwd):
-        flask_login.login_user(User(user['id'], user['username'], user['is_root'] != 0),
+        flask_login.login_user(User(user['id'], user['username'],
+                                    user['is_root'] != 0),
                                remember=True)
         return True
     return False

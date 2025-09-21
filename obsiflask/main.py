@@ -365,7 +365,7 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
             return auth_check_resut
         return render_logout()
 
-    @app.route('/root')
+    @app.route('/root', methods=['GET', 'POST'])
     def root():
         auth_check_resut = check_rights(None,
                                         auth_enabled_required=True,

@@ -221,9 +221,13 @@ class AuthConfig:
     """
     rootname: str = 'root'
     """
-    The password for the root user
+    The name for the root user
     """
     default_root_pass: str = 'root'
+    """
+    The initial password for the root user
+    """
+
 
 @dataclass
 class AppConfig:
