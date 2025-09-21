@@ -8,7 +8,7 @@ from flask import jsonify
 from obsiflask.file_index import FileIndex
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.app_state import AppState
-
+from obsiflask.auth import get_user
 
 def make_save(path: str, content: str, index: FileIndex,
               vault: str) -> tuple[str, int]:
@@ -34,7 +34,7 @@ def make_save(path: str, content: str, index: FileIndex,
             f.write(content)
         if not exists:
             index.refresh()
-        AppState.hints[vault].update_file(str(Path(path).resolve().relative_to(index.path)))
+        AppState.hints[vault].update_file(str(Path(path).resolve().relative_to(index.path)), get_user())
         add_message(f'Saved file: {path.name}', 0, vault)
         return jsonify({"status": "ok"}), 200
     except Exception as e:

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from copy import copy
 import datetime
 import sqlite3
 from pathlib import Path
@@ -13,6 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from obsiflask.utils import logger
 from obsiflask.app_state import AppState
+from obsiflask.hint import HintIndex
 
 _lock = Lock()
 MAX_SESSION_RECORDS = 100
@@ -23,6 +24,12 @@ class SessionRecord:
     dt: datetime.datetime
     path: str
     details: str
+
+
+def make_user_adjustments(user: str):
+    for vault in AppState.hints:
+        hi: HintIndex = AppState.hints[vault]
+        hi.default_files_per_user[user] = copy(hi.default_files_per_user[None])
 
 
 class User(flask_login.UserMixin):
@@ -90,6 +97,7 @@ def register_user(username: str, passwd: str, vaults: list[str], root=False):
             db.execute(
                 'INSERT INTO users (username, password_hash, is_root, vaults) VALUES (?, ?, ?, ?)',
                 (username, password_hash, root, json.dumps(vaults)))
+    make_user_adjustments(username)
 
 
 def try_create_db():
@@ -113,9 +121,15 @@ def try_create_db():
                       list(AppState.config.vaults.keys()), True)
 
 
+def get_user():
+    if not AppState.config.auth.enabled:
+        return None
+    return flask_login.current_user.username
+
+
 def get_username_info(username: str | None = None):
     if username is None:
-        username = flask_login.current_user.username
+        username = get_user()
     db = get_db()
     with _lock:
         user = db.execute('SELECT * FROM users WHERE username = ?',
@@ -144,6 +158,8 @@ def add_auth_to_app(app: Flask):
     app.teardown_appcontext(close_db)
     login_manager = flask_login.LoginManager()
     login_manager.init_app(app)
+    for user in get_users():
+        make_user_adjustments(user['username'])
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -229,4 +245,3 @@ def add_session_record(user):
                                  reverse=True)[MAX_SESSION_RECORDS:]
             for k in sorted_keys:
                 del AppState.session_tracker[k]
-    

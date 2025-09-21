@@ -17,6 +17,7 @@ from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 from obsiflask.messages import add_message
 from obsiflask.consts import DATE_FORMAT
+from obsiflask.auth import get_user
 
 
 class FileOpForm(FlaskForm):
@@ -97,7 +98,7 @@ def create_file_op(vault: str, form: FileOpForm) -> bool:
         path.parent.mkdir(parents=True, exist_ok=True)
         if form.template.data.startswith('0_'):
             path.touch()
-            AppState.hints[vault].update_file(form.target.data)
+            AppState.hints[vault].update_file(form.target.data, get_user())
         elif form.template.data.startswith('1_'):
             path.mkdir(parents=True)
         else:
@@ -173,11 +174,13 @@ def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
                 shutil.copytree(path, dst)
             else:
                 shutil.copy(path, dst)
-                AppState.hints[vault].update_file(form.destination.data)
+                AppState.hints[vault].update_file(form.destination.data,
+                                                  get_user())
         else:
             shutil.move(path, dst)
             if not path.is_dir():
-                AppState.hints[vault].update_file(form.destination.data)
+                AppState.hints[vault].update_file(form.destination.data,
+                                                  get_user())
 
         AppState.indices[vault].refresh()
         add_message(f'{op_label} {form.target.data}: successful', 0, vault)
