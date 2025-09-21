@@ -34,6 +34,7 @@ from obsiflask.auth import add_auth_to_app, check_rights
 from obsiflask.pages.auth import render_login, render_logout
 from obsiflask.pages.root import render_root
 
+
 def check_vault(vault: str) -> tuple[str, int] | None:
     """
     Checks if the vault exists    
@@ -347,33 +348,35 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
             return auth_check_resut
         return render_fileop(vault)
 
-    @app.route('/login', methods=['GET', 'POST'])
-    def login():
-        auth_check_resut = check_rights(None,
-                                        auth_enabled_required=True,
-                                        allow_non_auth=True)
-        if auth_check_resut:
-            return auth_check_resut
-        return render_login()
+    if AppState.config.auth.enabled:
 
-    @app.route('/logout')
-    def logout():
-        auth_check_resut = check_rights(None,
-                                        auth_enabled_required=True,
-                                        allow_non_auth=False)
-        if auth_check_resut:
-            return auth_check_resut
-        return render_logout()
+        @app.route('/login', methods=['GET', 'POST'])
+        def login():
+            auth_check_resut = check_rights(None,
+                                            auth_enabled_required=True,
+                                            allow_non_auth=True)
+            if auth_check_resut:
+                return auth_check_resut
+            return render_login()
 
-    @app.route('/root', methods=['GET', 'POST'])
-    def root():
-        auth_check_resut = check_rights(None,
-                                        auth_enabled_required=True,
-                                        allow_non_auth=False, root_required=True)
-        if auth_check_resut:
-            return auth_check_resut
-        return render_root()
+        @app.route('/logout')
+        def logout():
+            auth_check_resut = check_rights(None,
+                                            auth_enabled_required=True,
+                                            allow_non_auth=False)
+            if auth_check_resut:
+                return auth_check_resut
+            return render_logout()
 
+        @app.route('/root', methods=['GET', 'POST'])
+        def root():
+            auth_check_resut = check_rights(None,
+                                            auth_enabled_required=True,
+                                            allow_non_auth=False,
+                                            root_required=True)
+            if auth_check_resut:
+                return auth_check_resut
+            return render_root()
 
     if return_app:
         return app

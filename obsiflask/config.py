@@ -57,7 +57,6 @@ class UserConfig:
     """
 
 
-
 @dataclass
 class BaseConfig:
     """

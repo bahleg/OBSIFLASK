@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+import datetime
 import sqlite3
 from pathlib import Path
 import json
@@ -5,13 +8,21 @@ import uuid
 from threading import Lock
 
 import flask_login
-from flask import Flask, g, redirect, url_for
+from flask import Flask, g, redirect, url_for, request
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from obsiflask.utils import logger
 from obsiflask.app_state import AppState
 
 _lock = Lock()
+MAX_SESSION_RECORDS = 100
+
+
+@dataclass
+class SessionRecord:
+    dt: datetime.datetime
+    path: str
+    details: str
 
 
 class User(flask_login.UserMixin):
@@ -160,13 +171,12 @@ def login_perform(username, passwd):
     return False
 
 
-def check_rights(
-    vault: str | None,
-    auth_enabled_required: bool = False,
-    allow_non_auth: bool = False,
-    root_required: bool = False,
-    user_required: bool = True,
-):
+def check_rights(vault: str | None,
+                 auth_enabled_required: bool = False,
+                 allow_non_auth: bool = False,
+                 root_required: bool = False,
+                 user_required: bool = True,
+                 ignore_in_session_hist: bool = False):
     if not AppState.config.auth.enabled:
         if auth_enabled_required:
             return "Only for authorized users", 401
@@ -176,6 +186,8 @@ def check_rights(
     else:
         username = flask_login.current_user.username
     if username is None and allow_non_auth:
+        if not ignore_in_session_hist:
+            add_session_record(None)
         return None
 
     if username is None and user_required:
@@ -196,4 +208,23 @@ def check_rights(
         # the same as when the user entered non-existing vault
         # we don't want to show vaults of other users
         return "Bad vault", 400
+    if not ignore_in_session_hist:
+        add_session_record(username)
     return None
+
+
+def add_session_record(user):
+    if not AppState.config.auth.enabled:
+        return
+    ip = request.access_route[0]
+    key = (user, ip)
+    ua_string = request.headers.get("User-Agent")
+    AppState.session_tracker[key] = (ua_string, datetime.datetime.now())
+    with _lock:
+        if len(AppState.session_tracker) > 100:
+            sorted_keys = sorted(AppState.session_tracker.values(),
+                                 key=lambda x: x[-1],
+                                 reverse=True)[MAX_SESSION_RECORDS:]
+            for k in sorted_keys:
+                del AppState.session_tracker[k]
+    

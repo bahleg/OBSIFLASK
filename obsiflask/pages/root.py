@@ -20,6 +20,16 @@ from obsiflask.auth import get_db, login_perform, get_users, get_username_info, 
 from flask_login import logout_user
 
 
+def prettify_timedelta(td: datetime.timedelta):
+    if td.days > 0:
+        return f'{td.days} days ago'
+    if td.seconds > 3600:
+        return f'{td.seconds//3600} hours ago'
+    if td.seconds > 60:
+        return f'{td.seconds//60} minutes ago'
+    return f'{td.seconds} seconds ago'
+
+
 def check_vaults(vaults):
     vaults = json.loads(vaults)
     if not isinstance(vaults, list):
@@ -160,4 +170,18 @@ def render_root() -> str:
             elif op == 'vault':
                 change_vaults(current_user, user, request.args.get('vaults'))
 
-    return render_template('root.html', form=form, users=get_users())
+    formatted_session_hist = []
+    for hist, v in AppState.session_tracker.items():
+        dt = datetime.datetime.now() - v[1]
+        formatted_session_hist.append({
+            'user': hist[0],
+            'address': hist[1],
+            'details': v[0],
+            'dt': prettify_timedelta(dt),
+            'real_dt': dt
+        })
+    formatted_session_hist.sort(key=lambda x: x['real_dt'])
+    return render_template('root.html',
+                           form=form,
+                           users=get_users(),
+                           sessions=formatted_session_hist)
