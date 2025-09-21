@@ -30,7 +30,7 @@ def check_vaults(vaults):
     for v in vaults:
         if v not in AppState.config.vaults:
             raise ValueError(f'Bad vault for user: {v}')
-
+    return vaults
 
 def gen_pass():
     return uuid.uuid4().hex
@@ -139,8 +139,8 @@ def render_root() -> str:
     pwd = gen_pass()
     if form.validate_on_submit():
         try:
-            check_vaults(form.vaults.data)
-            register_user(form.username.data, pwd, form.vaults.data,
+            vaults = check_vaults(form.vaults.data)
+            register_user(form.username.data, pwd, vaults,
                           form.is_root.data)
             flash(
                 f'The user {form.username.data} is successfully registered  with password: "{pwd}"'
