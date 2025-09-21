@@ -170,18 +170,4 @@ def render_root() -> str:
             elif op == 'vault':
                 change_vaults(current_user, user, request.args.get('vaults'))
 
-    formatted_session_hist = []
-    for hist, v in AppState.session_tracker.items():
-        dt = datetime.datetime.now() - v[1]
-        formatted_session_hist.append({
-            'user': hist[0],
-            'address': hist[1],
-            'details': v[0],
-            'dt': prettify_timedelta(dt),
-            'real_dt': dt
-        })
-    formatted_session_hist.sort(key=lambda x: x['real_dt'])
-    return render_template('root.html',
-                           form=form,
-                           users=get_users(),
-                           sessions=formatted_session_hist)
+    return render_template('root.html', form=form, users=get_users())

@@ -226,6 +226,11 @@ class AuthConfig:
     """
     The initial password for the root user
     """
+    sessions_without_auth: bool = False 
+    """
+    If set, will show "sessions" button even 
+    without enabled authenithication
+    """
 
 
 @dataclass

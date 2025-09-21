@@ -180,6 +180,8 @@ def check_rights(vault: str | None,
     if not AppState.config.auth.enabled:
         if auth_enabled_required:
             return "Only for authorized users", 401
+        if AppState.config.auth.sessions_without_auth:
+            add_session_record(None)
         return None
     if not flask_login.current_user.is_authenticated:
         username = None
@@ -214,7 +216,7 @@ def check_rights(vault: str | None,
 
 
 def add_session_record(user):
-    if not AppState.config.auth.enabled:
+    if not AppState.config.auth.enabled and not AppState.config.auth.sessions_without_auth:
         return
     ip = request.access_route[0]
     key = (user, ip)

@@ -23,7 +23,7 @@
             <i class="bi bi-moon"></i> Dark/Light mode
         </button>
         {% if injected_vars['config'].auth.enabled %}
-        
+
         <a class="btn btn-outline-secondary btn-sm" href="">
             <i class="bi bi-person"></i> User settings
         </a>
@@ -33,10 +33,19 @@
             <i class="bi bi-gear-fill"></i> Root panel
         </a>
         {% endif %}
+        {% endif %}
+        {% if ((injected_vars['config'].auth.enabled) and (current_user.is_root)) or
+        (injected_vars['config'].auth.sessions_without_auth) %}
+
+        <a class="btn btn-outline-secondary btn-sm" href="{{url_for('sessions')}}">
+            <i class="bi bi-window-fullscreen"></i> Session history
+        </a>
+        {% endif %}
+        {% if injected_vars['config'].auth.enabled %}
         <a class="btn btn-outline-secondary btn-sm" href="{{url_for('logout')}}">
             <i class="bi bi-door-closed"></i> Log out
         </a>
-        
+
         {% endif %}
     </div>
 </div>

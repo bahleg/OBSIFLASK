@@ -33,6 +33,7 @@ from obsiflask.hint import HintIndex
 from obsiflask.auth import add_auth_to_app, check_rights
 from obsiflask.pages.auth import render_login, render_logout
 from obsiflask.pages.root import render_root
+from obsiflask.pages.sessions import render_sessions
 
 
 def check_vault(vault: str) -> tuple[str, int] | None:
@@ -377,6 +378,24 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
             if auth_check_resut:
                 return auth_check_resut
             return render_root()
+
+    if AppState.config.auth.enabled or AppState.config.auth.sessions_without_auth:
+
+        @app.route('/sessions')
+        def sessions():
+            if AppState.config.auth.enabled and not AppState.config.auth.sessions_without_auth:
+                auth_check_resut = check_rights(None,
+                                                auth_enabled_required=True,
+                                                allow_non_auth=False,
+                                                root_required=True)
+
+                if auth_check_resut:
+                    return auth_check_resut
+            check_rights(None,
+                         auth_enabled_required=False,
+                         allow_non_auth=False,
+                         root_required=False)
+            return render_sessions()
 
     if return_app:
         return app
