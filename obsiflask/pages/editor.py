@@ -9,7 +9,7 @@ from obsiflask.pages.renderer import preprocess
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
-from obsiflask.auth import get_user
+from obsiflask.auth import get_user, get_user_config
 
 def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     """
@@ -39,7 +39,7 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     try:
         preview = int(preview) != 0
     except Exception:
-        preview = AppState.config.default_user_config.editor_preview
+        preview = get_user_config().editor_preview
 
     return render_template('editor.html',
                            markdown_text=text,

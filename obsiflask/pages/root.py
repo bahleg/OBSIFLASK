@@ -32,6 +32,7 @@ def check_vaults(vaults):
             raise ValueError(f'Bad vault for user: {v}')
     return vaults
 
+
 def gen_pass():
     return uuid.uuid4().hex
 
@@ -140,8 +141,7 @@ def render_root() -> str:
     if form.validate_on_submit():
         try:
             vaults = check_vaults(form.vaults.data)
-            register_user(form.username.data, pwd, vaults,
-                          form.is_root.data)
+            register_user(form.username.data, pwd, vaults, form.is_root.data)
             flash(
                 f'The user {form.username.data} is successfully registered  with password: "{pwd}"'
             )

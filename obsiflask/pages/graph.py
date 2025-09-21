@@ -20,7 +20,7 @@ from obsiflask.graph import GraphRepr
 from networkx.algorithms.community import louvain_communities
 from obsiflask.messages import add_message
 from obsiflask.bases.filter import FieldFilter
-
+from obsiflask.auth import get_user_config
 
 def is_hex_color(s: str) -> bool:
     """
@@ -277,18 +277,18 @@ def render_graph(vault: str) -> str:
 
     nodespacing = request.args.get(
         'nodespacing'
-    ) or AppState.config.default_user_config.default_graph_node_spacing
+    ) or AppState.config.vaults[vault].graph_config.default_graph_node_spacing
     stiffness = request.args.get(
         'stiffness'
-    ) or AppState.config.default_user_config.default_graph_edge_stiffness
+    ) or AppState.config.vaults[vault].graph_config.default_graph_edge_stiffness
     edgelength = request.args.get(
         'edgelength'
-    ) or AppState.config.default_user_config.default_graph_edge_length
+    ) or AppState.config.vaults[vault].graph_config.default_graph_edge_length
     compression = request.args.get(
         'compression'
-    ) or AppState.config.default_user_config.default_graph_compression
+    ) or AppState.config.vaults[vault].graph_config.default_graph_compression
 
-    cm = Colormap(AppState.config.default_user_config.graph_cmap)
+    cm = Colormap(get_user_config().graph_cmap)
     used_colors = set()
 
     filters = get_filters(vault, cm, used_colors)
@@ -340,7 +340,7 @@ def render_graph(vault: str) -> str:
         page_editor=False,
         home=AppState.config.vaults[vault].home_file,
         graph_data=out_graph,
-        use_webgl=str(AppState.config.default_user_config.use_webgl).lower(),
+        use_webgl=str(get_user_config().use_webgl).lower(),
         debug_graph=str(
             AppState.config.vaults[vault].graph_config.debug_graph).lower(),
         nodespacing=nodespacing,

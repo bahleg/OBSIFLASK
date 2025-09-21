@@ -5,7 +5,6 @@ For the main config class, see AppConfig
 from dataclasses import dataclass, field
 from typing import Any
 
-
 @dataclass
 class UserConfig:
     """
@@ -30,22 +29,6 @@ class UserConfig:
     Some themes from bootswatch are not well adapted for 
     dark mode.
     For them we make and adjustment if set.
-    """
-    default_graph_node_spacing: int = 4500
-    """
-    Default value for node spacing parameter in graph rendering
-    """
-    default_graph_edge_length: int = 100
-    """
-    Default value for edge length parameter in graph rendering
-    """
-    default_graph_edge_stiffness: float = 0.45
-    """
-    Default value for edge stiffness parameter in graph rendering
-    """
-    default_graph_compression: float = 1.0
-    """
-    Default value for graph compression parameter in graph rendering
     """
     graph_cmap: str = 'colorbrewer:Set1'
     """
@@ -102,6 +85,22 @@ class GraphConfig:
     louvain_communities_res: float = 1.0
     """
     Parameter for Louvain community detection algorithm
+    """
+    default_graph_node_spacing: int = 4500
+    """
+    Default value for node spacing parameter in graph rendering
+    """
+    default_graph_edge_length: int = 100
+    """
+    Default value for edge length parameter in graph rendering
+    """
+    default_graph_edge_stiffness: float = 0.45
+    """
+    Default value for edge stiffness parameter in graph rendering
+    """
+    default_graph_compression: float = 1.0
+    """
+    Default value for graph compression parameter in graph rendering
     """
 
 
@@ -226,10 +225,14 @@ class AuthConfig:
     """
     The initial password for the root user
     """
-    sessions_without_auth: bool = False 
+    sessions_without_auth: bool = False
     """
     If set, will show "sessions" button even 
     without enabled authenithication
+    """
+    user_config_dir: str = './user_cfg/'
+    """
+    Path to save user configs
     """
 
 

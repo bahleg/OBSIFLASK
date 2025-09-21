@@ -7,6 +7,7 @@ import json
 import uuid
 from threading import Lock
 
+from omegaconf import OmegaConf
 import flask_login
 from flask import Flask, g, redirect, url_for, request
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,6 +15,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from obsiflask.utils import logger
 from obsiflask.app_state import AppState
 from obsiflask.hint import HintIndex
+from obsiflask.minihydra import load_config
+from obsiflask.config import UserConfig
 
 _lock = Lock()
 MAX_SESSION_RECORDS = 100
@@ -25,13 +28,39 @@ class SessionRecord:
     path: str
     details: str
 
+def save_user_config(user: str, config: UserConfig):
+    cfg_dir_path = Path(AppState.config.auth.user_config_dir)
+    cfg_dir_path.mkdir(parents=True, exist_ok=True)
+    cfg_path = cfg_dir_path / f'{user}.yml'
+    OmegaConf.save(config, cfg_path)
+        
 
 def make_user_adjustments(user: str):
     for vault in AppState.hints:
         hi: HintIndex = AppState.hints[vault]
         hi.default_files_per_user[user] = copy(hi.default_files_per_user[None])
         AppState.messages[(vault, user)] = []
-        
+        cfg_dir_path = Path(AppState.config.auth.user_config_dir)
+        cfg_path = cfg_dir_path / f'{user}.yml'
+        config = None
+        if cfg_path.exists():
+            try:
+                config = load_config(cfg_path, UserConfig)
+            except Exception as e:
+                logger.error(f'could not load config {cfg_path}: {e}')
+        if config is None:
+            config = copy(AppState.config.default_user_config)
+            save_user_config(user, config)
+        AppState.user_configs[user] = config
+
+
+def get_user_config():
+    if not AppState.config.auth.enabled or get_user() is None:
+        return AppState.config.default_user_config
+    else:
+        return AppState.user_configs[get_user()]
+
+
 def make_user_vault_adjustment(user: str, vaults: list[str]):
     vaults = set(vaults)
     for vault in AppState.users_per_vault:

@@ -2,10 +2,17 @@
 {% from 'bootstrap5/form.html' import render_form%}
 
 {% block content %}
+
 <div class="container">
   <h1>User: {{ current_user.username }}</h1>
   <a class="btn btn-secondary" href="{{url_for('index')}}">To index</a>
   <hr />
+
+  <h2>Settings</h2>
+  {{ render_form(user_form) }}
+  <hr />
+  <br />
+
   <h2>Change password</h2>
   {{ render_form(change_form) }}
   <hr />
