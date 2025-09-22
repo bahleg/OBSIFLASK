@@ -1,25 +1,19 @@
-from pathlib import Path
-import shutil
-import datetime
-
-from flask import request, flash
+"""
+Page processing logic for login and logout
+"""
+from flask import flash
 from flask import render_template, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, PasswordField
 from wtforms.validators import DataRequired
+from wtforms import StringField, SubmitField, PasswordField
 
-from obsiflask.pages.index_tree import render_tree
-from obsiflask.app_state import AppState
-from obsiflask.utils import logger
-from obsiflask.messages import add_message
-from obsiflask.consts import DATE_FORMAT
-from obsiflask.auth import get_db, login_perform
+from obsiflask.auth import login_perform
 from flask_login import logout_user
 
 
 class LoginForm(FlaskForm):
-    username = StringField('User')
-    password = PasswordField('Password')
+    username = StringField('User', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
     ok = SubmitField('Log in')
 
 

@@ -29,15 +29,14 @@ def app_auth(tmp_path):
         'vault':
         VaultConfig(str(tmp_path), autocomplete_max_ratio_in_key=1.01)
     },
-                       auth=AuthConfig(enabled=True,
-                                       db_path=db_path))
+                       auth=AuthConfig(enabled=True, db_path=db_path))
     AppState.messages[('vault', None)] = []
     (tmp_path / "dir").mkdir()
     (tmp_path / "dir" / "test.md").write_text("hello world #mylongtag")
     (tmp_path / "dir" / "test2.md").write_text("hello world #anothertag")
     app = run(config, True)
     register_user('user', 'pass', ["vault"])
-    
+
     yield app
     if db_path.exists():
         db_path.unlink()
@@ -70,9 +69,9 @@ def test_default_hints(app):
 
 def test_default_hints_auth(app_auth, monkeypatch):
     AppState.hints['vault'].update_file('dir2/newfile', 'root')
-        
+
     for user in ['root', None]:
-        monkeypatch.setattr("obsiflask.pages.hint.get_user", lambda : user)
+        monkeypatch.setattr("obsiflask.pages.hint.get_user", lambda: user)
         result = (get_hint('vault', ''))
         for r in result:
             assert r['short'] == r['text']
@@ -81,16 +80,16 @@ def test_default_hints_auth(app_auth, monkeypatch):
         assert result[0]['text'].count('-') == 2
         assert set([result[1]['text'],
                     result[2]['text']]) == {'#anothertag', '#mylongtag'}
-        assert set([result[3]['text'],
-                    result[4]['text'], 
+        assert set([result[3]['text'], result[4]['text'],
                     result[5]['text']]) == {'test.md', 'test2.md', 'newfile'}
-        assert set([result[6]['text'],
-                    result[7]['text'],
-                    result[8]['text'],
-                    ]) == {'dir/test.md', 'dir/test2.md', 'dir2/newfile'}
-        
+        assert set([
+            result[6]['text'],
+            result[7]['text'],
+            result[8]['text'],
+        ]) == {'dir/test.md', 'dir/test2.md', 'dir2/newfile'}
+
     # checking that we didn't affect another user
-    monkeypatch.setattr("obsiflask.pages.hint.get_user", lambda : 'user')
+    monkeypatch.setattr("obsiflask.pages.hint.get_user", lambda: 'user')
     result = (get_hint('vault', ''))
     for r in result:
         assert r['short'] == r['text']
