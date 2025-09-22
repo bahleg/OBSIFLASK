@@ -91,7 +91,9 @@ def add_message(message: str,
             else:
                 userlist = [user]
         for user in userlist:
-            AppState.messages[(vault, user)].append(copy(msg))
+            msg_copy = copy(msg)
+            msg_copy.user = user 
+            AppState.messages[(vault, user)].append(msg_copy)
             if len(AppState.messages[
                 (vault,
                  user)]) > 2 * AppState.config.vaults[vault].message_list_size:

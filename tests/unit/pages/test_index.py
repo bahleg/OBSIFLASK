@@ -1,7 +1,6 @@
 import pytest
 
 from obsiflask.pages.index import render_index
-from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
 

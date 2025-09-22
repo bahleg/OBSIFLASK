@@ -68,7 +68,7 @@ def make_user_vault_adjustment(user: str, vaults: list[str]):
             AppState.users_per_vault[vault].add(user)
         else:
             if user in AppState.users_per_vault[vault]:
-                AppState.users_per_vault.pop(user)
+                AppState.users_per_vault[vault].remove(user)
 
 
 class User(flask_login.UserMixin):
@@ -139,7 +139,7 @@ def register_user(username: str, passwd: str, vaults: list[str], root=False):
                 'INSERT INTO users (username, password_hash, is_root, vaults) VALUES (?, ?, ?, ?)',
                 (username, password_hash, root, json.dumps(vaults)))
     make_user_adjustments(username)
-    make_user_vault_adjustment(user, vaults)
+    make_user_vault_adjustment(username, vaults)
 
 
 def try_create_db():
