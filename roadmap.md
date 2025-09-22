@@ -3,18 +3,17 @@
 Planned features to be implemented (tentative order):
 
 ## Major features
-- Multi-user support
 - Improved navigation tree  
-- better logic for loggers
-- Refactored file index and graph handling
 - Excalidraw plugin compatibility
 - Encryption support (compatible with Meld plugin)
+- Refactored file index and graph handling
 - Spell checking 
 - Tag list view  
 - Navigation/header links
 - LaTeX support  
 - Local graphs
 - File upload functionality
+- Better logic for loggers
 - Improved Git integration  
 - Enhanced Bases support  
   - Links in Bases
