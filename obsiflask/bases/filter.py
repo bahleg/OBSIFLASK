@@ -1,7 +1,6 @@
 """
 Filtering logic for vault bases
 """
-from pathlib import Path
 
 from lark import Lark
 

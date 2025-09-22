@@ -4,7 +4,6 @@ A caching mechanism for bases. Will be removed in future
 """
 from threading import Lock
 import time
-
 from obsiflask.app_state import AppState
 
 

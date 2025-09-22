@@ -12,6 +12,7 @@ from obsiflask.bases.filter import Filter, FilterAnd, FilterOr, FieldFilter, Tri
 from obsiflask.messages import add_message
 from obsiflask.bases.grammar import FilterTransformer, grammar
 
+
 class Base:
     """
     A general class for bases handling
@@ -68,7 +69,8 @@ def parse_filter(filter_dict: dict, vault) -> Filter:
             return TrivialFilter()
 
 
-def parse_view(view: dict, vault: str, formulas: list[Callable], properties: dict, base_path: str) -> View:
+def parse_view(view: dict, vault: str, formulas: list[Callable],
+               properties: dict, base_path: str) -> View:
     """
     View parsing
 
@@ -127,12 +129,15 @@ def parse_base(real_path: str, vault: str) -> Base:
         parser = Lark(grammar, start="start", parser="lalr")
         try:
             func = FilterTransformer().transform(parser.parse(formula))
-            
+
         except Exception as e:
             if AppState.config.vaults[vault].base_config.error_on_field_parse:
-                raise ValueError(f'Problems with formula {formula} parsing: {e}')
+                raise ValueError(
+                    f'Problems with formula {formula} parsing: {e}')
             else:
-                add_message(f'Problems with formula {formula} parsing. Skipping', 1, vault, repr(e))
+                add_message(
+                    f'Problems with formula {formula} parsing. Skipping', 1,
+                    vault, repr(e))
                 func = lambda x: ''
         base.formulas[key] = func
 

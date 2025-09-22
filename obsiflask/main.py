@@ -3,7 +3,7 @@ import datetime
 import logging
 from os.path import abspath
 
-import numpy as np
+import uuid
 from flask import Flask, request, jsonify, redirect, url_for
 from flask_bootstrap import Bootstrap5
 from flask_favicon import FlaskFavicon
@@ -102,7 +102,9 @@ def logic_init(cfg: AppConfig):
     AppState.inject_vars()
 
 
-def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
+def run(cfg: AppConfig | None = None,
+        return_app: bool = False,
+        disable_csrf: bool = False) -> Flask:
     """
     Main application entrypoint
     
@@ -110,6 +112,7 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
     Args:
         cfg (AppConfig, optional): application config. If not set, will use arguments to load config from system
         return_app (bool, optional): returns application without running. Defaults to False.
+        disable_csrf: (bool, optional): disable CSRF for testing purpopses
 
     Returns:
         Flask: flask application
@@ -127,6 +130,14 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
     app = Flask(__name__,
                 template_folder=abspath(Path(__file__).parent / "templates"),
                 root_path=Path(__file__).parent)
+    secret = AppState.config.auth.secret
+    if secret is None or len(secret.strip()) == '':
+        logger.info('Generating secret')
+        secret = uuid.uuid4().hex
+    else:
+        secret = secret.strip()
+    app.secret_key = secret
+
     flaskFavicon = FlaskFavicon()
     flaskFavicon.init_app(app)
     flaskFavicon.register_favicon(
@@ -136,7 +147,10 @@ def run(cfg: AppConfig | None = None, return_app: bool = False) -> Flask:
     Bootstrap5(app)
     add_auth_to_app(app)
 
-    app.config['WTF_CSRF_ENABLED'] = False
+    if disable_csrf:
+        logger.warning(
+            'dsiabling CSRF is not recommende. Use only for testing purposes')
+        app.config['WTF_CSRF_ENABLED'] = False
     app.config[
         "BOOTSTRAP_BOOTSWATCH_THEME"] = cfg.default_user_config.bootstrap_theme
 

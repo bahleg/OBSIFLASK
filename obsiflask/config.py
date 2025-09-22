@@ -209,10 +209,6 @@ class AuthConfig:
     """
     If enabled, will use auth
     """
-    secret: str | None = None
-    """
-    Auth. secret. If not set, will be generated at startup
-    """
     db_path: str = './auth.db'
     """
     Path so save auth. database
@@ -262,3 +258,8 @@ class AppConfig:
     """
     Multi-user settings
     """
+    secret: str | None = None
+    """
+    Flask app secret. If not set, will be generated at startup
+    """
+    

@@ -189,13 +189,6 @@ def get_users():
 def add_auth_to_app(app: Flask):
     if not AppState.config.auth.enabled:
         return
-    secret = AppState.config.auth.secret
-    if secret is None or len(secret.strip()) == '':
-        logger.info('Generating secret')
-        secret = uuid.uuid4().hex
-    else:
-        secret = secret.strip()
-    app.secret_key = secret
     try_create_db()
     app.teardown_appcontext(close_db)
     login_manager = flask_login.LoginManager()
