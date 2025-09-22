@@ -1,22 +1,14 @@
-from pathlib import Path
-import shutil
-import datetime
-
+"""
+Rendering logic for user settings
+"""
 from flask import request, flash
-from flask import render_template, redirect, url_for
+from flask import render_template
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired
 
-from obsiflask.pages.index_tree import render_tree
-from obsiflask.app_state import AppState
-from obsiflask.utils import logger
-from obsiflask.messages import add_message
-from obsiflask.consts import DATE_FORMAT
-from obsiflask.auth import get_db, login_perform, update_user, get_user, generate_password_hash, get_user_config, save_user_config
-from flask_login import logout_user
+from obsiflask.auth import update_user, get_user, generate_password_hash, get_user_config, save_user_config
 from cmap import Colormap
-from omegaconf import OmegaConf
 
 
 class ChangePassForm(FlaskForm):
@@ -63,6 +55,9 @@ class UserSettingForm(FlaskForm):
 
 
 def load_form_data(form: UserSettingForm):
+    """
+    Loads config into form
+    """
     cfg = get_user_config()
     form.bootstrap_theme.data = cfg.bootstrap_theme.lower()
     form.contrast_dark.data = cfg.theme_contrast_dark
@@ -73,6 +68,9 @@ def load_form_data(form: UserSettingForm):
 
 
 def save_settings(form: UserSettingForm):
+    """
+    Saves config
+    """
     try:
         cfg = get_user_config()
         try:
@@ -86,13 +84,15 @@ def save_settings(form: UserSettingForm):
         cfg.theme_contrast_light = form.contrast_light.data
         cfg.use_webgl = form.use_webgl.data
         save_user_config(get_user(), cfg)
-        print (cfg)
         flash('User settings were saved')
     except Exception as e:
         flash(f'Problems with saving user settings: {e}', 'error')
 
 
 def change_pwd(form: ChangePassForm):
+    """
+    Chagess password
+    """
     if form.password.data != form.repeat.data:
         flash('Password doesn\"t match', "error")
         return

@@ -125,7 +125,7 @@ def get_db(create_ok: bool = False) -> sqlite3.Connection:
         context = True
     except:
         logger.warning(
-            'probmes with context. It is expected when creating a db. Ignore it'
+            'problems with context. It is expected when creating a db. Ignore it'
         )
         context = False
     exists = Path(AppState.config.auth.db_path).exists()

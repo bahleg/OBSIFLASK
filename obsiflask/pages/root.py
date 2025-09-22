@@ -1,3 +1,6 @@
+"""
+Root panel loginc
+    """
 import json
 import uuid
 
@@ -13,7 +16,10 @@ from obsiflask.utils import logger
 from obsiflask.auth import get_users, get_username_info, register_user, update_user, delete_user as delete_user_db
 
 
-def check_vaults(vaults):
+def check_vaults(vaults: str) -> list[str]:
+    """
+    A simple checker for vault-string format
+    """
     vaults = json.loads(vaults)
     if not isinstance(vaults, list):
         raise ValueError('Vault list must be a list string')
@@ -26,11 +32,23 @@ def check_vaults(vaults):
     return vaults
 
 
-def gen_pass():
+def gen_pass() -> str:
+    """
+    Password generator
+    """
     return uuid.uuid4().hex
 
 
-def drop_pass(current_user, target_user):
+def drop_pass(current_user: dict[str], target_user: str):
+    """
+    Resets passwords for the target user
+
+    Args:
+        current_user (dict[str]): user info for current user
+        target_user (str): target user
+
+    """
+
     try:
         if current_user['username'] == target_user:
             raise ValueError('Cannot drop the password of the current user')
@@ -49,7 +67,15 @@ def drop_pass(current_user, target_user):
         flash(repr(e), 'error')
 
 
-def change_rights(current_user, target_user):
+def change_rights(current_user: dict[str], target_user: str):
+    """
+    Switches root/no-root rirghts for the target user
+
+    Args:
+        current_user (dict[str]): user info for current user
+        target_user (str): target user
+
+    """
     try:
         if current_user['username'] == target_user:
             raise ValueError('Cannot change the rights of the current user')
@@ -69,7 +95,15 @@ def change_rights(current_user, target_user):
         flash(repr(e), 'error')
 
 
-def delete_user(current_user, target_user):
+def delete_user(current_user: dict[str], target_user: str):
+    """
+    Deletes target user
+
+    Args:
+        current_user (dict[str]): user info for current user
+        target_user (str): target user
+
+    """
     try:
         if current_user['username'] == target_user:
             raise ValueError('Cannot delete current user')
@@ -88,7 +122,15 @@ def delete_user(current_user, target_user):
         flash(repr(e), 'error')
 
 
-def change_vaults(current_user, target_user, vaultstr):
+def change_vaults(current_user: dict[str], target_user: str, vaultstr: str):
+    """
+    Changes vaults for target user
+
+    Args:
+        current_user (dict[str]): userinfo for current user
+        target_user (str): target user name
+        vaultstr (str): json-format str with the list of vaults
+    """
     try:
         if current_user['username'] != AppState.config.auth.rootname:
             userinfo = get_username_info(target_user)
@@ -102,7 +144,6 @@ def change_vaults(current_user, target_user, vaultstr):
 
     except Exception as e:
         logger.warning(f'Bad action (change vaults) in root panel: {e}')
-
         flash(repr(e), 'error')
 
 
