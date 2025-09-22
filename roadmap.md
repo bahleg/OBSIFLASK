@@ -25,6 +25,7 @@ Planned features to be implemented (tentative order):
 
 ## Minor features and fixes
 - Cluster color settings
+- Job tracking?
 - rename by click
 - UI refactoring  
   - Basic hotkey support  
@@ -32,6 +33,8 @@ Planned features to be implemented (tentative order):
   - Tags as links rendering
   - Disable trags parsing in code blocks
   - Saving before turning into the view mode
+  - Tabs to spaces
+  - Better message handling (now it's annoying)
 - Large files: currently excluded from analysis
 - switch markdown preview to mde?
 - More unit tests
@@ -39,5 +42,4 @@ Planned features to be implemented (tentative order):
 - Documentation
    - (doi?) 
 - twine
-- Bases view fixes (sometimes they are too small)
 - toolbar customization
