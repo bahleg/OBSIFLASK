@@ -6,6 +6,7 @@ import datetime
 from obsiflask.consts import DATE_FORMAT
 from obsiflask.hint import MAX_HINT
 from obsiflask.app_state import AppState
+from obsiflask.auth import get_user
 
 MAX_HINT_LEN = 32
 """
@@ -177,7 +178,7 @@ def double_brackets_hint(vault: str, context: str) -> list[dict]:
         return None
     found_text = found.group()
     default_files = [
-        r for r in list(AppState.hints[vault].default_files_per_user[None])
+        r for r in list(AppState.hints[vault].default_files_per_user[get_user()])
         [:MAX_HINT // 2]
     ]
     default_files_set = set(default_files)
@@ -223,14 +224,14 @@ def simple_hint(vault: str, erase_num: int = 0) -> list[dict]:
         result.append({'text': '#' + t, 'erase': erase_num})
     files_added = set()
     for f in list(
-            AppState.hints[vault].default_files_per_user[None])[:MAX_HINT //
+            AppState.hints[vault].default_files_per_user[get_user()])[:MAX_HINT //
                                                                 3]:
         short = f.split('/')[-1]
         if short not in files_added:
             files_added.add(short)
             result.append({'text': short, 'erase': erase_num})
     for f in list(
-            AppState.hints[vault].default_files_per_user[None])[:MAX_HINT //
+            AppState.hints[vault].default_files_per_user[get_user()])[:MAX_HINT //
                                                                 3]:
         if f not in files_added:
             result.append({'text': f, 'erase': erase_num})

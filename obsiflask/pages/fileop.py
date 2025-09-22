@@ -5,6 +5,7 @@ The module provides a logic for the page with file/directory operations
 from pathlib import Path
 import shutil
 import datetime
+from threading import Lock
 
 from flask import request
 from flask import render_template, redirect, url_for
@@ -17,6 +18,9 @@ from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 from obsiflask.messages import add_message
 from obsiflask.consts import DATE_FORMAT
+from obsiflask.auth import get_user
+
+lock = Lock()
 
 
 class FileOpForm(FlaskForm):
@@ -97,7 +101,7 @@ def create_file_op(vault: str, form: FileOpForm) -> bool:
         path.parent.mkdir(parents=True, exist_ok=True)
         if form.template.data.startswith('0_'):
             path.touch()
-            AppState.hints[vault].update_file(form.target.data)
+            AppState.hints[vault].update_file(form.target.data, get_user())
         elif form.template.data.startswith('1_'):
             path.mkdir(parents=True)
         else:
@@ -109,15 +113,20 @@ def create_file_op(vault: str, form: FileOpForm) -> bool:
                     break
             if not found:
                 raise ValueError(f'could not find template {template_name}')
-            shutil.copy(t, path)
-        add_message(f'File {form.target.data} created', 0, vault)
+            with lock:
+                shutil.copy(t, path)
+        add_message(f'File {form.target.data} created',
+                    0,
+                    vault,
+                    user=get_user())
         AppState.indices[vault].refresh()
         return True
     except Exception as e:
         add_message(f'Could not create file {form.target.data}',
                     type=2,
                     vault=vault,
-                    details=repr(e))
+                    details=repr(e),
+                    user=get_user())
         return False
 
 
@@ -131,18 +140,23 @@ def delete_file_op(vault: str, form: FileOpForm):
     """
     try:
         path = AppState.indices[vault].path / Path(form.target.data)
-        if path.is_dir():
-            shutil.rmtree(path)
-        else:
-            path.unlink()
+        with lock:
+            if path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
         AppState.indices[vault].refresh()
-        add_message(f'File {form.target.data} deleted', 0, vault)
+        add_message(f'File {form.target.data} deleted',
+                    0,
+                    vault,
+                    user=get_user())
 
     except Exception as e:
         add_message(f'Could not delete file {form.target.data}',
                     type=2,
                     vault=vault,
-                    details=repr(e))
+                    details=repr(e),
+                    user=get_user())
 
 
 def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
@@ -164,30 +178,37 @@ def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
     try:
         path = AppState.indices[vault].path / Path(form.target.data)
         dst = AppState.indices[vault].path / Path(form.destination.data)
-        if path.is_dir():
-            dst.mkdir(parents=True, exist_ok=True)
-        else:
-            dst.parent.mkdir(parents=True, exist_ok=True)
-        if copy:
+        with lock:
             if path.is_dir():
-                shutil.copytree(path, dst)
+                dst.mkdir(parents=True, exist_ok=True)
             else:
-                shutil.copy(path, dst)
-                AppState.hints[vault].update_file(form.destination.data)
-        else:
-            shutil.move(path, dst)
-            if not path.is_dir():
-                AppState.hints[vault].update_file(form.destination.data)
+                dst.parent.mkdir(parents=True, exist_ok=True)
+            if copy:
+                if path.is_dir():
+                    shutil.copytree(path, dst)
+                else:
+                    shutil.copy(path, dst)
+                    AppState.hints[vault].update_file(form.destination.data,
+                                                      get_user())
+            else:
+                shutil.move(path, dst)
+                if not path.is_dir():
+                    AppState.hints[vault].update_file(form.destination.data,
+                                                      get_user())
 
         AppState.indices[vault].refresh()
-        add_message(f'{op_label} {form.target.data}: successful', 0, vault)
+        add_message(f'{op_label} {form.target.data}: successful',
+                    0,
+                    vault,
+                    user=get_user())
         return True
     except Exception as e:
         logger.error(f'problem during file {op_label} {path.name}: {e}')
         add_message(f'Could not {op_label} file {form.target.data}',
                     type=2,
                     vault=vault,
-                    details=repr(e))
+                    details=repr(e),
+                    user=get_user())
         return False
 
 

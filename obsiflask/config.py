@@ -5,7 +5,6 @@ For the main config class, see AppConfig
 from dataclasses import dataclass, field
 from typing import Any
 
-
 @dataclass
 class UserConfig:
     """
@@ -19,33 +18,17 @@ class UserConfig:
     """"
     Bootstrap theme from bootswatch
     """
-    theme_contrast_light: bool = False 
+    theme_contrast_light: bool = False
     """
     Some themes from bootswatch are not well adapted for 
     light mode.
     For them we make and adjustment if set.
     """
-    theme_contrast_dark: bool = False 
+    theme_contrast_dark: bool = False
     """
     Some themes from bootswatch are not well adapted for 
     dark mode.
     For them we make and adjustment if set.
-    """
-    default_graph_node_spacing: int = 4500
-    """
-    Default value for node spacing parameter in graph rendering
-    """
-    default_graph_edge_length: int = 100
-    """
-    Default value for edge length parameter in graph rendering
-    """
-    default_graph_edge_stiffness: float = 0.45
-    """
-    Default value for edge stiffness parameter in graph rendering
-    """
-    default_graph_compression: float = 1.0
-    """
-    Default value for graph compression parameter in graph rendering
     """
     graph_cmap: str = 'colorbrewer:Set1'
     """
@@ -55,7 +38,6 @@ class UserConfig:
     """
     If disabled, will hide preview in the editor page
     """
-    
 
 
 @dataclass
@@ -104,6 +86,22 @@ class GraphConfig:
     """
     Parameter for Louvain community detection algorithm
     """
+    default_graph_node_spacing: int = 4500
+    """
+    Default value for node spacing parameter in graph rendering
+    """
+    default_graph_edge_length: int = 100
+    """
+    Default value for edge length parameter in graph rendering
+    """
+    default_graph_edge_stiffness: float = 0.45
+    """
+    Default value for edge stiffness parameter in graph rendering
+    """
+    default_graph_compression: float = 1.0
+    """
+    Default value for graph compression parameter in graph rendering
+    """
 
 
 @dataclass
@@ -126,6 +124,11 @@ class Task:
     error: str = 'Task failed'
     """
     Message for the error run
+    """
+    on_start: bool = False
+    """
+    If set, will run and then wait.
+    Otherwise, will wait and then run.
     """
 
 
@@ -195,8 +198,38 @@ class VaultConfig:
     autocomplete_max_ngrams: int = 10000
     autocomplete_ngram_order: int = 4
     autocomplete_max_ratio_in_key: float = .1
-    
-    
+
+
+@dataclass
+class AuthConfig:
+    """
+    Class for multi-user regime
+    """
+    enabled: bool = False
+    """
+    If enabled, will use auth
+    """
+    db_path: str = './auth.db'
+    """
+    Path so save auth. database
+    """
+    rootname: str = 'root'
+    """
+    The name for the root user
+    """
+    default_root_pass: str = 'root'
+    """
+    The initial password for the root user
+    """
+    sessions_without_auth: bool = False
+    """
+    If set, will show "sessions" button even 
+    without enabled authenithication
+    """
+    user_config_dir: str = './user_cfg/'
+    """
+    Path to save user configs
+    """
 
 
 @dataclass
@@ -221,3 +254,12 @@ class AppConfig:
     """
     Log level used for the project: [DEBUG, INFO, WARNING, ERROR]
     """
+    auth: AuthConfig = field(default_factory=AuthConfig)
+    """
+    Multi-user settings
+    """
+    secret: str | None = None
+    """
+    Flask app secret. If not set, will be generated at startup
+    """
+    

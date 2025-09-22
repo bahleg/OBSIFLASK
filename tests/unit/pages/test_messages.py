@@ -15,6 +15,7 @@ def flask_app(tmp_path):
     return app
 
 
+"""
 @pytest.fixture(autouse=True)
 def mock_appstate(monkeypatch, tmp_path):
 
@@ -25,11 +26,12 @@ def mock_appstate(monkeypatch, tmp_path):
     monkeypatch.setitem(messages_module.AppState.indices, "vault1",
                         {"dummy": "tree"})
     yield
+"""
 
 
 def test_render_messages_raw(flask_app, monkeypatch):
     monkeypatch.setattr(messages_module, "get_messages",
-                        lambda v, unread: [{
+                        lambda v, unread, user: [{
                             "msg": "hello"
                         }])
 
@@ -41,7 +43,7 @@ def test_render_messages_raw(flask_app, monkeypatch):
 
 def test_render_messages_html(monkeypatch):
     monkeypatch.setattr(messages_module, "get_messages",
-                        lambda v, unread: [{
+                        lambda v, unread, user: [{
                             "msg": "ok"
                         }])
     monkeypatch.setattr(messages_module, "render_tree",

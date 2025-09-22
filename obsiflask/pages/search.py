@@ -16,7 +16,7 @@ from obsiflask.graph import Graph
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.bases.filter import FieldFilter
 from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN
-
+from obsiflask.auth import get_user
 SEARCH_PREVIEW_CHARS = 100
 """
 This amount of chars will be shown as a context
@@ -52,7 +52,7 @@ def generate_formula_check_results(
         add_message('Error during tag search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e))
+                    details=repr(e), user=get_user())
 
 
 def generate_tags_check_results(
@@ -86,7 +86,7 @@ def generate_tags_check_results(
         add_message('Error during tag search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e))
+                    details=repr(e), user=get_user())
 
 
 def generate_links_check_results(
@@ -131,7 +131,7 @@ def generate_links_check_results(
         add_message('Error during link search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e))
+                    details=repr(e), user=get_user())
 
 
 def generate_text_check_results(
@@ -208,7 +208,7 @@ def generate_text_check_results(
         add_message('Error during text search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e))
+                    details=repr(e), user=get_user())
 
 
 def compare_fuzzy(query: str, text: str, fuzzy_window_coef: float,
@@ -300,7 +300,7 @@ def render_search(vault: str) -> str | Generator[str, None, None]:
             'exact', 'regex', 'tags', 'fuzzy', 'forward', 'backward', 'formula'
     ]:
         add_message(f'could not parse mode: {mode}', type_to_int['error'],
-                    vault)
+                    vault, user=get_user())
         mode = 'exact'
     if request.args.get('ignore_case'):
         ignore_case = True

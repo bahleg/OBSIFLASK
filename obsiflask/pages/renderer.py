@@ -3,6 +3,7 @@ Logic for markdown rendering
 """
 import re
 from pathlib import Path
+from threading import Lock
 
 import mistune
 from flask import render_template, redirect, url_for
@@ -15,7 +16,7 @@ from obsiflask.file_index import FileIndex
 from obsiflask.utils import logger
 from obsiflask.consts import wikilink, re_tag_embed
 
-
+_lock = Lock()
 
 def plugin_mermaid(md):
     """
@@ -161,8 +162,9 @@ def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
     Returns:
         str: preprocessed document
     """
-    with open(full_path) as inp:
-        text = inp.read()
+    with _lock:
+        with open(full_path) as inp:
+            text = inp.read()
     markdown = mistune.create_markdown(escape=False,
                                        plugins=[
                                            'table', 'strikethrough',

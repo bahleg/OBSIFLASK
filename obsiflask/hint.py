@@ -161,7 +161,7 @@ class HintIndex:
         with _lock:
             self.default_files_per_user[user] = deque(files, MAX_HINT)
 
-    def update_file(self, fname: str):
+    def update_file(self, fname: str, user: str | None = None):
         """
         Updates a file in the default_files_per_user
 
@@ -172,3 +172,7 @@ class HintIndex:
             if fname in set(self.default_files_per_user[None]):
                 self.default_files_per_user[None].remove(fname)
             self.default_files_per_user[None].appendleft(fname)
+            if user is not None:
+                if fname in set(self.default_files_per_user[user]):
+                    self.default_files_per_user[user].remove(fname)
+                self.default_files_per_user[user].appendleft(fname)

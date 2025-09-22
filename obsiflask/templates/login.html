@@ -1,16 +1,49 @@
-{% extends 'base.html' %}
-{% from 'functions.html' import render_projects %}
-{% block content %}
-
-<h1>Log in</h1>
-{{ render_form(form) }}
-
-<!-- making navbar active-->
-<script>
-  document.getElementById("nav-login").classList.add("active")
-</script>
-
-{% endblock %}
+{% from 'bootstrap5/utils.html' import render_messages %}
+{% from 'bootstrap5/utils.html' import render_messages %}
+{% from 'bootstrap5/form.html' import render_form%}
+{% include "flask-favicon.html" %}
+{% from 'shared.html' import render_footer %}
 
 
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>OBSIFLASK</title>
+  {{ bootstrap.load_css() }}
+  {% if injected_vars['config'].default_user_config.theme_contrast_light %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='contrast_light.css') }}">
+  {% endif %}
+  {% if injected_vars['config'].default_user_config.theme_contrast_dark %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='contrast_dark.css') }}">
+  {% endif %}
+</head>
+
+<body>
+  <div id="page-content" class="flex-grow-1 p-3" style="overflow:auto;">
+            <div id="page-content-wrapper">
+                {{ render_messages(container=False, dismissible=True, dismiss_animate=True) }}
+            </div>
+
+  <div class="container">
+  <h1 class="text-center d-flex align-items-center justify-content-center gap-2">
+
+    <img src="{{ url_for('static', filename='logo_small.png') }}" alt="Logo"
+      style="height: 1.5em; width: 1.5em; border-radius: 50%; background-color: var(--bs-body-color); padding: 2px;">
+
+    Login
+  </h1>
+  {{ render_form(form) }}
+  </div>
+  </div>
+  {% block footer %}
+  {{ render_footer(injected_vars["version"]) }}
+  {% endblock %}
+  {{ bootstrap.load_js() }}
+  <script src="{{url_for('static', filename='darkmode.js')}}"></script>
+</body>
+
+</html>

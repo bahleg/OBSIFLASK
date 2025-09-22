@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
 ---
+### [0.11.*] - Multi-user mode
+- Added a multi-user support. It can be enabled in the config
+
 ### [0.10.*] - Autocompletion
 - Autocompletion is working (press <tab> or press an "abc" button in the editor)
 

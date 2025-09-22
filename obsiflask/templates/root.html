@@ -1,61 +1,79 @@
-{% extends 'base.html' %}
-{% from 'functions.html' import render_projects %}
+{% extends 'base_novault.html' %}
+{% from 'bootstrap5/form.html' import render_form%}
+
 {% block content %}
+<div class="container">
+  <h1>Root panel</h1>
+  <a class="btn btn-secondary" href="{{url_for('index')}}">To index</a>
+  <hr />
+  <h2> New user create</h2>
+  {{ render_form(form) }}
+  <hr />
 
+  <br />
+  <h2> Users</h2>
 
-<h1>Root panel</h1>
-<h2> New user create</h2>
-{{render_form(new_user_form)}}
+  <table class="table">
+    <thead>
+      <tr>
 
-<br/>
-<h2> Users</h2>
+        <th scope="col">User</th>
+        <th scope="col"> Role </th>
+        <th scope="col"> Vaults </th>
+        <th scope="col"> Actions </th>
 
-<table class="table">
-  <thead>
-    <tr>
+      </tr>
+    </thead>
+    <tbody>
 
-      <th scope="col">User</th>
-      <th scope="col"> Role </th>
-      <th scope="col"> Actions </th>
+      {% for user in users %}
+      <tr>
+        <td>{{user["username"]}}</td>
 
-    </tr>
-  </thead>
-  <tbody>
-
-    {% for user in users["users"] %}
-    <tr>
-      <td>{{user["username"]}}</td>
-
-      {% if user["is_root"] %}
-
-      <td>Root</td>
-      {% else %}
-      <td>User</td>
-      {% endif %}
-      <td>
         {% if user["is_root"] %}
-        <a href="{{url_for('root', user_to_change_rights=user['username'])}}">Drop root rights</a>
+
+        <td>Super-user</td>
         {% else %}
-        <a href="{{url_for('root', user_to_change_rights=user['username'])}}">Grant root rights</a>
+        <td>User</td>
         {% endif %}
-        <a href="{{url_for('root', user_to_change_pass=user['username'])}}">Drop password</a>
+        <td>
+          <input value="{{user['vaults']}}" id="vaults-{{user['username']}}">
+        </td>
 
-        <a href="{{url_for('root', user_to_delete=user['username'])}}">Delete user</a>
+        <td>
+          <a href="" id="vaultupdate-{{user['username']}}">Update vaults</a>
+
+          <script>
+            document.getElementById("vaultupdate-{{user['username']}}").addEventListener("click", function (event) {
+              event.preventDefault();
+              const val = document.getElementById("vaults-{{user['username']}}").value;
+              window.location.href = "{{url_for('root', op='vault', user=user['username'])|safe}}\&vaults=" + encodeURIComponent(val);
+            });
+          </script>
+
+          {% if user["is_root"] %}
+          <a href="{{url_for('root', op='rights', user=user['username'])}}">Drop super-user rights</a>
+          {% else %}
+          <a href="{{url_for('root', op='rights', user=user['username'])}}">Grant super-user rights</a>
+          {% endif %}
+          <a href="{{url_for('root', op='pwd', user=user['username'])}}">Drop password</a>
+
+          <a href="{{url_for('root', op='delete', user=user['username'])}}">Delete user</a>
 
 
-      </td>
-    </tr>
+        </td>
+      </tr>
 
-    {% endfor %}
+      {% endfor %}
 
-  </tbody>
-</table>
+    </tbody>
+  </table>
+  <hr />
 
-<!-- making navbar active-->
-<script>
-  document.getElementById("nav-root").classList.add("active")
-</script>
+  <br />
 
 
 
+  <hr /><a class="btn btn-secondary" href="{{url_for('index')}}">To index</a>
+</div>
 {% endblock %}

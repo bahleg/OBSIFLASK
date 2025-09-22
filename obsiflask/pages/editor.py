@@ -2,6 +2,7 @@
 This module represents editor page logic
 """
 from pathlib import Path
+from threading import Lock
 
 from flask import render_template, redirect, url_for, Response, request
 
@@ -9,7 +10,9 @@ from obsiflask.pages.renderer import preprocess
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
+from obsiflask.auth import get_user, get_user_config
 
+lock = Lock()
 
 def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     """
@@ -25,11 +28,12 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     """
     text = None
     try:
-        with open(real_path) as inp:
-            text = inp.read()
+        with lock:
+            with open(real_path) as inp:
+                text = inp.read()
     except Exception as e:
         add_message(f'attempt to load non-text file: {path}',
-                    type_to_int['error'], vault, repr(e))
+                    type_to_int['error'], vault, repr(e), user=get_user())
         text = None
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))
@@ -39,7 +43,7 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     try:
         preview = int(preview) != 0
     except Exception:
-        preview = AppState.config.default_user_config.editor_preview
+        preview = get_user_config().editor_preview
 
     return render_template('editor.html',
                            markdown_text=text,

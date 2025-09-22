@@ -11,13 +11,14 @@
 [![codecov](https://codecov.io/gh/bahleg/OBSIFLASK/branch/main/graph/badge.svg)](https://codecov.io/gh/bahleg/OBSIFLASK)
 
 **OBSIFLASK** is a lightweight web service for Obsidian vaults, built on Flask.  
-It supports multiple vaults, search and navigation, background tasks, and graph visualization.
+It supports multiple vaults, multi-user mode, search and navigation, background tasks, and graph visualization.
 
 ---
 
 ## 🚀 Features
 - 🌐 **Web UI** — clean and convenient interface for note browsing and edit
 - 📚 **Multi-vault support** — work with multiple vaults at once  
+- 👥 **Multi-user support** — run OBSIFLASK in multi-user mode, where each user has their own vaults and permissions  
 - 🔎 **Advanced search** — exact search, regex, fuzzy search, tag search, link search, and filter-based search  
 - 📝 **Task scheduler** — run periodic shell tasks per vault with logs and messages  
 - ⚡ **Graph visualization** — global graph rendering, filtering, tag coloring, clustering  

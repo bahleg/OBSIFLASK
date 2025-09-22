@@ -23,3 +23,5 @@ flask_params: # these params will be propagated into flask app.run(**kwargs)
 default_user_config:
   bootstrap_theme: Darkly
   theme_contrast_light: true
+auth:
+  enabled: "${oc.env:OBSIFLASK_AUTH,false}"

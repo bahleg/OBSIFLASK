@@ -3,7 +3,10 @@ The module describes rendering logic for Excalidraw editor page
 """
 
 from pathlib import Path
+from threading import Lock
+
 from flask import render_template, abort
+
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
@@ -23,6 +26,8 @@ default_excalidraw = """{
   "files": {}
 }"""
 
+lock = Lock()
+
 
 def render_excalidraw(vault: str, path: str, real_path: str) -> str:
     """
@@ -38,10 +43,11 @@ def render_excalidraw(vault: str, path: str, real_path: str) -> str:
   """
     text = None
     try:
-        with open(real_path) as inp:
-            text = inp.read()
-            if len(text.strip()) == 0:
-                text = default_excalidraw
+        with lock:
+            with open(real_path) as inp:
+                text = inp.read()
+                if len(text.strip()) == 0:
+                    text = default_excalidraw
 
     except Exception as e:
         logger.warning(f'attempt to load non-text file: {real_path}: {e}')

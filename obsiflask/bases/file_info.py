@@ -5,6 +5,7 @@ userful for the vault
 import os
 from pathlib import Path
 from typing import Any
+from threading import Lock
 
 from flask import url_for
 from frontmatter import parse
@@ -31,55 +32,61 @@ class FileInfo:
         self._tags = set()
         self.frontmatter = {}
         self._links = set()
+        self.lock = Lock()
 
     def get_internal_data(self):
         """
         Reads file content and save tags and links
         """
-        if self.read:
-            return
-        if os.path.getsize(self.real_path) > MAX_FILE_SIZE_MARKDOWN:
-            logger.warning(
-                f'skipping {self.vault_path} due to size limit {MAX_FILE_SIZE_MARKDOWN/1024/1024} MB'
-            )
-        if self.vault_path.suffix != '.md':
-            self.read = True
-            return
-        try:
-            with open(self.real_path) as inp:
-                text = inp.read()
-            matches = wikilink.finditer(text)
-
-            for m in matches:
-                link = m.group(1)
-                link = AppState.indices[self.vault].resolve_wikilink(
-                    link, self.real_path, True, escape=False, relative=False)
-                if link:
-                    self._links.add(link)
-
-            matches = hashtag.finditer(text)
-
-            for m in matches:
-                tag = m.group().lstrip('#')
-                self._tags.add(tag)
-
+        with self.lock:
+            if self.read:
+                return
+            if os.path.getsize(self.real_path) > MAX_FILE_SIZE_MARKDOWN:
+                logger.warning(
+                    f'skipping {self.vault_path} due to size limit {MAX_FILE_SIZE_MARKDOWN/1024/1024} MB'
+                )
+            if self.vault_path.suffix != '.md':
+                self.read = True
+                return
             try:
-                parsed, _ = parse(text)
-            except Exception as e:
-                add_message(f'bad properties for file {self.vault_path}',
-                            type_to_int['warning'], self.vault, repr(e))
-                parsed = {}
-            self.frontmatter = parsed
-            tags = parsed.get('tags', [])
-            if isinstance(tags, str):
-                tags = [tags]
-            self._tags = self._tags | set([t.lstrip('#') for t in tags])
-        except Exception as e:
+                with open(self.real_path) as inp:
+                    text = inp.read()
+                matches = wikilink.finditer(text)
 
-            logger.warning(
-                f'could not parse metadata from {self.vault_path}. Ignore it, if the fils is binary: {e}'
-            )
-        self.read = True
+                for m in matches:
+                    link = m.group(1)
+                    link = AppState.indices[self.vault].resolve_wikilink(
+                        link,
+                        self.real_path,
+                        True,
+                        escape=False,
+                        relative=False)
+                    if link:
+                        self._links.add(link)
+
+                matches = hashtag.finditer(text)
+
+                for m in matches:
+                    tag = m.group().lstrip('#')
+                    self._tags.add(tag)
+
+                try:
+                    parsed, _ = parse(text)
+                except Exception as e:
+                    add_message(f'bad properties for file {self.vault_path}',
+                                type_to_int['warning'], self.vault, repr(e))
+                    parsed = {}
+                self.frontmatter = parsed
+                tags = parsed.get('tags', [])
+                if isinstance(tags, str):
+                    tags = [tags]
+                self._tags = self._tags | set([t.lstrip('#') for t in tags])
+            except Exception as e:
+
+                logger.warning(
+                    f'could not parse metadata from {self.vault_path}. Ignore it, if the fils is binary: {e}'
+                )
+            self.read = True
 
     def handle_cover(self, value: str) -> str:
         """

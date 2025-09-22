@@ -20,8 +20,9 @@ def thread_wrapper(task: Task, vault: str, stop_event: Event):
         vault (str): vault name
         stop_event (Event): event to check
     """
-    while not stop_event.is_set():
+    if not task.on_start:
         time.sleep(task.interval)
+    while not stop_event.is_set():
         stderr = ''
         msg = task.success
         msg_type = type_to_int['info']
@@ -43,6 +44,7 @@ def thread_wrapper(task: Task, vault: str, stop_event: Event):
             msg = task.error
             msg_type = type_to_int['error']
         add_message(msg, msg_type, vault, stderr)
+        time.sleep(task.interval)
     logger.info(f'Task {task} thread for vault "{vault}" stopped')
 
 

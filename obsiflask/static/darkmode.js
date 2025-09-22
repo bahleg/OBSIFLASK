@@ -13,10 +13,11 @@ if (!savedTheme) {
 }
 
 applyTheme(savedTheme);
-
-togglebtn.addEventListener("click", () => {
-    const currentTheme = body.getAttribute("data-bs-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    localStorage.setItem("theme", newTheme);
-    applyTheme(newTheme);
-});
+if (togglebtn) {
+    togglebtn.addEventListener("click", () => {
+        const currentTheme = body.getAttribute("data-bs-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        localStorage.setItem("theme", newTheme);
+        applyTheme(newTheme);
+    });
+}

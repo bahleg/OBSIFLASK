@@ -6,6 +6,7 @@ This vault shows basic functionality currently implemented in [OBSIFLASK](https:
 * [[Files editing and rendering| 🖊️ Files editing and rendering]]
 * [[Bases support| 🗄️ Bases support]]
 * [[Graph support| 🕸 Graph support]]
+* [[Multi-user support| 👥 Multi-user support]] 
 * [[Other functionality | 🖱️ Other functionality]]
 	
 

@@ -33,7 +33,7 @@ def render_tree(tree: dict[str, dict | str],
     html = f"<ul class=\"list-unstyled\" style=\"padding-left:{level * 3}px;\">"
 
     for name, child in tree.items():
-        if child:  # папка
+        if child:  # folder
             if root:
                 url = url_for('get_folder_root', vault=vault)
                 root = False
@@ -43,7 +43,7 @@ def render_tree(tree: dict[str, dict | str],
                               subpath=name.relative_to(rel_path))
 
             html += f"<li class=\"mb-1\"> <span class=\"fw-bold\"><a class=\"text-decoration-none\" href=\"{url}\">📁 {name.name}{render_tree(child, vault, edit, level=level+1)}</a></span></li>"
-        else:  # файл
+        else:  # file
 
             if edit:
                 url = url_for('editor',

@@ -19,7 +19,6 @@ def dummy_file(tmp_path):
     AppState.messages[('vault1', None)] = []
     run(config, True)
 
-    # Создаем фиктивный markdown файл
     f = tmp_path / "test.md"
     f.write_text("# Title\nSome content")
     return f

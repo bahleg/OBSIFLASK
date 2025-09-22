@@ -5,7 +5,7 @@ They will be represented as a flash messages in the vault page
 from threading import Lock
 import time
 from dataclasses import dataclass
-
+from copy import copy
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 
@@ -83,15 +83,25 @@ def add_message(message: str,
         )
     msg = Message(message, time.time(), type, vault, user, details)
     with _lock:
-        AppState.messages[(vault, user)].append(msg)
-        if len(AppState.messages[(
-                vault,
-                user)]) > 2 * AppState.config.vaults[vault].message_list_size:
-            # first we take unread messages
-            AppState.messages[(vault, user)] = sorted(
-                AppState.messages[(vault, user)],
-                key=lambda x: (x.is_read, -x.time)
-            )[:AppState.config.vaults[vault].message_list_size]
+        if not AppState.config.auth.enabled:
+            userlist = [user]
+        else:
+            if user is None:
+                userlist = AppState.users_per_vault[vault]
+            else:
+                userlist = [user]
+        for user in userlist:
+            msg_copy = copy(msg)
+            msg_copy.user = user 
+            AppState.messages[(vault, user)].append(msg_copy)
+            if len(AppState.messages[
+                (vault,
+                 user)]) > 2 * AppState.config.vaults[vault].message_list_size:
+                # first we take unread messages
+                AppState.messages[(vault, user)] = sorted(
+                    AppState.messages[(vault, user)],
+                    key=lambda x: (x.is_read, -x.time)
+                )[:AppState.config.vaults[vault].message_list_size]
 
 
 def get_messages(

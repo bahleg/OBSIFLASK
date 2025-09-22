@@ -1,0 +1,37 @@
+{% extends 'base_novault.html' %}
+{% from 'bootstrap5/form.html' import render_form%}
+
+{% block content %}
+<div class="container">
+  <h1>Session history</h1>
+  <a class="btn btn-secondary" href="{{url_for('index')}}">To index</a>
+  <hr />
+
+  <table class="table">
+    <thead>
+      <tr>
+
+        <th scope="col">User</th>
+        <th scope="col"> Last time </th>
+        <th scope="col"> Addres </th>
+        <th scope="col"> Details </th>
+
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for hist in sessions %}
+      <tr>
+        <td>{{hist["user"]}}</td>
+        <td>{{hist["dt"]}}</td>
+        <td>{{hist["address"]}}</td>
+        <td>{{hist["details"]}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  <hr /><a class="btn btn-secondary" href="{{url_for('index')}}">To index</a>
+</div>
+{% endblock %}
