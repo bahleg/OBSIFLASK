@@ -84,7 +84,7 @@ def add_message(message: str,
     msg = Message(message, time.time(), type, vault, user, details)
     with _lock:
         if not AppState.config.auth.enabled:
-            userlist = [None]
+            userlist = [user]
         else:
             if user is None:
                 userlist = AppState.users_per_vault[vault]

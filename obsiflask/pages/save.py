@@ -29,7 +29,7 @@ def make_save(path: str, content: str, index: FileIndex,
     """
     path = Path(path)
     parent = Path(path).parent
-    with lock:
+    with _lock:
         try:
             exists = Path(path).exists()
             parent.mkdir(parents=True, exist_ok=True)

@@ -130,7 +130,7 @@ def run(cfg: AppConfig | None = None,
     app = Flask(__name__,
                 template_folder=abspath(Path(__file__).parent / "templates"),
                 root_path=Path(__file__).parent)
-    secret = AppState.config.auth.secret
+    secret = AppState.config.secret
     if secret is None or len(secret.strip()) == '':
         logger.info('Generating secret')
         secret = uuid.uuid4().hex
