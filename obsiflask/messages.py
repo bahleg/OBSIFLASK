@@ -104,12 +104,11 @@ def add_message(message: str,
                 )[:AppState.config.vaults[vault].message_list_size]
 
 
-def get_messages(
-    vault: str,
-    user: str | None = None,
-    consider_read: bool = True,
-    unread: bool = True,
-) -> list[Message]:
+def get_messages(vault: str,
+                 user: str | None = None,
+                 consider_read: bool = True,
+                 unread: bool = True,
+                 limit: int = 0) -> list[Message]:
     """
     Returns a messages for a specific conditions.
 
@@ -120,7 +119,7 @@ def get_messages(
         user (str, optional): user or None. Defaults to None.
         consider_read (bool, optional): if set, will mark messages as read. Defaults to True.
         unread (bool, optional): if set, will return only unread messages. Defaults to True.
-
+        limit (int): number of mesages to show if > 0 
     Returns:
         list[Message]: list of retrieved messages
     """
@@ -128,20 +127,18 @@ def get_messages(
     try:
         with _lock:
             result = AppState.messages[(vault, user)]
-            result_to_return = result
             if unread:
                 result = [r for r in result if not r.is_read]
                 result = [
-                    r for r in result if r.type != type_to_int['info'] or (
-                        r.type == type_to_int['info'] and (time.time() - r.time) <
-                        AppState.config.vaults[vault].info_message_expiration)
+                    r for r in result if r.type != type_to_int['info'] or
+                    (r.type == type_to_int['info'] and (time.time() - r.time) <
+                     AppState.config.vaults[vault].info_message_expiration)
                 ]
-                result_to_return = result
-            # we can store more messages, but for constistency, will always return message_list_size of messages
-            if consider_read:  # if we want to consider messages as read, let's show critical messages at first
-                result_to_return = result 
-                result = sorted(result, key=lambda x: (-x.type, -x.time))
-            return result[:AppState.config.vaults[vault].message_list_size]
+                if consider_read:
+                    result = sorted(result, key=lambda x: (-x.type, -x.time))
+            if limit > 0:
+                result = result[:limit]
+            return result
     finally:
         if consider_read:
             with _lock:

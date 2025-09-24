@@ -2,30 +2,14 @@
 Rendering logic for messages
 
 """
+import time
+
 from flask import jsonify, render_template
-from obsiflask.messages import get_messages
+
+from obsiflask.messages import get_messages, type_to_int
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.auth import get_user
-
-
-def unread_stats(vault) -> tuple[int, int]:
-    """
-    Represents stats for unread
-
-    Args:
-        vault (str): vault name
-
-    Returns:
-         tuple[int, int]: number of unread messages and maximal type of message
-    """
-    msgs = AppState.messages[(vault, get_user())]
-    unread_count = sum(not m.is_read for m in msgs)
-    if unread_count == 0:
-        max_class = 0
-    else:
-        max_class = max(m.type for m in msgs)
-    return unread_count, max_class
 
 
 def render_messages(vault: str, unread: bool, raw: bool = False) -> str:
@@ -40,7 +24,11 @@ def render_messages(vault: str, unread: bool, raw: bool = False) -> str:
     Returns:
         str: rendered html string
     """
-    messages = get_messages(vault, unread=unread, user=get_user())
+    if raw:
+        limit = AppState.config.vaults[vault].message_list_size
+    else:
+        limit = 0
+    messages = get_messages(vault, unread=unread, user=get_user(), limit=limit)
     if raw:
         return jsonify(messages)
     return render_template('messages.html',

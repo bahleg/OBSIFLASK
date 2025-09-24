@@ -1,4 +1,4 @@
-import time 
+import time
 
 import pytest
 
@@ -92,7 +92,13 @@ def test_message_list_size_limit(app):
         messages.add_message(f"msg{i}", 0, "vault1", use_log=False)
 
     result = messages.get_messages("vault1", consider_read=False, unread=False)
+    assert len(result) == 6  # unlimited
+    result = messages.get_messages("vault1",
+                                   consider_read=False,
+                                   unread=False,
+                                   limit=3)
     assert len(result) == 3  # limited
+
     # checking last time
     times = [m.time for m in result]
     assert times == sorted(times, reverse=True)
@@ -108,11 +114,17 @@ def test_info_message_expiration(app):
     exp = AppState.config.vaults[vault].info_message_expiration
 
     # add an info message "old"
-    messages.add_message("old info", messages.type_to_int['info'], vault, use_log=False)
+    messages.add_message("old info",
+                         messages.type_to_int['info'],
+                         vault,
+                         use_log=False)
     messages.AppState.messages[(vault, None)][-1].time -= (exp + 1)
 
     # add an info message "fresh"
-    messages.add_message("fresh info",  messages.type_to_int['info'], vault, use_log=False)
+    messages.add_message("fresh info",
+                         messages.type_to_int['info'],
+                         vault,
+                         use_log=False)
 
     result = messages.get_messages(vault, consider_read=False, unread=True)
     texts = [m.message for m in result]
@@ -125,13 +137,22 @@ def test_sorting_prioritizes_critical(app):
     vault = "vault1"
 
     # add info
-    messages.add_message("info", messages.type_to_int['info'], vault, use_log=False)
+    messages.add_message("info",
+                         messages.type_to_int['info'],
+                         vault,
+                         use_log=False)
     time.sleep(0.01)
     # add warning
-    messages.add_message("warn", messages.type_to_int['warning'], vault, use_log=False)
+    messages.add_message("warn",
+                         messages.type_to_int['warning'],
+                         vault,
+                         use_log=False)
     time.sleep(0.01)
     # add error
-    messages.add_message("error", messages.type_to_int['error'], vault, use_log=False)
+    messages.add_message("error",
+                         messages.type_to_int['error'],
+                         vault,
+                         use_log=False)
 
     result = messages.get_messages(vault, consider_read=True, unread=True)
     texts = [m.message for m in result]

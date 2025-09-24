@@ -15,21 +15,9 @@ def flask_app(tmp_path):
     AppState.messages[('vault1', None)] = []
     return app
 
-
-def test_unread_stats(flask_app, monkeypatch):
-    monkeypatch.setattr('obsiflask.pages.messages.get_user', lambda: None)
-    for i in range(13):
-        add_message('test', 0, 'vault1', use_log=False)
-    assert messages_module.unread_stats('vault1') == (13, 0)
-    add_message('test', 1, 'vault1', use_log=False)
-    assert messages_module.unread_stats('vault1') == (14, 1)
-    add_message('test', 2, 'vault1', use_log=False)
-    assert messages_module.unread_stats('vault1') == (15, 2)
-
-
 def test_render_messages_raw(flask_app, monkeypatch):
     monkeypatch.setattr(messages_module, "get_messages",
-                        lambda v, unread, user: [{
+                        lambda v, unread, user, limit: [{
                             "msg": "hello"
                         }])
 
@@ -41,7 +29,7 @@ def test_render_messages_raw(flask_app, monkeypatch):
 
 def test_render_messages_html(monkeypatch):
     monkeypatch.setattr(messages_module, "get_messages",
-                        lambda v, unread, user: [{
+                        lambda v, unread, user, limit: [{
                             "msg": "ok"
                         }])
     monkeypatch.setattr(messages_module, "render_tree",
