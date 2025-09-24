@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
 ---
+### [0.13.*] - UI improvements
+- Minor fixes
+- Ctr-s for saving
+- Math support 
+- Tags rendering support
+- Tabs are now spaces 
+
 ### [0.12.*] - Messages refactoring
 - Minor update: messages are now less annoying
 - Minor update: fix of editor in mobile view (fit only 50% of the screen)

@@ -1,5 +1,5 @@
 # 📚 Multi-vault support
-
+a
 OBSIFLASK is **intended** to work in multi-vault settings: you can configure multiple vaults in your config, each with different settings.
 
 ## 📝 Task support
@@ -24,6 +24,9 @@ OBSIFLASK also supports different **search modes**, which can be found on the [s
 - Link search (forward and backward)
     
 - Filter search, similar to Bases filters (see [[Bases support]] for details)
+
+# ⌨️ Hotkeys
+Currently the only available hotkey is "Ctrl-s", which saves your markdown in editor. More hotkeys are in the plan.
 
 # 🌗 Dark/Light mode
 

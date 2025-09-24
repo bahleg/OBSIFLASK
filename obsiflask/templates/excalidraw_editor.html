@@ -125,12 +125,23 @@
 
   const saveBtn = document.getElementById('flo-save-btn');
 
-  // ручная кнопка 💾
+  // button 💾
   saveBtn.addEventListener('click', (e) => {
     e.preventDefault(); // prevent from reload
     saveDocument();
   });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey && e.key === "s") {
+        e.preventDefault();
+        saveDocument();     
+    }
+});
+
+
+
 </script>
+
 
 
 {% endblock %}

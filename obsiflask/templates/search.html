@@ -114,12 +114,17 @@
 
 {% if query %}
 <h2 class="mb-3">Results for "{{ query }}"</h2>
+<h3 class="mb-3" id="status-line">Searching...</h3>
 <div class="table-responsive">
     <table class="table table-bordered table-striped">
         <thead class="table-light">
             <tr>
+                {% if need_context %}
                 <th style="width: 30%">File</th>
-                <th>Conetxt</th>
+                <th>Context</th>
+                {% else %}
+                <th>File</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -128,7 +133,9 @@
             <tr>
                 <td class="text-monospace"><a href="{{ url_for('renderer', vault=vault, subpath = file) }}">{{file}}</a>
                 </td>
+                 {% if need_context %}
                 <td class="context">{{ context| safe }}</td>
+                {% endif %}
             </tr>
             {% endfor %}
             {% else %}
@@ -139,5 +146,8 @@
         </tbody>
     </table>
 </div>
+<script>
+    document.getElementById("status-line").innerText = "Search finshed!";
+</script>
 {% endif %}
 {% endblock %}

@@ -9,6 +9,7 @@ import obsiflask.pages.renderer as md
 
 
 class DummyIndex:
+
     def __init__(self, path="/vault"):
         self.path = Path(path)
 
@@ -24,29 +25,49 @@ class DummyIndex:
             return "resolved/doc.base"
         if name == "Image.png":
             return "resolved/Image.png"
-        
+
         return None
+
+
+def test_url_for_tag():
+    assert md.url_for_tag('example',
+                          'tag') == '/search/example?q=tag&mode=tags'
 
 
 def test_parse_frontmatter_ok(tmp_path):
     text = """---
 title: Test
-tag: demo
+key: demo
+tags: [demo]
 ---
 
 # Header
 """
     file = tmp_path / "note.md"
     file.write_text(text)
-    out = md.parse_frontmatter(text, "note.md")
+    out = md.parse_frontmatter(text, "note.md", 'example')
     assert "### Properties" in out
     assert "**title**: Test" in out
     assert "# Header" in out
+    assert "['[==#demo==](/search/example?q=demo&mode=tags)']" in out
+    text = """---
+title: Test
+key: demo
+tags: [demo1, demo2]
+---
+
+    # Header
+    """
+    file.write_text(text)
+    out = md.parse_frontmatter(text, "note.md", 'example')
+
+    assert "['[==#demo1==](/search/example?q=demo1&mode=tags)', '[==#demo2==](/search/example?q=demo2&mode=tags)']" in out
 
 
 def test_parse_frontmatter_broken(monkeypatch):
-    monkeypatch.setattr(md.frontmatter, "parse", lambda _: 1/0)  # force error
-    out = md.parse_frontmatter("text", "bad.md")
+    monkeypatch.setattr(md.frontmatter, "parse",
+                        lambda _: 1 / 0)  # force error
+    out = md.parse_frontmatter("text", "bad.md", 'example')
     assert "text" in out  # returns original
 
 
@@ -62,7 +83,7 @@ def test_make_link_not_found(capsys):
     m = regex.search("[[Missing]]")
     out = md.make_link(m, Path("dummy.md"), DummyIndex())
     assert "???Missing???" in out
-    
+
 
 def test_parse_embedding_image(monkeypatch):
     text = "![[Image.png]]"
@@ -79,7 +100,7 @@ def test_parse_embedding_base(monkeypatch):
     monkeypatch.setattr(md, "url_for", lambda *a, **k: "/base/url")
     out = md.parse_embedding(text, Path("f.md"), idx, "vault1")
     assert "<iframe" in out
-    
+
 
 def test_parse_embedding_remote(monkeypatch):
     text = "![[Remote]]"
@@ -110,5 +131,5 @@ def test_preprocess_with_frontmatter(tmp_path):
 def test_render_renderer_redirect(monkeypatch, ext):
     monkeypatch.setattr(md, "redirect", lambda url: f"redirect:{url}")
     monkeypatch.setattr(md, "url_for", lambda *a, **k: f"/{a[0]}")
-    out = md.render_renderer("v1", "f"+ext, Path("f"+ext))
+    out = md.render_renderer("v1", "f" + ext, Path("f" + ext))
     assert "redirect" in out
