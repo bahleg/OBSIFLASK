@@ -189,10 +189,21 @@
 
 
     <script>
-        //const alertsContainer = document.getElementById('page-content-wrapper');
+        function isMobileMode() {
+            // Check userAgent
+            const isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            // Check screen (Bootstrap sm breakpoint)
+            const isSmallScreen = window.matchMedia("(max-width: 767.98px)").matches;
+
+            return isMobileUA || isSmallScreen;
+        }
+
+
+        const alertsContainer = document.getElementById('page-content-wrapper');
         const messagesUrl = "{{ url_for('messages', vault=vault) }}?unread=0";
         let lastTimestamp = 0; // чтобы показывать только новые сообщения
-        /*    
+
         function showAlert(message, type = 'success') {
             const wrapper = document.createElement('div');
             wrapper.innerHTML = `
@@ -202,20 +213,21 @@
       </div>`;
             alertsContainer.append(wrapper);
 
-            
+
             setTimeout(() => {
-            const el = wrapper.querySelector('.alert');
-            if (el) {
-                const alertNode = bootstrap.Alert.getOrCreateInstance(el);
-                alertNode.close();
-            }
-        }, 5000);
+                const el = wrapper.querySelector('.alert');
+                if (el) {
+                    const alertNode = bootstrap.Alert.getOrCreateInstance(el);
+                    alertNode.close();
+                }
+            }, 5000);
         }
-        */
+
+
 
         const toastContainer = document.querySelector('.toast-container');
 
-        function showAlert(message, type = 'success') {
+        function showToast(message, type = 'success') {
             const wrapper = document.createElement('div');
             wrapper.innerHTML = `
             <div class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -245,13 +257,17 @@
                 const data = await res.json();
 
                 for (const msg of data) {
-                    cnt += 1
-                    if (cnt <= 3) {  // only first 3, don't spam
-                        let type = 'success';
-                        if (msg.type === 1) type = 'warning';
-                        else if (msg.type === 2) type = 'danger';
-
+                    let type = 'success';
+                    if (msg.type === 1) type = 'warning';
+                    else if (msg.type === 2) type = 'danger';
+                    if (isMobileMode()) {
                         showAlert(
+                            msg.message + (msg.user ? `<br><pre>${msg.details}</pre>` : ''),
+                            type
+                        );
+                    }
+                    else {
+                        showToast(
                             msg.message + (msg.user ? `<br><pre>${msg.details}</pre>` : ''),
                             type
                         );

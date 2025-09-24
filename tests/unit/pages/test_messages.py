@@ -1,7 +1,6 @@
 import pytest
 
 import obsiflask.pages.messages as messages_module
-from obsiflask.messages import add_message
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
@@ -14,6 +13,7 @@ def flask_app(tmp_path):
     app.config['WTF_CSRF_ENABLED'] = False
     AppState.messages[('vault1', None)] = []
     return app
+
 
 def test_render_messages_raw(flask_app, monkeypatch):
     monkeypatch.setattr(messages_module, "get_messages",
