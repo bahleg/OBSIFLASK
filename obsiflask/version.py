@@ -2,7 +2,7 @@
 Version handling module
 """
 
-version_str = '0.12.1'
+version_str = '0.12.2'
 
 
 def get_version() -> str:
