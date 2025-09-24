@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
 ---
+### [0.12.*] - Messages refactoring
+- Minor update: messages are now less annoying
+- Minor update: fix of editor in mobile view (fit only 50% of the screen)
+
 ### [0.11.*] - Multi-user mode
 - Added a multi-user support. It can be enabled in the config
 
