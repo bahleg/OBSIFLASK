@@ -13,11 +13,18 @@
   width: 50%;
 }
 
+.EasyMDEContainer {
+     width: 50%;
+}
 
 /* Adaptive */
 @media (max-width: 991.98px) {
   #preview {
     display: none; /* hide on small screens */
+  }
+
+    .EasyMDEContainer {
+      width: 100%;
   }
 }
 
@@ -62,9 +69,7 @@
 #container {
   display: flex;           /* flex-контейнер */
 }
-.EasyMDEContainer {
-     width: 50%;
-}
+
 .CodeMirror, .CodeMirror-scroll {
 flex-grow: 1;            /* занимает всё доступное место */
   height: auto;            /* flex-grow контролирует высоту */
