@@ -187,6 +187,10 @@ class VaultConfig:
     """
     This amount of messages will be stored in the vault
     """
+    info_message_expiration: int = 600
+    """
+    The info messages won't popup if they were sent this amount of time in seconds
+    """
     message_fetch_time: int = 1
     """
     Take messages from server each message_fetch_time seconds

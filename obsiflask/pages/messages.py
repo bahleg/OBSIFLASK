@@ -2,8 +2,11 @@
 Rendering logic for messages
 
 """
+import time
+
 from flask import jsonify, render_template
-from obsiflask.messages import get_messages
+
+from obsiflask.messages import get_messages, type_to_int
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.auth import get_user
@@ -21,7 +24,11 @@ def render_messages(vault: str, unread: bool, raw: bool = False) -> str:
     Returns:
         str: rendered html string
     """
-    messages = get_messages(vault, unread=unread, user=get_user())
+    if raw:
+        limit = AppState.config.vaults[vault].message_list_size
+    else:
+        limit = 0
+    messages = get_messages(vault, unread=unread, user=get_user(), limit=limit)
     if raw:
         return jsonify(messages)
     return render_template('messages.html',

@@ -36,3 +36,13 @@
     }
 
 }
+
+.toast-offset {
+  top: 110px;
+  z-index: 1100;
+}
+
+
+.toast-container .toast {
+  margin-bottom: 0.5rem;
+}

@@ -163,6 +163,9 @@ def run(cfg: AppConfig | None = None,
         return datetime.datetime.fromtimestamp(value).strftime(
             '%Y-%m-%d %H:%M:%S')
 
+
+    
+        
     @app.route('/edit/<vault>/<path:subpath>')
     def editor(vault, subpath):
         auth_check_resut = check_rights(vault)
@@ -425,7 +428,6 @@ def run(cfg: AppConfig | None = None,
 
     if return_app:
         return app
-    # Run
     app.run(**cfg.flask_params)
 
 
