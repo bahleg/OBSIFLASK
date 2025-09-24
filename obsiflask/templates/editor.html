@@ -4,7 +4,7 @@
 
 <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
 <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
-
+<script src="{{ url_for('static', filename='bases_iframe.js') }}"></script>
 <h1>Editor:
   <code><a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</code>
 </h1>
@@ -106,6 +106,17 @@
   }
 
   {% if preview %}
+  function updateMath(){
+    renderMathInElement(document.body, {
+          delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false},
+              {left: "\\(", right: "\\)", display: false},
+              {left: "\\[", right: "\\]", display: true}
+          ]
+      });
+  }
+
   function isPreviewVisible() {
     const computedStyle = window.getComputedStyle(preview);
     return computedStyle.display !== 'none';
@@ -131,6 +142,8 @@
               .then(data => {
                 if (data.content !== undefined) {
                   preview.innerHTML = data.content;
+                  updateMath();
+                  updateMermaid();
                 } else {
                   showAlert('Error: server did not return content', 'danger');
                 }
@@ -176,10 +189,26 @@
 
 
 </script>
+
+<!-- math support -->
+ {% if preview %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    updateMath();
+});
+</script>
+
+{% endif %}
+
+
 <script>
   let url_autocomplete = '{{url_for("show_hint", vault=vault)}}'
 </script>
 <script src="{{url_for('static', filename='autocomplete.js')}}"></script>
+
 
 
 

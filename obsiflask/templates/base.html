@@ -5,11 +5,12 @@
 {% from 'shared.html' import render_footer %}
 
 
-{% include "flask-favicon.html" %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+
+    {% include "flask-favicon.html" %}
     {{ bootstrap.load_js() }}
 
     <meta charset="utf-8">
@@ -292,6 +293,9 @@
     <script type="module">
         import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
         mermaid.initialize({ startOnLoad: true });
+        window.updateMermaid = function() {
+            mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+        };
     </script>
 
 

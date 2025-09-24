@@ -168,7 +168,7 @@ def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
     markdown = mistune.create_markdown(escape=False,
                                        plugins=[
                                            'table', 'strikethrough',
-                                           'task_lists', 'mark', plugin_mermaid
+                                           'task_lists', 'mark', plugin_mermaid, 'url', 'math'
                                        ])
 
     text = parse_frontmatter(text, Path(full_path).name)

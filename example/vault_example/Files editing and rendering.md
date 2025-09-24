@@ -38,9 +38,25 @@ The editor supports basic Markdown features, including:
 * [ ] todo lists
 * ### headers
 * [links](https://github.com/bahleg/OBSIFLASK) and [[Files, directories and links | wikilins (see details here)]]
+* vanilla http links: https://github.com
 * ~~different~~ *text* **styles**
 * Frontmatter properties: are represented as a separate block of the page, see [[frontmatter example]].
 *  ==marked== text 
+* Math formulae: $x^2 = y$. 
+* Outline formulae: 
+	
+$$
+x^2 = y.
+$$
+	
+* basic markdown tables:
+	
+| Month    | Savings |
+| -------- | ------- |
+| January  | $250    |
+| February | $80     |
+| March    | $420    |
+	
 ## Mermaid support
 
 Mermaid is supported :) 
