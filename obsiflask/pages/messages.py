@@ -25,7 +25,7 @@ def render_messages(vault: str, unread: bool, raw: bool = False) -> str:
         str: rendered html string
     """
     if raw:
-        limit = AppState.config.vaults[vault].message_list_size
+        limit = AppState.config.vaults[vault].message_fetch_limit
     else:
         limit = 0
     messages = get_messages(vault, unread=unread, user=get_user(), limit=limit)

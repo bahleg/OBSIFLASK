@@ -195,6 +195,10 @@ class VaultConfig:
     """
     Take messages from server each message_fetch_time seconds
     """
+    message_fetch_limit: int = 1 
+    """
+    Take messages only N messages
+    """
     autosave_time: int = 10
     """
     Save documents each autosave_time seconds

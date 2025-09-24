@@ -137,7 +137,8 @@ def get_messages(vault: str,
                 if consider_read:
                     result = sorted(result, key=lambda x: (-x.type, -x.time))
             if limit > 0:
-                result = result[:limit]
+                # note that we will mark all the messages as "read", even if we don't show them
+                return result[:limit]
             return result
     finally:
         if consider_read:
