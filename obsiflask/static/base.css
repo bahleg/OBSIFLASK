@@ -46,3 +46,23 @@
 .toast-container .toast {
   margin-bottom: 0.5rem;
 }
+
+
+table, th, td {
+  border: 1px solid var(--bs-border-color);
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.5rem 0.75rem;
+}
+
+pre code {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--bs-light-bg-subtle);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  font-family: var(--bs-font-monospace);
+  white-space: pre-wrap;
+}

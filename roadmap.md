@@ -36,8 +36,12 @@ Planned features to be implemented (tentative order):
   - Tabs to spaces
 - Large files: currently excluded from analysis
 - switch markdown preview to mde?
+  - bug with full-screen for long docs
 - More unit tests
 - More selenium tests
+- More user customization:
+  - hotkeys
+  - tabs/spaces
 - Documentation
    - (doi?) 
 - twine

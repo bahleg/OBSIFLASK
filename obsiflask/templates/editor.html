@@ -209,6 +209,16 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 <script src="{{url_for('static', filename='autocomplete.js')}}"></script>
 
+<script>
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey && e.key === "s") {
+        e.preventDefault();
+        saveDocument();     
+    }
+});
+
+
+</script>
 
 
 

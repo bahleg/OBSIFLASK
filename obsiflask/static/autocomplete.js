@@ -104,7 +104,11 @@ cm.on("keydown", async (cmInstance, e) => {
       
   if (e.key === "Tab") {
     if (isLineEmptyOrIndentOnly(line)) {
-      return;
+      const cursor = cm.getCursor();
+      const from = { line: cursor.line, ch: cursor.ch};
+      cm.replaceRange('     ', from, cursor);
+      cm.focus();
+      //return;
     } else {
 
       

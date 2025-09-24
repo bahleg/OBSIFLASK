@@ -57,6 +57,11 @@ $$
 | February | $80     |
 | March    | $420    |
 	
+* Code blocks 
+```
+	echo "hello world"
+```
+	
 ## Mermaid support
 
 Mermaid is supported :) 
