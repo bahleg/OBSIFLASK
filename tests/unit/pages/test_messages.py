@@ -1,6 +1,7 @@
 import pytest
 
 import obsiflask.pages.messages as messages_module
+from obsiflask.messages import add_message
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
@@ -15,18 +16,15 @@ def flask_app(tmp_path):
     return app
 
 
-"""
-@pytest.fixture(autouse=True)
-def mock_appstate(monkeypatch, tmp_path):
-
-    class DummyConfig:
-        vaults = {"vault1": type("Cfg", (), {"home_file": "home.md"})()}
-
-    monkeypatch.setattr(messages_module.AppState, "config", DummyConfig)
-    monkeypatch.setitem(messages_module.AppState.indices, "vault1",
-                        {"dummy": "tree"})
-    yield
-"""
+def test_unread_stats(flask_app, monkeypatch):
+    monkeypatch.setattr('obsiflask.pages.messages.get_user', lambda: None)
+    for i in range(13):
+        add_message('test', 0, 'vault1', use_log=False)
+    assert messages_module.unread_stats('vault1') == (13, 0)
+    add_message('test', 1, 'vault1', use_log=False)
+    assert messages_module.unread_stats('vault1') == (14, 1)
+    add_message('test', 2, 'vault1', use_log=False)
+    assert messages_module.unread_stats('vault1') == (15, 2)
 
 
 def test_render_messages_raw(flask_app, monkeypatch):

@@ -1,3 +1,5 @@
+import time 
+
 import pytest
 
 import obsiflask.messages as messages
@@ -99,3 +101,56 @@ def test_message_list_size_limit(app):
 def test_invalid_type_raises(app):
     with pytest.raises(AssertionError):
         messages.add_message("bad", 999, "vault1")
+
+
+def test_info_message_expiration(app):
+    vault = "vault1"
+    exp = AppState.config.vaults[vault].info_message_expiration
+
+    # add an info message "old"
+    messages.add_message("old info", messages.type_to_int['info'], vault, use_log=False)
+    messages.AppState.messages[(vault, None)][-1].time -= (exp + 1)
+
+    # add an info message "fresh"
+    messages.add_message("fresh info",  messages.type_to_int['info'], vault, use_log=False)
+
+    result = messages.get_messages(vault, consider_read=False, unread=True)
+    texts = [m.message for m in result]
+
+    assert "fresh info" in texts
+    assert "old info" not in texts  # expired filtered out
+
+
+def test_sorting_prioritizes_critical(app):
+    vault = "vault1"
+
+    # add info
+    messages.add_message("info", messages.type_to_int['info'], vault, use_log=False)
+    time.sleep(0.01)
+    # add warning
+    messages.add_message("warn", messages.type_to_int['warning'], vault, use_log=False)
+    time.sleep(0.01)
+    # add error
+    messages.add_message("error", messages.type_to_int['error'], vault, use_log=False)
+
+    result = messages.get_messages(vault, consider_read=True, unread=True)
+    texts = [m.message for m in result]
+
+    # ensure sorted: error > warn > info
+    assert texts[0] == "error"
+    assert "warn" in texts[1:]
+    assert "info" in texts[2:]
+
+
+def test_consider_read_marks_all(app):
+    vault = "vault1"
+
+    # add some messages
+    for i in range(5):
+        messages.add_message(f"m{i}", 0, vault, use_log=False)
+
+    _ = messages.get_messages(vault, consider_read=True)
+
+    # all must be marked as read
+    all_msgs = messages.AppState.messages[(vault, None)]
+    assert all(m.is_read for m in all_msgs)

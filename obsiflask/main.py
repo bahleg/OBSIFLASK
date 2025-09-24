@@ -20,7 +20,7 @@ from obsiflask.tasks import run_tasks
 from obsiflask.app_state import AppState
 from obsiflask.file_index import FileIndex
 from obsiflask.pages.index_tree import render_tree
-from obsiflask.pages.messages import render_messages
+from obsiflask.pages.messages import render_messages, unread_stats
 from obsiflask.pages.excalidraw import render_excalidraw
 from obsiflask.pages.folder import render_folder
 from obsiflask.pages.fileop import render_fileop
@@ -163,6 +163,11 @@ def run(cfg: AppConfig | None = None,
         return datetime.datetime.fromtimestamp(value).strftime(
             '%Y-%m-%d %H:%M:%S')
 
+    @app.template_global()
+    def get_unread_stats(vault):
+        return unread_stats(vault)
+    
+        
     @app.route('/edit/<vault>/<path:subpath>')
     def editor(vault, subpath):
         auth_check_resut = check_rights(vault)
@@ -426,6 +431,17 @@ def run(cfg: AppConfig | None = None,
     if return_app:
         return app
     # Run
+    from obsiflask.messages import add_message
+    for i in range(10):
+        if i == 1:
+            typ = 1
+        elif i == 0:
+            typ = 2
+        else:
+            typ = 0
+        add_message(str(i), typ, 'example')
+    for m in AppState.messages[('example', None)]:
+        m.time = -1
     app.run(**cfg.flask_params)
 
 

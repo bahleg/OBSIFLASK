@@ -9,6 +9,25 @@ from obsiflask.app_state import AppState
 from obsiflask.auth import get_user
 
 
+def unread_stats(vault) -> tuple[int, int]:
+    """
+    Represents stats for unread
+
+    Args:
+        vault (str): vault name
+
+    Returns:
+         tuple[int, int]: number of unread messages and maximal type of message
+    """
+    msgs = AppState.messages[(vault, get_user())]
+    unread_count = sum(not m.is_read for m in msgs)
+    if unread_count == 0:
+        max_class = 0
+    else:
+        max_class = max(m.type for m in msgs)
+    return unread_count, max_class
+
+
 def render_messages(vault: str, unread: bool, raw: bool = False) -> str:
     """
     Function for rendering messages

@@ -92,7 +92,7 @@ def add_message(message: str,
                 userlist = [user]
         for user in userlist:
             msg_copy = copy(msg)
-            msg_copy.user = user 
+            msg_copy.user = user
             AppState.messages[(vault, user)].append(msg_copy)
             if len(AppState.messages[
                 (vault,
@@ -111,7 +111,9 @@ def get_messages(
     unread: bool = True,
 ) -> list[Message]:
     """
-    Returns a messages for a specific conditions
+    Returns a messages for a specific conditions.
+
+    If we consider messages as "read" after the call, we show at first error and warning messages, and only after that info messages.
 
     Args:
         vault (str): vault name
@@ -124,13 +126,25 @@ def get_messages(
     """
     result = []
     try:
-        result = AppState.messages[(vault, user)]
-        if unread:
-            result = [r for r in result if not r.is_read]
-        # we can store more messages, but for constistency, will always return message_list_size of messages
-        return result[:AppState.config.vaults[vault].message_list_size]
+        with _lock:
+            result = AppState.messages[(vault, user)]
+            result_to_return = result
+            if unread:
+                result = [r for r in result if not r.is_read]
+                result = [
+                    r for r in result if r.type != type_to_int['info'] or (
+                        r.type == type_to_int['info'] and (time.time() - r.time) <
+                        AppState.config.vaults[vault].info_message_expiration)
+                ]
+                result_to_return = result
+            # we can store more messages, but for constistency, will always return message_list_size of messages
+            if consider_read:  # if we want to consider messages as read, let's show critical messages at first
+                result_to_return = result 
+                result = sorted(result, key=lambda x: (-x.type, -x.time))
+            return result[:AppState.config.vaults[vault].message_list_size]
     finally:
         if consider_read:
             with _lock:
+                # even if we show limited number of messages, let's consider all other as read, don't spam too much
                 for r in result:
                     r.is_read = True
