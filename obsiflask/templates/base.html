@@ -10,8 +10,8 @@
 <html lang="en">
 
 <head>
-        {{ bootstrap.load_js() }}
-        
+    {{ bootstrap.load_js() }}
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -22,32 +22,32 @@
         OBSIFLASK
         {% endif %}
     </title>
-        {% if not injected_vars['config'].auth.enabled %}
+    {% if not injected_vars['config'].auth.enabled %}
     {{ bootstrap.load_css() }}
-        {% if injected_vars['config'].default_user_config.theme_contrast_light %}
-        <link rel="stylesheet" href="{{ url_for('static', filename='contrast_light.css') }}">
-        {% endif %}
-        {% if injected_vars['config'].default_user_config.theme_contrast_dark %}
-        <link rel="stylesheet" href="{{ url_for('static', filename='contrast_dark.css') }}">
-        {% endif %}
+    {% if injected_vars['config'].default_user_config.theme_contrast_light %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='contrast_light.css') }}">
+    {% endif %}
+    {% if injected_vars['config'].default_user_config.theme_contrast_dark %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='contrast_dark.css') }}">
+    {% endif %}
     {% else %}
     {{bootstrap.load_css(bootswatch_theme=injected_vars['user_configs'][current_user.username].bootstrap_theme)}}
-        {% if injected_vars['user_configs'][current_user.username].theme_contrast_light %}
-        <link rel="stylesheet" href="{{ url_for('static', filename='contrast_light.css') }}">
-        {% endif %}
-        {% if injected_vars['user_configs'][current_user.username].theme_contrast_dark %}
-        <link rel="stylesheet" href="{{ url_for('static', filename='contrast_dark.css') }}">
-        {% endif %}
+    {% if injected_vars['user_configs'][current_user.username].theme_contrast_light %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='contrast_light.css') }}">
+    {% endif %}
+    {% if injected_vars['user_configs'][current_user.username].theme_contrast_dark %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='contrast_dark.css') }}">
+    {% endif %}
 
     {% endif %}
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='buttons.css') }}">
-    
+
 </head>
 
 <body>
-    
+
 
     <div class="d-flex" id="wrapper" style="height:100vh; overflow:hidden;">
 
@@ -69,7 +69,7 @@
                     <button class="btn btn-sm btn-secondary" id="toggleSidebar">◀</button>
                 </div>
 
-                
+
 
 
                 <div class="container-fluid">
@@ -145,6 +145,7 @@
             <div id="page-content-wrapper">
                 {{ render_messages(container=False, dismissible=True, dismiss_animate=True) }}
             </div>
+            <div class="toast-container position-fixed end-0 p-3 toast-offset"></div>
 
             {% block content %}{% endblock %}
 
@@ -187,10 +188,10 @@
 
 
     <script>
-        const alertsContainer = document.getElementById('page-content-wrapper');
+        //const alertsContainer = document.getElementById('page-content-wrapper');
         const messagesUrl = "{{ url_for('messages', vault=vault) }}?unread=0";
         let lastTimestamp = 0; // чтобы показывать только новые сообщения
-
+        /*    
         function showAlert(message, type = 'success') {
             const wrapper = document.createElement('div');
             wrapper.innerHTML = `
@@ -200,11 +201,39 @@
       </div>`;
             alertsContainer.append(wrapper);
 
-            // auto-remove in 5 secs
+            
             setTimeout(() => {
-                const alertNode = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
+            const el = wrapper.querySelector('.alert');
+            if (el) {
+                const alertNode = bootstrap.Alert.getOrCreateInstance(el);
                 alertNode.close();
-            }, 5000);
+            }
+        }, 5000);
+        }
+        */
+
+        const toastContainer = document.querySelector('.toast-container');
+
+        function showAlert(message, type = 'success') {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = `
+            <div class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            </div>
+        `;
+            toastContainer.append(wrapper);
+
+            const toastEl = wrapper.querySelector('.toast');
+            const toast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 5000, autohide: true });
+            toast.show();
+
+
         }
 
         async function fetchMessages() {
@@ -222,7 +251,7 @@
                         else if (msg.type === 2) type = 'danger';
 
                         showAlert(
-                            msg.message + (msg.user ? `<br><pre>${msg.details}</pre></div>` : ''),
+                            msg.message + (msg.user ? `<br><pre>${msg.details}</pre>` : ''),
                             type
                         );
                     }
@@ -241,7 +270,7 @@
 
 
 
-   
+
 
     <script type="module">
         import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
@@ -252,7 +281,7 @@
 
 
 </body>
- <script src="{{url_for('static', filename='darkmode.js')}}"></script> 
+<script src="{{url_for('static', filename='darkmode.js')}}"></script>
 
 
 
