@@ -40,6 +40,7 @@ The editor supports basic Markdown features, including:
 * [links](https://github.com/bahleg/OBSIFLASK) and [[Files, directories and links | wikilins (see details here)]]
 * vanilla http links: https://github.com
 * ~~different~~ *text* **styles**
+* Hashtags: #odd and #even
 * Frontmatter properties: are represented as a separate block of the page, see [[frontmatter example]].
 *  ==marked== text 
 * Math formulae: $x^2 = y$. 

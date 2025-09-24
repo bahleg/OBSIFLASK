@@ -14,9 +14,26 @@ from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.file_index import FileIndex
 from obsiflask.utils import logger
-from obsiflask.consts import wikilink, re_tag_embed
+from obsiflask.consts import wikilink, re_tag_embed, hashtag
 
 _lock = Lock()
+
+
+def url_for_tag(vault: str, tag: str) -> str:
+    """
+    Generates an url for tags. 
+    Note: it's improper way to generate urls, but since the graph is created before application 
+    started, this hardcode is reasonable
+
+    Args:
+        vault (str): vault name
+        tag (str): tag
+
+    Returns:
+        str: url for search tag
+    """
+    return f'/search/{vault}?q={tag.lstrip('  #')}&mode=tags'
+
 
 def plugin_mermaid(md):
     """
@@ -35,7 +52,7 @@ def plugin_mermaid(md):
     md.renderer.block_code = block_code
 
 
-def parse_frontmatter(text: str, name: str) -> str:
+def parse_frontmatter(text: str, name: str, vault: str) -> str:
     """
     Frontmatter processor.
     Returns a markdown, 
@@ -44,6 +61,7 @@ def parse_frontmatter(text: str, name: str) -> str:
     Args:
         text (str): text to parse
         name (str): name of file for logging
+        vault (str): vault name
 
     Returns:
         str: processed file
@@ -54,6 +72,14 @@ def parse_frontmatter(text: str, name: str) -> str:
         if len(metadata) > 0:
             buf = ['---\n', '### Properties\n']
             for k, v in metadata.items():
+                if k == 'tags':
+                    if isinstance(v, str):
+                        v = [v]
+                    new_v = []
+                    for el in v:
+                        el = el.lstrip('#')
+                        new_v.append(f'[==#{el}==]({url_for_tag(vault, el)})')
+                    v = new_v
                 buf.append(f' * **{k}**: {v}\n')
             buf.append('---\n')
             content = ''.join(buf) + content
@@ -139,12 +165,26 @@ def parse_embedding(text: str, full_path: Path, index: FileIndex,
                 buf.append(
                     f'<hr/><iframe id={id_name} src="{link_path}?raw=1"  style="width:95%"></iframe><hr/>'
                 )
-                buf.append('<script>setupIframeResize("#")</script>'.replace('#', id_name))
+                buf.append('<script>setupIframeResize("#")</script>'.replace(
+                    '#', id_name))
             else:
                 link_path = url_for('get_file', vault=vault, subpath=link_path)
                 buf.append(f'[{path}]({link_path})')
         else:
             buf.append(f'???{path}???')
+        offset = m.span()[1]
+    buf.append(text[offset:])
+    return ''.join(buf)
+
+
+def parse_hashtags(text, vault):
+    matches = hashtag.finditer(text)
+    offset = 0
+    buf = []
+    for m_id, m in enumerate(matches):
+        buf.append(text[offset:m.span()[0]])
+        tag = m.group(1).lstrip('#')
+        buf.append(f'[==#{tag}==]({url_for_tag(vault, tag)})')
         offset = m.span()[1]
     buf.append(text[offset:])
     return ''.join(buf)
@@ -168,10 +208,11 @@ def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
     markdown = mistune.create_markdown(escape=False,
                                        plugins=[
                                            'table', 'strikethrough',
-                                           'task_lists', 'mark', plugin_mermaid, 'url', 'math'
+                                           'task_lists', 'mark',
+                                           plugin_mermaid, 'url', 'math'
                                        ])
-
-    text = parse_frontmatter(text, Path(full_path).name)
+    text = parse_hashtags(text, vault)
+    text = parse_frontmatter(text, Path(full_path).name, vault)
     text = parse_embedding(text, full_path, index, vault)
     offset = 0
     matches = wikilink.finditer(text)

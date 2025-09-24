@@ -20,7 +20,7 @@ wikilink = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
 """
 Regex for wikilink 
 """
-hashtag = re.compile('#[\w\-]+')
+hashtag = re.compile(r'(?:^|\s)(#[\w-]+)')
 """
 Regex for hashtag
 """

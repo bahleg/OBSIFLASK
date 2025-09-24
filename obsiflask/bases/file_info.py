@@ -67,7 +67,7 @@ class FileInfo:
                 matches = hashtag.finditer(text)
 
                 for m in matches:
-                    tag = m.group().lstrip('#')
+                    tag = m.group(1).lstrip('#')
                     self._tags.add(tag)
 
                 try:

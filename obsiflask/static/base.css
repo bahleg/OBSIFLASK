@@ -40,6 +40,7 @@
 .toast-offset {
   top: 110px;
   z-index: 1100;
+  position: absolute;
 }
 
 

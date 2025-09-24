@@ -1,7 +1,7 @@
 #control-panel {
     position: fixed;
     top: 60px;
-    right: 20;
+    right: 20px;
     width: 250px;
     height: auto;
     background: var(--bs-body-bg);

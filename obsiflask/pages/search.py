@@ -17,6 +17,7 @@ from obsiflask.messages import add_message, type_to_int
 from obsiflask.bases.filter import FieldFilter
 from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN
 from obsiflask.auth import get_user
+
 SEARCH_PREVIEW_CHARS = 100
 """
 This amount of chars will be shown as a context
@@ -52,7 +53,8 @@ def generate_formula_check_results(
         add_message('Error during tag search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e), user=get_user())
+                    details=repr(e),
+                    user=get_user())
 
 
 def generate_tags_check_results(
@@ -86,7 +88,8 @@ def generate_tags_check_results(
         add_message('Error during tag search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e), user=get_user())
+                    details=repr(e),
+                    user=get_user())
 
 
 def generate_links_check_results(
@@ -131,7 +134,8 @@ def generate_links_check_results(
         add_message('Error during link search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e), user=get_user())
+                    details=repr(e),
+                    user=get_user())
 
 
 def generate_text_check_results(
@@ -208,7 +212,8 @@ def generate_text_check_results(
         add_message('Error during text search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e), user=get_user())
+                    details=repr(e),
+                    user=get_user())
 
 
 def compare_fuzzy(query: str, text: str, fuzzy_window_coef: float,
@@ -294,13 +299,16 @@ def render_search(vault: str) -> str | Generator[str, None, None]:
     Returns:
         str | Generator[str, None, None]: rendered template or generator of templates for results
     """
+    need_context = False  # flag if we show also a context
     query = request.args.get("q")
     mode = request.args.get('mode') or 'exact'
     if mode not in [
             'exact', 'regex', 'tags', 'fuzzy', 'forward', 'backward', 'formula'
     ]:
-        add_message(f'could not parse mode: {mode}', type_to_int['error'],
-                    vault, user=get_user())
+        add_message(f'could not parse mode: {mode}',
+                    type_to_int['error'],
+                    vault,
+                    user=get_user())
         mode = 'exact'
     if request.args.get('ignore_case'):
         ignore_case = True
@@ -349,6 +357,7 @@ def render_search(vault: str) -> str | Generator[str, None, None]:
                 inclusion_percent=fuzzy_ratio,
                 ignore_case=ignore_case,
                 ignore_non_words=ignore_non_words)
+            need_context = True
 
     return render_func('search.html',
                        vault=vault,
@@ -363,4 +372,5 @@ def render_search(vault: str) -> str | Generator[str, None, None]:
                        mode=mode,
                        local_link=local_link,
                        fuzzy_window=fuzzy_window,
-                       fuzzy_ratio=fuzzy_ratio)
+                       fuzzy_ratio=fuzzy_ratio,
+                       need_context=need_context)

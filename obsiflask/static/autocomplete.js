@@ -101,17 +101,17 @@ function isLineEmptyOrIndentOnly(line) {
 cm.on("keydown", async (cmInstance, e) => {
   const cursor = cm.getCursor();
   const line = cm.getLine(cursor.line).substring(0, cursor.ch);
-      
+
   if (e.key === "Tab") {
     if (isLineEmptyOrIndentOnly(line)) {
       const cursor = cm.getCursor();
-      const from = { line: cursor.line, ch: cursor.ch};
+      const from = { line: cursor.line, ch: cursor.ch };
       cm.replaceRange('     ', from, cursor);
       cm.focus();
       //return;
     } else {
 
-      
+
       e.preventDefault();
       await triggerAutocomplete();
     }

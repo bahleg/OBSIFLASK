@@ -14,7 +14,7 @@ from obsiflask.app_state import AppState
 from obsiflask.bases.file_info import FileInfo
 from obsiflask.utils import logger
 from obsiflask.hint import MAX_HINT
-
+from obsiflask.pages.renderer import url_for_tag
 
 @dataclass
 class GraphRepr:
@@ -110,7 +110,7 @@ class Graph:
 
                         used_tags[tag] = tag_id
                     links.append((file_id, tag_id))
-                    hrefs.append('')
+                    hrefs.append(url_for_tag(self.vault, tag))
             assert len(
                 links
             ) < 2**16 - 1, "currently graphs with higher number of edges are not supported"

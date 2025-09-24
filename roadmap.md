@@ -10,7 +10,7 @@ Planned features to be implemented (tentative order):
 - Spell checking 
 - Tag list view  
 - Navigation/header links
-- LaTeX support  
+- Command palette  
 - Local graphs
 - File upload functionality
 - Better logic for loggers
@@ -28,12 +28,8 @@ Planned features to be implemented (tentative order):
 - Job tracking?
 - rename by click
 - UI refactoring  
-  - Basic hotkey support  
-  - Command palette  
-  - Tags as links rendering
   - Disable trags parsing in code blocks
   - Saving before turning into the view mode
-  - Tabs to spaces
 - Large files: currently excluded from analysis
 - switch markdown preview to mde?
   - bug with full-screen for long docs
