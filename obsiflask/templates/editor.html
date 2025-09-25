@@ -66,9 +66,45 @@
       "|", "link", "image", "|", "preview", "side-by-side", "fullscreen"
     ]
   });
+
   {% if not preview %}
   document.querySelector('.EasyMDEContainer').style.width = "100%";
   {% endif %}
+
+  let cmirror = easyMDE.codemirror;
+  // --- refresh / focus fixes to avoid caret misplacement on mobile/tablet ---
+  function refreshEditorSoon(delay = 0) {
+    setTimeout(() => {
+      try { cmirror.refresh(); } catch (err) { /* ignore */ }
+    }, delay);
+  }
+
+  // initial refresh after init
+  refreshEditorSoon(0);
+
+  // refresh on resize/orientation change
+  window.addEventListener('resize', () => refreshEditorSoon(50));
+  window.addEventListener('orientationchange', () => refreshEditorSoon(200));
+
+  // when editor container is touched/focused — refresh+focus (fixes first-char caret mismatch)
+  const easyContainer = document.querySelector('.EasyMDEContainer');
+  if (easyContainer) {
+    // touchstart for mobile/tablet
+    easyContainer.addEventListener('touchstart', function onTouchStart() {
+      // one-shot: refresh & focus (delayed a bit so mobile does native stuff)
+      setTimeout(() => {
+        try { cmirror.refresh(); cmirror.focus(); } catch (err) { }
+      }, 50);
+      // keep listener — or remove if you want single-run: easyContainer.removeEventListener('touchstart', onTouchStart);
+    }, { passive: true });
+
+    // also handle focusin (keyboard appears)
+    easyContainer.addEventListener('focusin', () => {
+      setTimeout(() => { try { cmirror.refresh(); } catch (err) { } }, 0);
+    });
+  }
+
+
 </script>
 <div id="autocomplete" style="position:absolute; display:none; background:white; border:1px solid #ccc; z-index:1000;">
 </div>
@@ -106,15 +142,15 @@
   }
 
   {% if preview %}
-  function updateMath(){
+  function updateMath() {
     renderMathInElement(document.body, {
-          delimiters: [
-              {left: "$$", right: "$$", display: true},
-              {left: "$", right: "$", display: false},
-              {left: "\\(", right: "\\)", display: false},
-              {left: "\\[", right: "\\]", display: true}
-          ]
-      });
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true }
+      ]
+    });
   }
 
   function isPreviewVisible() {
@@ -168,6 +204,8 @@
     saveDocument();
   });
 
+
+
   // warning when leaving the page
   window.addEventListener('beforeunload', (e) => {
     if (isDirty) {
@@ -191,14 +229,14 @@
 </script>
 
 <!-- math support -->
- {% if preview %}
+{% if preview %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("DOMContentLoaded", function () {
     updateMath();
-});
+  });
 </script>
 
 {% endif %}
@@ -211,11 +249,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <script>
   document.addEventListener("keydown", function (e) {
-    if (e.ctrlKey && e.key === "s") {
-        e.preventDefault();
-        saveDocument();     
+    if ((e.ctrlKey || e.metaKey) && e.code === "KeyS") {
+      e.preventDefault();
+      saveDocument();
     }
-});
+  });
+
 
 
 </script>

@@ -147,7 +147,8 @@
             <div id="page-content-wrapper">
                 {{ render_messages(container=False, dismissible=True, dismiss_animate=True) }}
             </div>
-            <div class="toast-container position-fixed end-0 p-3 toast-offset"></div>
+    
+            <div class="toast-container position-fixed bottom-0 end-0 p-3 d-flex flex-column-reverse toast-offset"></div>
 
             {% block content %}{% endblock %}
 
