@@ -25,19 +25,32 @@
             }
         },
         init: function (event, data) {
-            if (currentPath) {
-                let tree = data.tree;
-                // попробуем найти узел по key
-                let node = tree.getNodeByKey(currentPath);
-                if (node) {
-                    node.setActive(true);   // select
-                    node.makeVisible();     // expand
-                } else {
-                    console.log("Tree path not found:", currentPath);
-                }
+        if (currentPath) {
+            expandPath(data.tree, currentPath);
+            let node = data.tree.getNodeByKey(currentPath);
+            if (node) {
+                node.setActive(true);
+            }
+            else{
+                console.log('not found: '+currentPath)
             }
         }
+    }
     });
+
+    function expandPath(tree, path) {
+    let parts = path.split("/");
+    let current = "";
+    function step() {
+        if (!parts.length) return;
+        current = current ? current + "/" + parts.shift() : parts.shift();
+        let node = tree.getNodeByKey(current);
+        if (node) {
+            node.setExpanded(true).done(step);
+        }
+    }
+    step();
+}
 </script>
 
 {% endmacro %}
