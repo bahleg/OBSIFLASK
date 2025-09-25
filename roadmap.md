@@ -30,6 +30,7 @@ Planned features to be implemented (tentative order):
 - UI refactoring  
   - Disable trags parsing in code blocks
   - Saving before turning into the view mode
+- Sometimes autocomplete works badly, need to check
 - Large files: currently excluded from analysis
 - switch markdown preview to mde?
   - bug with full-screen for long docs
