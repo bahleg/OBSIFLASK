@@ -9,6 +9,47 @@ from obsiflask.file_index import FileIndex
 from obsiflask.app_state import AppState
 
 
+def get_menu(key: str, vault: str, is_dir: bool):
+    menu = []
+    if is_dir:
+        menu.append({
+            'title': '📂 Open folder',
+            'url': url_for('get_folder', vault=vault, subpath=key)
+        })
+    else:
+        if key.endswith(('.md', '.excalidraw')):
+            menu.append({
+                'title': '👁️ Show',
+                'url': url_for('renderer', vault=vault, subpath=key)
+            })
+            menu.append({
+                'title': '✏️ Edit',
+                'url': url_for('editor', vault=vault, subpath=key)
+            })
+        menu.append({
+            'title': '📥 Download',
+            'url': url_for('get_file', vault=vault, subpath=key)
+        })
+
+    if is_dir:
+        menu.append({
+            'title': '🗃️ File operations',
+            'url': url_for('fileop', vault=vault, curdir=key)
+        })
+    else:
+        if key.count('/') == 0:
+            curdir = '.'
+        else:
+            curdir = key.rsplit('/', 1)[0]
+        menu.append({
+            'title':
+            '🗃️ File operations',
+            'url':
+            url_for('fileop', vault=vault, curfile=key, curdir=curdir)
+        })
+    return menu
+
+
 def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
     """
     A recursive function for rendering tree
@@ -51,12 +92,7 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                     "lazy": name.is_dir(),
                     "key": key,
                     "data": {
-                        'menu': [{
-                            'title':
-                            'Open folder',
-                            'url':
-                            url_for('get_folder', vault=vault, subpath=key)
-                        }]
+                        'menu': get_menu(key, vault, True)
                     }
                 })
             else:
@@ -64,7 +100,7 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                     url = url_for('editor', vault=vault, subpath=key)
                 else:
                     url = url_for('renderer', vault=vault, subpath=key)
-                menu = []
+                menu = get_menu(key, vault, False)
                 items.append({
                     "title": f"{name.name}",
                     "key": key,
@@ -72,25 +108,6 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                         'url': url,
                         'menu': menu
                     }
-                })
-                if name.suffix in ['.md', '.excalidraw']:
-                    menu.append({
-                        'title':
-                        'Show',
-                        'url':
-                        url_for('renderer', vault=vault, subpath=key)
-                    })
-                    menu.append({
-                        'title':
-                        'Edit',
-                        'url':
-                        url_for('editor', vault=vault, subpath=key)
-                    })
-                menu.append({
-                    'title':
-                    'Download',
-                    'url':
-                    url_for('get_file', vault=vault, subpath=key)
                 })
 
     return jsonify(items)
