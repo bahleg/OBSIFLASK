@@ -15,6 +15,7 @@
     }
     let navtree = $("#tree").fancytree({
         source: { url: "{{url_for('tree', vault=vault)}}/?edit={{page_editor}}" },
+        clickFolderMode: 2, // open folders by click
         lazyLoad: function (event, data) {
             let node = data.node;
 
@@ -34,7 +35,6 @@
                 let tree = data.tree;
                 let parts = currentPath.split("/");
 
-                // Родительский путь для expand
                 let expandParts = []
                 if (expand_more) {
                     expandParts = parts;
@@ -76,7 +76,7 @@
             return;
         }
         let current = "";
-        let queue = [...parts]; // копия массива
+        let queue = [...parts]; // copy
 
         function step() {
             if (!queue.length) {

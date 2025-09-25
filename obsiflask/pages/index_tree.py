@@ -41,7 +41,7 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
     tree = tree[AppState.indices[vault].path / subpath_rel]
     if tree is not None:
         for name, child in sorted(tree.items(),
-                                  key=lambda x: (x[1] is not None, x[0])):
+                                  key=lambda x: (x[1] is None, x[0])):
             is_dir = child is not None
             if is_dir:
                 items.append({
@@ -67,5 +67,4 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                         'url': url
                     }
                 })
-    print (items)
     return jsonify(items)
