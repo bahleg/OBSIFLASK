@@ -222,14 +222,37 @@ def render_fastop(vault: str) -> str:
         if curfile is None:
             raise ValueError(f'target file not defined')
         op = request.args.get('op')
-        if op not in ['copy', 'move', 'delete']:
+        if op not in ['copy', 'move', 'delete', 'file', 'folder', 'template']:
             raise ValueError(f'Bad operation: {op}')
 
-        if op in ['copy', 'move']:
+        if op in ['copy', 'move', 'file', 'folder', 'template']:
             dst = request.args.get('dst')
             if dst is None:
                 raise ValueError(
                     f'destination file for operation {op} is not defined')
+        if op in ['template']:
+            template = request.args.get('template')
+            if template is None:
+                raise ValueError(
+                    f'template file for operation {op} is not defined')
+
+        if op in ['file', 'folder']:
+            if op == 'file':
+                template = '0_no'
+                route = 'editor'
+            else:
+                template = '1_dir'
+                route = 'get_folder'
+
+            form = FileOpForm(vault=vault,
+                              operation='new',
+                              target=curfile.rstrip('/') + '/' + dst,
+                              template=template)
+            if create_file_op(vault, form):
+                return redirect(
+                    url_for(route, vault=vault, subpath=form.target.data))
+            else:
+                raise ValueError(f'Could not create file/folder {dst}')
 
         if op == 'copy':
             form = FileOpForm(vault=vault,
@@ -244,6 +267,20 @@ def render_fastop(vault: str) -> str:
             else:
                 raise ValueError(
                     f'Could not perform copy from {curfile} to {dst}')
+        if op == 'template':
+            dst_real = curfile.rstrip('/') + '/' + dst
+            form = FileOpForm(vault=vault,
+                              operation='copy',
+                              target=template,
+                              destination=dst_real)
+            if copy_move_file(vault, form, True):
+                return redirect(
+                    url_for('editor',
+                            vault=vault,
+                            subpath=form.destination.data))
+            else:
+                raise ValueError(
+                    f'Could not perform copy from {template} to {dst_real}')
         if op == 'move':
             form = FileOpForm(vault=vault,
                               operation='move',

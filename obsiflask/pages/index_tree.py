@@ -9,13 +9,59 @@ from obsiflask.file_index import FileIndex
 from obsiflask.app_state import AppState
 
 
-def get_menu(key: str, vault: str, is_dir: bool, tree_curfile):
+def get_menu(key: str, vault: str, is_dir: bool, tree_curfile, templates):
+    if is_dir:
+        curdir_curfile = {'curdir': key}
+    else:
+        curfile = key
+        if key.count('/') == 0:
+            curdir = '.'
+        else:
+            curdir = key.rsplit('/', 1)[0]
+        curdir_curfile = {'curdir': curdir, 'curfile': curfile}
+
     menu = []
     if is_dir:
         menu.append({
             'title': '📂 Open folder',
             'url': url_for('get_folder', vault=vault, subpath=key)
         })
+        menu.append({
+            'title':
+            '📄 Create empty file',
+            'url':
+            url_for('fastfileop', vault=vault, op='file', **curdir_curfile),
+            'mode':
+            'fastop',
+            'get_dst':
+            True,
+        })
+        menu.append({
+            'title':
+            '🗁 Create new folder',
+            'url':
+            url_for('fastfileop', vault=vault, op='folder', **curdir_curfile),
+            'mode':
+            'fastop',
+            'get_dst':
+            True,
+        })
+        for t in templates:
+            menu.append({
+                'title':
+                f'📃 New file from {t.name}',
+                'url':
+                url_for('fastfileop',
+                        vault=vault,
+                        op='template',
+                        **curdir_curfile,
+                        template=str(t)),
+                'mode':
+                'fastop',
+                'get_dst':
+                True
+            })
+
     else:
         if key.endswith(('.md', '.excalidraw')):
             menu.append({
@@ -31,16 +77,6 @@ def get_menu(key: str, vault: str, is_dir: bool, tree_curfile):
             'url': url_for('get_file', vault=vault, subpath=key)
         })
 
-    if is_dir:
-        curdir_curfile = {'curdir': key}
-    else:
-        curfile = key
-        if key.count('/') == 0:
-            curdir = '.'
-        else:
-            curdir = key.rsplit('/', 1)[0]
-        curdir_curfile = {'curdir': curdir, 'curfile': curfile}
-
     menu.append({
         'title':
         '🗐 Duplicate',
@@ -51,7 +87,7 @@ def get_menu(key: str, vault: str, is_dir: bool, tree_curfile):
         'get_dst':
         True
     })
-    if  key not in tree_curfile:
+    if key not in tree_curfile:
         menu.append({
             'title':
             '→ Rename',
@@ -65,14 +101,15 @@ def get_menu(key: str, vault: str, is_dir: bool, tree_curfile):
 
         menu.append({
             'title':
-            '❌ Delete',
+            '🗑️ Delete',
             'url':
             url_for('fastfileop', vault=vault, op='delete', **curdir_curfile),
             'mode':
             'fastop',
             'check':
             True,
-            'reload': True
+            'reload':
+            True
         })
 
     menu.append({
@@ -97,6 +134,8 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
     Returns:
         str: returned html
     """
+    print ('REQUEST', [subpath])
+    templates = AppState.indices[vault].get_templates()
     edit = request.args.get('edit', '0')
     curfile = request.args.get('curfile')
     curdir = request.args.get('curdir')
@@ -107,14 +146,16 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
     items = []
     if isinstance(tree, FileIndex):
         tree = tree.get_tree()
-    is_root = subpath == ''
+    #if subpath == '':
+    #is_root = subpath == ''
     subpath = Path(AppState.indices[vault].path / subpath).resolve()
     subpath_rel = subpath.relative_to(AppState.indices[vault].path)
-    if not is_root:
-        tree = tree[AppState.indices[vault].path]
-        for part in list(subpath_rel.parents)[::-1][1:]:
-            tree = tree[AppState.indices[vault].path / part]
-    tree = tree[AppState.indices[vault].path / subpath_rel]
+    #if not is_root:
+    tree = tree[AppState.indices[vault].path]
+    for part in list(subpath_rel.parents)[::-1][1:]:
+        #print ('go to ', part, 'indices', tree.keys())
+        tree = tree[AppState.indices[vault].path / part]
+    #tree = tree[AppState.indices[vault].path / subpath_rel]
     if tree is not None:
         for name, child in sorted(tree.items(),
                                   key=lambda x: (x[1] is None, x[0])):
@@ -127,7 +168,9 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                     "lazy": name.is_dir(),
                     "key": key,
                     "data": {
-                        'menu': get_menu(key, vault, True, [curfile, curdir])
+                        'menu':
+                        get_menu(key, vault, True, [curfile, curdir],
+                                 templates)
                     }
                 })
             else:
@@ -135,7 +178,8 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                     url = url_for('editor', vault=vault, subpath=key)
                 else:
                     url = url_for('renderer', vault=vault, subpath=key)
-                menu = get_menu(key, vault, False, [curfile, curdir])
+                menu = get_menu(key, vault, False, [curfile, curdir],
+                                templates)
                 items.append({
                     "title": f"{name.name}",
                     "key": key,
@@ -144,5 +188,5 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                         'menu': menu
                     }
                 })
-
+    print (items)
     return jsonify(items)
