@@ -15,12 +15,12 @@
         expand_more = true;
     }
     let navtree = $("#tree").fancytree({
-        source: { url: "{{url_for('tree', vault=vault)}}/?edit={{page_editor}}" },
+        source: { url: "{{url_for('tree', vault=vault)}}/?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}" },
         clickFolderMode: 2, // open folders by click
         lazyLoad: function (event, data) {
             let node = data.node;
 
-            let url = "{{ url_for('tree', vault=vault) }}/" + encodeURIComponent(node.key) + "?edit={{page_editor}}";
+            let url = "{{ url_for('tree', vault=vault) }}/" + encodeURIComponent(node.key) + "?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}";
             //console.log(['lazy', url])
             data.result = { url: url };
         },
@@ -94,24 +94,61 @@
         step();
     }
 
-     $("#tree").on("contextmenu", function (event) {
+    $("#tree").on("contextmenu", function (event) {
         let node = $.ui.fancytree.getNode(event.target);
         if (!node) return;
         let tree = node.tree;
-        tree.visit(function(n) {
+        tree.visit(function (n) {
             n.setSelected(false);
         });
         node.setSelected(true);
-        event.preventDefault(); 
+        event.preventDefault();
         $menu.empty();
         if (node.data.menu && node.data.menu.length > 0) {
             node.data.menu.forEach(item => {
-                
-                $menu.append(`<a href="${item.url}">${item.title}</a>`);
+
+                if (item.mode == 'fastop') {
+
+                    $menu.append(
+                        $('<a href="#">' + item.title + '</a>').on("click", function (e) {
+                            e.preventDefault(); // don't go up to the page
+                            $("#contextMenu").hide();
+                            let url = item.url;
+                            if (item.get_dst) {
+                                let dst = prompt("Enter new filename:");
+                                if (!dst) return;
+                                url = url + '&dst=' + encodeURIComponent(dst);
+                            }
+                            if (item.check) {
+                                if (!confirm("Are you sure?")) {
+                                    return
+                                }
+                            }
+                            fetch(url, { method: "GET" })
+                                .then(resp => {
+                                    if (item.reload)
+                                    {
+                                       $("#tree").fancytree("getTree").reload();
+                                    }
+                                    else{
+                                    if (resp.redirected) {
+                                        window.location.href = resp.url;
+                                    }
+                                    }
+                                    
+                                });
+
+
+                        }))
+                }
+
+                else {
+                    $menu.append(`<a href="${item.url}">${item.title}</a>`);
+                }
             });
 
             $menu.css({
-                top: event.clientY ,
+                top: event.clientY,
                 left: event.clientX
             }).show();
         }

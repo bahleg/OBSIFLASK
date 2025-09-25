@@ -9,7 +9,7 @@ from obsiflask.file_index import FileIndex
 from obsiflask.app_state import AppState
 
 
-def get_menu(key: str, vault: str, is_dir: bool):
+def get_menu(key: str, vault: str, is_dir: bool, tree_curfile):
     menu = []
     if is_dir:
         menu.append({
@@ -32,21 +32,54 @@ def get_menu(key: str, vault: str, is_dir: bool):
         })
 
     if is_dir:
-        menu.append({
-            'title': '🗃️ File operations',
-            'url': url_for('fileop', vault=vault, curdir=key)
-        })
+        curdir_curfile = {'curdir': key}
     else:
+        curfile = key
         if key.count('/') == 0:
             curdir = '.'
         else:
             curdir = key.rsplit('/', 1)[0]
+        curdir_curfile = {'curdir': curdir, 'curfile': curfile}
+
+    menu.append({
+        'title':
+        '🗐 Duplicate',
+        'url':
+        url_for('fastfileop', vault=vault, op='copy', **curdir_curfile),
+        'mode':
+        'fastop',
+        'get_dst':
+        True
+    })
+    if  key not in tree_curfile:
         menu.append({
             'title':
-            '🗃️ File operations',
+            '→ Rename',
             'url':
-            url_for('fileop', vault=vault, curfile=key, curdir=curdir)
+            url_for('fastfileop', vault=vault, op='move', **curdir_curfile),
+            'mode':
+            'fastop',
+            'get_dst':
+            True
         })
+
+        menu.append({
+            'title':
+            '❌ Delete',
+            'url':
+            url_for('fastfileop', vault=vault, op='delete', **curdir_curfile),
+            'mode':
+            'fastop',
+            'check':
+            True,
+            'reload': True
+        })
+
+    menu.append({
+        'title': '🗃️ File operations...',
+        'url': url_for('fileop', vault=vault, **curdir_curfile)
+    })
+
     return menu
 
 
@@ -65,6 +98,8 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
         str: returned html
     """
     edit = request.args.get('edit', '0')
+    curfile = request.args.get('curfile')
+    curdir = request.args.get('curdir')
     if edit not in [0, '0', '', False, 'false', 'False']:
         edit = True
     else:
@@ -92,7 +127,7 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                     "lazy": name.is_dir(),
                     "key": key,
                     "data": {
-                        'menu': get_menu(key, vault, True)
+                        'menu': get_menu(key, vault, True, [curfile, curdir])
                     }
                 })
             else:
@@ -100,7 +135,7 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                     url = url_for('editor', vault=vault, subpath=key)
                 else:
                     url = url_for('renderer', vault=vault, subpath=key)
-                menu = get_menu(key, vault, False)
+                menu = get_menu(key, vault, False, [curfile, curdir])
                 items.append({
                     "title": f"{name.name}",
                     "key": key,

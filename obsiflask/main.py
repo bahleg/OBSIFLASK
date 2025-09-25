@@ -23,7 +23,7 @@ from obsiflask.pages.index_tree import render_tree
 from obsiflask.pages.messages import render_messages
 from obsiflask.pages.excalidraw import render_excalidraw
 from obsiflask.pages.folder import render_folder
-from obsiflask.pages.fileop import render_fileop
+from obsiflask.pages.fileop import render_fileop, render_fastop
 from obsiflask.pages.base import render_base_view
 from obsiflask.graph import Graph
 from obsiflask.pages.graph import render_graph
@@ -373,6 +373,13 @@ def run(cfg: AppConfig | None = None,
         if auth_check_resut:
             return auth_check_resut
         return render_fileop(vault)
+
+    @app.route('/fastfileop/<vault>')
+    def fastfileop(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
+        return render_fastop(vault)
 
     if AppState.config.auth.enabled:
 
