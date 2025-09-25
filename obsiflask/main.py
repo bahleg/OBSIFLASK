@@ -163,9 +163,6 @@ def run(cfg: AppConfig | None = None,
         return datetime.datetime.fromtimestamp(value).strftime(
             '%Y-%m-%d %H:%M:%S')
 
-
-    
-        
     @app.route('/edit/<vault>/<path:subpath>')
     def editor(vault, subpath):
         auth_check_resut = check_rights(vault)
@@ -318,15 +315,25 @@ def run(cfg: AppConfig | None = None,
         if auth_check_resut:
             return auth_check_resut
         return render_index()
-
-    @app.route('/tree/<vault>')
-    def tree(vault):
+    
+    @app.route('/tree/<vault>/', defaults={'subpath': ''})
+    @app.route('/tree/<vault>/<path:subpath>')
+    def tree(vault, subpath):
         auth_check_resut = check_rights(vault)
         if auth_check_resut:
             return auth_check_resut
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         AppState.indices[vault].refresh()
-        return render_tree(AppState.indices[vault], vault)
+        print ('subpath', subpath)
+        return render_tree(AppState.indices[vault], vault, subpath)
 
+    @app.route('/globaltree/<vault>')
+    def globaltree(vault):
+        from flask import render_template
+        return render_template('tree.html', vault=vault)
+    
     @app.route('/graph/<vault>')
     def graph(vault):
         auth_check_resut = check_rights(vault)
