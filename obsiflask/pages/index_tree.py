@@ -61,10 +61,11 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                                   subpath=subpath_rel / name.name)
 
                 items.append({
-                    "title": f"{str(name.name)}",
+                    "title": f"{name.name}",
                     "key": str(subpath_rel / name.name),
                     "data": {
                         'url': url
                     }
                 })
+    print (items)
     return jsonify(items)

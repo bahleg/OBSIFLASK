@@ -6,16 +6,20 @@
 <div id="tree"></div>
 
 <script>
+    let expand_more = false;
     let currentPath = "{{ current_path }}";
-    let currentDir =  "{{ current_dir }}";
+    let currentDir = "{{ current_dir }}";
     if (!currentPath) {
         currentPath = currentDir;
+        expand_more = true;
     }
-    $("#tree").fancytree({
+    let navtree = $("#tree").fancytree({
         source: { url: "{{url_for('tree', vault=vault)}}/?edit={{page_editor}}" },
         lazyLoad: function (event, data) {
             let node = data.node;
+
             let url = "{{ url_for('tree', vault=vault) }}/" + encodeURIComponent(node.key) + "?edit={{page_editor}}";
+            console.log(['lazy', url])
             data.result = { url: url };
         },
         activate: function (event, data) {
@@ -25,32 +29,70 @@
             }
         },
         init: function (event, data) {
-        if (currentPath) {
-            expandPath(data.tree, currentPath);
-            let node = data.tree.getNodeByKey(currentPath);
-            if (node) {
-                node.setActive(true);
-            }
-            else{
-                console.log('not found: '+currentPath)
+            if (currentPath) {
+                console.log("Init tree, currentPath=", currentPath);
+                let tree = data.tree;
+                let parts = currentPath.split("/");
+
+                // Родительский путь для expand
+                let expandParts = []
+                if (expand_more) {
+                    expandParts = parts;
+                }
+                else {
+                    expandParts = parts.slice(0, -1);
+                }
+
+                let targetKey = currentPath;
+                console.log('parts', [expandParts])
+                expandPath(tree, expandParts, function () {
+
+                    let node = tree.getNodeByKey(targetKey);
+                    if (node) {
+                        node.setSelected(true);
+                        node.setFocus(true);
+                        node.makeVisible();
+
+                    } else {
+                        console.log("Node not found:", [targetKey]);
+                        tree.visit(function (node) {
+                            console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
+                        });
+                    }
+                })
+
+
+
+
             }
         }
-    }
+
+
     });
 
-    function expandPath(tree, path) {
-    let parts = path.split("/");
-    let current = "";
-    function step() {
-        if (!parts.length) return;
-        current = current ? current + "/" + parts.shift() : parts.shift();
-        let node = tree.getNodeByKey(current);
-        if (node) {
-            node.setExpanded(true).done(step);
+    function expandPath(tree, parts, callback) {
+        if (!parts.length) {
+            if (callback) callback();
+            return;
         }
+        let current = "";
+        let queue = [...parts]; // копия массива
+
+        function step() {
+            if (!queue.length) {
+                if (callback) callback();
+                return;
+            }
+            current = current ? current + "/" + queue.shift() : queue.shift();
+            let node = tree.getNodeByKey(current);
+            console.log('subexpanding', current)
+            if (node) {
+                node.setExpanded(true).done(step);
+            }
+        }
+        step();
     }
-    step();
-}
+
 </script>
 
 {% endmacro %}
