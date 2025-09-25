@@ -42,29 +42,55 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
     if tree is not None:
         for name, child in sorted(tree.items(),
                                   key=lambda x: (x[1] is None, x[0])):
+            key = str(subpath_rel / name.name)
             is_dir = child is not None
             if is_dir:
                 items.append({
                     "title": f"{name.name}",
                     "folder": True,
                     "lazy": name.is_dir(),
-                    "key": str(subpath_rel / name.name),
+                    "key": key,
+                    "data": {
+                        'menu': [{
+                            'title':
+                            'Open folder',
+                            'url':
+                            url_for('get_folder', vault=vault, subpath=key)
+                        }]
+                    }
                 })
             else:
                 if edit:
-                    url = url_for('editor',
-                                  vault=vault,
-                                  subpath=subpath_rel / name.name)
+                    url = url_for('editor', vault=vault, subpath=key)
                 else:
-                    url = url_for('renderer',
-                                  vault=vault,
-                                  subpath=subpath_rel / name.name)
-
+                    url = url_for('renderer', vault=vault, subpath=key)
+                menu = []
                 items.append({
                     "title": f"{name.name}",
-                    "key": str(subpath_rel / name.name),
+                    "key": key,
                     "data": {
-                        'url': url
+                        'url': url,
+                        'menu': menu
                     }
                 })
+                if name.suffix in ['.md', '.excalidraw']:
+                    menu.append({
+                        'title':
+                        'Show',
+                        'url':
+                        url_for('renderer', vault=vault, subpath=key)
+                    })
+                    menu.append({
+                        'title':
+                        'Edit',
+                        'url':
+                        url_for('editor', vault=vault, subpath=key)
+                    })
+                menu.append({
+                    'title':
+                    'Download',
+                    'url':
+                    url_for('get_file', vault=vault, subpath=key)
+                })
+
     return jsonify(items)

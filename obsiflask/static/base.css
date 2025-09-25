@@ -111,3 +111,23 @@ pre code {
   background-color: var(--bs-primary) !important;
   color: var(--bs-secondary-color) !important;
 }
+
+#contextMenu {
+  position: fixed; 
+  display: none;
+  background: var(--bs-body-color);
+  border: 1px solid #ccc;
+  min-width: 180px;
+  z-index: 10000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+#contextMenu a {
+  display: block;
+  padding: 6px 12px;
+  text-decoration: none;
+  color: var(--bs-primary);
+}
+#contextMenu a:hover {
+  background: var(--bs-primary);
+  color: var(--bs-secondary-color);
+}

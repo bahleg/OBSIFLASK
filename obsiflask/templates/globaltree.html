@@ -4,8 +4,9 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery.fancytree/dist/jquery.fancytree-all-deps.min.js"></script>
 
 <div id="tree"></div>
-
+<div id="contextMenu"></div>
 <script>
+    let $menu = $("#contextMenu");
     let expand_more = false;
     let currentPath = "{{ current_path }}";
     let currentDir = "{{ current_dir }}";
@@ -20,7 +21,7 @@
             let node = data.node;
 
             let url = "{{ url_for('tree', vault=vault) }}/" + encodeURIComponent(node.key) + "?edit={{page_editor}}";
-            console.log(['lazy', url])
+            //console.log(['lazy', url])
             data.result = { url: url };
         },
         activate: function (event, data) {
@@ -31,7 +32,7 @@
         },
         init: function (event, data) {
             if (currentPath) {
-                console.log("Init tree, currentPath=", currentPath);
+                //console.log("Init tree, currentPath=", currentPath);
                 let tree = data.tree;
                 let parts = currentPath.split("/");
 
@@ -44,20 +45,20 @@
                 }
 
                 let targetKey = currentPath;
-                console.log('parts', [expandParts])
+                //console.log('parts', [expandParts])
                 expandPath(tree, expandParts, function () {
 
                     let node = tree.getNodeByKey(targetKey);
                     if (node) {
-                        node.setSelected(true);
                         node.setFocus(true);
+                        node.setSelected(true);
                         node.makeVisible();
 
                     } else {
                         console.log("Node not found:", [targetKey]);
-                        tree.visit(function (node) {
-                            console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
-                        });
+                        //tree.visit(function (node) {
+                        //    console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
+                        //});
                     }
                 })
 
@@ -85,13 +86,40 @@
             }
             current = current ? current + "/" + queue.shift() : queue.shift();
             let node = tree.getNodeByKey(current);
-            console.log('subexpanding', current)
+            //console.log('subexpanding', current)
             if (node) {
                 node.setExpanded(true).done(step);
             }
         }
         step();
     }
+
+     $("#tree").on("contextmenu", function (event) {
+        let node = $.ui.fancytree.getNode(event.target);
+        if (!node) return;
+        let tree = node.tree;
+        tree.visit(function(n) {
+            n.setSelected(false);
+        });
+        node.setSelected(true);
+        event.preventDefault(); 
+        $menu.empty();
+        if (node.data.menu && node.data.menu.length > 0) {
+            node.data.menu.forEach(item => {
+                
+                $menu.append(`<a href="${item.url}">${item.title}</a>`);
+            });
+
+            $menu.css({
+                top: event.clientY ,
+                left: event.clientX
+            }).show();
+        }
+    });
+
+    $(document).on("click", function () {
+        $menu.hide();
+    });
 
 </script>
 
