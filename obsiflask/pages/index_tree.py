@@ -46,11 +46,22 @@ def render_tree(tree: dict[str, dict | str],
                 "folder": True,
                 "lazy": True,
                 "key": str(subpath_rel/name.name),
+                 "data":  {'url': 'google.com'}
             })
         else:
+            if edit:
+                url = url_for('editor',
+                              vault=vault,
+                              subpath=subpath_rel / name.name)
+            else:
+                url = url_for('renderer',
+                              vault=vault,
+                              subpath=subpath_rel / name.name)
+                
             items.append({
                 "title": f"📄 {str(name.name)}",
-                "key": str(subpath_rel / name.name)
+                "key": str(subpath_rel / name.name),
+                "data":  {'url': url}
             })
     print (items)
     return jsonify(items)

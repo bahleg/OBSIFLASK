@@ -17,13 +17,12 @@
                 let node = data.node;
                 data.result = { url: "{{url_for('tree', vault=vault)}}/" + encodeURIComponent(node.key) };
             },
-            activate: function (event, data) {
+            activate: function(event, data) {
                 let node = data.node;
-                if (!node.folder) {
-                    // например, редирект в редактор
-                    window.location.href = "/open?file=" + encodeURIComponent(node.key);
+                if (node.data.url) {
+                    window.location.href = node.data.url;
                 }
-            }
+                }
         });
     </script>
 </body>
