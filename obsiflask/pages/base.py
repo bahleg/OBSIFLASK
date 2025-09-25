@@ -61,8 +61,6 @@ def render_base_view(vault: str, subpath: str, real_path: str) -> str:
         raise NotImplementedError(f'Unsupported type: {base.views[key].type}')
     return render_template(template_path,
                            table=result,
-                           navtree=render_tree(AppState.indices[vault], vault,
-                                               False),
                            is_editor=False,
                            home=AppState.config.vaults[vault].home_file,
                            curdir=Path(subpath).parent,

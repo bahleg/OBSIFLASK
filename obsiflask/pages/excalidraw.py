@@ -57,8 +57,6 @@ def render_excalidraw(vault: str, path: str, real_path: str) -> str:
                            excalidraw_json=text,
                            path=path,
                            vault=vault,
-                           navtree=render_tree(AppState.indices[vault], vault,
-                                               True),
                            page_editor=True,
                            home=AppState.config.vaults[vault].home_file,
                            curdir=Path(path).parent,

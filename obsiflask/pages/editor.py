@@ -7,7 +7,6 @@ from threading import Lock
 from flask import render_template, redirect, url_for, Response, request
 
 from obsiflask.pages.renderer import preprocess
-from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.auth import get_user, get_user_config
@@ -50,8 +49,6 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
                            path=path,
                            vault=vault,
                            markdown_html=markdown,
-                           navtree=render_tree(AppState.indices[vault], vault,
-                                               True),
                            page_editor=True,
                            home=AppState.config.vaults[vault].home_file,
                            curdir=Path(path).parent,

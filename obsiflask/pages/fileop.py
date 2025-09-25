@@ -222,7 +222,6 @@ def render_fileop(vault: str) -> str:
     Returns:
         str: Flask-rendered page
     """
-    navtree = render_tree(AppState.indices[vault], vault, True)
     form = FileOpForm(vault)
     back_url = url_for('renderer_root', vault=vault)
 
@@ -274,7 +273,6 @@ def render_fileop(vault: str) -> str:
 
     return render_template('fileop.html',
                            form=form,
-                           navtree=navtree,
                            home=AppState.config.vaults[vault].home_file,
                            vault=vault,
                            back_url=back_url)

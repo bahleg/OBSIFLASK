@@ -3,17 +3,13 @@ A rendering nav tree logic
 """
 from pathlib import Path
 
-from flask import url_for, jsonify
+from flask import url_for, jsonify, request
 
 from obsiflask.file_index import FileIndex
 from obsiflask.app_state import AppState
 
 
-def render_tree(tree: dict[str, dict | str],
-                vault: str,
-                subpath: str,
-                edit: bool = False,
-                level: int = 0) -> str:
+def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
     """
     A recursive function for rendering tree
 
@@ -27,78 +23,48 @@ def render_tree(tree: dict[str, dict | str],
     Returns:
         str: returned html
     """
-    
+    edit = request.args.get('edit', '0')
+    if edit not in [0, '0', '', False, 'false', 'False']:
+        edit = True
+    else:
+        edit = False
     items = []
     if isinstance(tree, FileIndex):
         tree = tree.get_tree()
-    subpath = Path(AppState.indices[vault].path/subpath).resolve()
+    is_root = subpath == ''
+    subpath = Path(AppState.indices[vault].path / subpath).resolve()
     subpath_rel = subpath.relative_to(AppState.indices[vault].path)
-    
-    for part in subpath_rel.parents:
-        tree = tree[AppState.indices[vault].path/part]
-    tree = tree[AppState.indices[vault].path/subpath_rel]
-    for name, child in sorted(tree.items(),
-                              key=lambda x: (x[1] is not None, x[0])):
-        is_dir = child is not None
-        if is_dir:
-            items.append({
-                "title": f"📁 {name.name}",
-                "folder": True,
-                "lazy": True,
-                "key": str(subpath_rel/name.name),
-                 "data":  {'url': 'google.com'}
-            })
-        else:
-            if edit:
-                url = url_for('editor',
-                              vault=vault,
-                              subpath=subpath_rel / name.name)
+    if not is_root:
+        tree = tree[AppState.indices[vault].path]
+        for part in list(subpath_rel.parents)[::-1][1:]:
+            tree = tree[AppState.indices[vault].path / part]
+    tree = tree[AppState.indices[vault].path / subpath_rel]
+    if tree is not None:
+        for name, child in sorted(tree.items(),
+                                  key=lambda x: (x[1] is not None, x[0])):
+            is_dir = child is not None
+            if is_dir:
+                items.append({
+                    "title": f"{name.name}",
+                    "folder": True,
+                    "lazy": name.is_dir(),
+                    "key": str(subpath_rel / name.name),
+                })
             else:
-                url = url_for('renderer',
-                              vault=vault,
-                              subpath=subpath_rel / name.name)
-                
-            items.append({
-                "title": f"📄 {str(name.name)}",
-                "key": str(subpath_rel / name.name),
-                "data":  {'url': url}
-            })
-    print (items)
+                if edit:
+                    url = url_for('editor',
+                                  vault=vault,
+                                  subpath=subpath_rel / name.name)
+                else:
+                    url = url_for('renderer',
+                                  vault=vault,
+                                  subpath=subpath_rel / name.name)
+
+                items.append({
+                    "title": f"{str(name.name)}",
+                    "key": str(subpath_rel / name.name),
+                    "data": {
+                        'url': url
+                    }
+                })
     return jsonify(items)
-    """
-    rel_path = AppState.indices[vault].path
-
-    if isinstance(tree, FileIndex):
-        tree = tree.get_tree()
-        root = True
-    else:
-        root = False
-
-
-    html = f"<ul class=\"list-unstyled\" style=\"padding-left:{level * 3}px;\">"
-
-    for name, child in tree.items():
-        if child:  # folder
-            if root:
-                url = url_for('get_folder_root', vault=vault)
-                root = False
-            else:
-                url = url_for('get_folder',
-                              vault=vault,
-                              subpath=name.relative_to(rel_path))
-
-            html += f"<li class=\"mb-1\"> <span class=\"fw-bold\"><a class=\"text-decoration-none\" href=\"{url}\">📁 {name.name}{render_tree(child, vault, edit, level=level+1)}</a></span></li>"
-        else:  # file
-
-            if edit:
-                url = url_for('editor',
-                              vault=vault,
-                              subpath=name.relative_to(rel_path))
-            else:
-                url = url_for('renderer',
-                              vault=vault,
-                              subpath=name.relative_to(rel_path))
-            html += f"<li><a href=\"{url}\" class=\"text-decoration-none\">📄 {name.name}</a></li>"
-    html += "</ul>"
-    return html
-    """

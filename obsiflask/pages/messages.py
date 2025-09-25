@@ -34,7 +34,5 @@ def render_messages(vault: str, unread: bool, raw: bool = False) -> str:
     return render_template('messages.html',
                            home=AppState.config.vaults[vault].home_file,
                            messages=messages,
-                           navtree=render_tree(AppState.indices[vault], vault,
-                                               False),
                            vault=vault,
                            unread=bool(unread))

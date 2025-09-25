@@ -315,7 +315,7 @@ def run(cfg: AppConfig | None = None,
         if auth_check_resut:
             return auth_check_resut
         return render_index()
-    
+
     @app.route('/tree/<vault>/', defaults={'subpath': ''})
     @app.route('/tree/<vault>/<path:subpath>')
     def tree(vault, subpath):
@@ -326,14 +326,13 @@ def run(cfg: AppConfig | None = None,
         if isinstance(real_path, tuple):
             return real_path
         AppState.indices[vault].refresh()
-        print ('subpath', subpath)
         return render_tree(AppState.indices[vault], vault, subpath)
 
     @app.route('/globaltree/<vault>')
     def globaltree(vault):
         from flask import render_template
-        return render_template('tree.html', vault=vault)
-    
+        return render_template('globaltree.html', vault=vault)
+
     @app.route('/graph/<vault>')
     def graph(vault):
         auth_check_resut = check_rights(vault)

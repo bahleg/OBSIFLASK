@@ -252,8 +252,6 @@ def render_renderer(vault: str, path: str, real_path: Path) -> str:
                                                     vault),
                            path=path,
                            vault=vault,
-                           navtree=render_tree(AppState.indices[vault], vault,
-                                               False),
                            is_editor=False,
                            home=AppState.config.vaults[vault].home_file,
                            curdir=Path(path).parent,

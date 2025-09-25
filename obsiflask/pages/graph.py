@@ -336,7 +336,6 @@ def render_graph(vault: str) -> str:
     return render_template(
         'graph.html',
         vault=vault,
-        navtree=render_tree(AppState.indices[vault], vault, True),
         page_editor=False,
         home=AppState.config.vaults[vault].home_file,
         graph_data=out_graph,

@@ -68,3 +68,44 @@ pre code {
   font-family: var(--bs-font-monospace);
   white-space: pre-wrap;
 }
+
+
+.fancytree-container {
+  border: none !important;
+  background-color: transparent !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  color: var(--bs-body-color) !important;
+}
+
+.fancytree-title {
+  color: var(--bs-body-color) !important;
+}
+
+.fancytree-node {
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 0.25rem !important;
+  color: var(--bs-body-color) !important;
+}
+
+.fancytree-node:hover {
+  background-color: var(--bs-primary-bg-subtle) !important;
+  color: var(--bs-primary-text) !important;
+}
+
+.fancytree-folder > span.fancytree-title::before {
+  color: var(--bs-primary) !important;
+}
+
+
+.fancytree-node:not(.fancytree-folder) > span.fancytree-title::before {
+  color: var(--bs-secondary-color) !important;
+}
+
+
+
+.fancytree-active {
+  background-color: var(--bs-primary) !important;
+  color: var(--bs-secondary-color) !important;
+}
+
