@@ -6,6 +6,7 @@ Version handling module
 version_str = '0.14.0'
 
 
+
 def get_version() -> str:
     return version_str
 
