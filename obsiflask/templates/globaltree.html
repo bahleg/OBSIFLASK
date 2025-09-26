@@ -1,0 +1,172 @@
+{% macro render_tree(vault, page_editor, current_path, current_dir) %}
+<link href="https://cdn.jsdelivr.net/npm/jquery.fancytree/dist/skin-lion/ui.fancytree.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.fancytree/dist/jquery.fancytree-all-deps.min.js"></script>
+
+<div id="tree"></div>
+<div id="contextMenu"></div>
+<script>
+    let $menu = $("#contextMenu");
+    let expand_more = false;
+    let currentPath = "{{ current_path }}";
+    let currentDir = "{{ current_dir }}";
+    if (!currentPath) {
+        currentPath = currentDir;
+        expand_more = true;
+    }
+    let navtree = $("#tree").fancytree({
+        source: { url: "{{url_for('tree', vault=vault)}}/?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}" },
+        clickFolderMode: 2, // open folders by click
+        lazyLoad: function (event, data) {
+            let node = data.node;
+
+            let url = "{{ url_for('tree', vault=vault) }}/" + encodeURIComponent(node.key) + "?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}";
+            //console.log(['lazy', url])
+            data.result = { url: url };
+        },
+        activate: function (event, data) {
+            let node = data.node;
+            if (node.data.url) {
+                window.location.href = node.data.url;
+            }
+        },
+        init: function (event, data) {
+            if (currentPath) {
+                //console.log("Init tree, currentPath=", currentPath);
+                let tree = data.tree;
+                let parts = currentPath.split("/");
+
+                let expandParts = []
+                if (expand_more) {
+                    expandParts = parts;
+                }
+                else {
+                    expandParts = parts.slice(0, -1);
+                }
+
+                let targetKey = currentPath;
+                //console.log('parts', [expandParts])
+                expandPath(tree, expandParts, function () {
+
+                    let node = tree.getNodeByKey(targetKey);
+                    if (node) {
+                        node.setFocus(true);
+                        node.setSelected(true);
+                        node.makeVisible();
+
+                    } else {
+                        console.log("Node not found:", [targetKey]);
+                        //tree.visit(function (node) {
+                        //    console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
+                        //});
+                    }
+                    //tree.visit(function (node) {
+                    //        console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
+                    //    });
+                })
+
+
+
+
+            }
+        },
+        renderNode: function (event, data) {
+            const node = data.node;
+            const title = node.title;//(node.data && node.data.title) || node.title || node.key;
+            $(node.span).find(".fancytree-title").text(title);
+        }
+
+
+    });
+
+    function expandPath(tree, parts, callback) {
+        if (!parts.length) {
+            if (callback) callback();
+            return;
+        }
+        let current = "";
+        let queue = [...parts]; // copy
+
+        function step() {
+            if (!queue.length) {
+                if (callback) callback();
+                return;
+            }
+            current = current ? current + "/" + queue.shift() : queue.shift();
+            let node = tree.getNodeByKey(current);
+            //console.log('subexpanding', current)
+            if (node) {
+                node.setExpanded(true).done(step);
+            }
+        }
+        step();
+    }
+
+    $("#tree").on("contextmenu", function (event) {
+        let node = $.ui.fancytree.getNode(event.target);
+        if (!node) return;
+        let tree = node.tree;
+        tree.visit(function (n) {
+            n.setSelected(false);
+        });
+        node.setSelected(true);
+        event.preventDefault();
+        $menu.empty();
+        if (node.data.menu && node.data.menu.length > 0) {
+            node.data.menu.forEach(item => {
+
+                if (item.mode == 'fastop') {
+
+                    $menu.append(
+                        $('<a href="#">' + item.title + '</a>').on("click", function (e) {
+                            e.preventDefault(); // don't go up to the page
+                            $("#contextMenu").hide();
+                            let url = item.url;
+                            if (item.get_dst) {
+                                let dst = prompt("Enter new filename:");
+                                if (!dst) return;
+                                url = url + '&dst=' + encodeURIComponent(dst);
+                            }
+                            if (item.check) {
+                                if (!confirm("Are you sure?")) {
+                                    return
+                                }
+                            }
+                            fetch(url, { method: "GET" })
+                                .then(resp => {
+                                    if (item.reload) {
+                                        $("#tree").fancytree("getTree").reload();
+                                    }
+                                    else {
+                                        if (resp.redirected) {
+                                            window.location.href = resp.url;
+                                        }
+                                    }
+
+                                });
+
+
+                        }))
+                }
+
+                else {
+                    $menu.append(`<a href="${item.url}">${item.title}</a>`);
+                }
+            });
+
+            $menu.css({
+                top: event.clientY,
+                left: event.clientX
+            }).show();
+        }
+    });
+
+    $(document).on("click", function () {
+        $menu.hide();
+    });
+
+</script>
+
+{% endmacro %}
+
+{{render_tree(vault, True)}}

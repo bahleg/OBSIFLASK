@@ -20,7 +20,6 @@ def render_folder(vault: str, subpath: str) -> None | str:
     Returns:
         None | str: error code or resulting rendered page
     """
-    navtree = render_tree(AppState.indices[vault], vault, True)
     abspath = AppState.indices[vault].path.resolve()
     target = (abspath / subpath).resolve()
     if abspath != target and abspath not in target.parents:
@@ -46,7 +45,6 @@ def render_folder(vault: str, subpath: str) -> None | str:
 
     return render_template('folder.html',
                            subpath=subpath,
-                           navtree=navtree,
                            files=files,
                            folders=folders,
                            home=AppState.config.vaults[vault].home_file,

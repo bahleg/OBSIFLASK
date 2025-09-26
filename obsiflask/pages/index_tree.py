@@ -1,58 +1,216 @@
 """
 A rendering nav tree logic
 """
-from obsiflask.file_index import FileIndex
-from flask import url_for
+from pathlib import Path
+
+from flask import url_for, jsonify, request
+
 from obsiflask.app_state import AppState
 
 
-def render_tree(tree: dict[str, dict | str],
-                vault: str,
-                edit: bool = False,
-                level: int = 0) -> str:
+def get_menu(key: str, vault: str, is_dir: bool, tree_curfile: list[str],
+             templates: list[str]) -> list[dict]:
     """
-    A recursive function for rendering tree
+    Returns a context menu for the target file
 
     Args:
-        tree (dict[str, dict|str]): tree object
+        key (str): file key in fancyTree
         vault (str): vault name
-        edit (bool, optional): flag if we're in editor state. Defaults to False.
-        level (int, optional): nesting level. Defaults to 0.
+        is_dir (bool): directory of file
+        tree_curfile ( list[str]): current file and directory from the point of view of tree
+            For the tree_curfile == key we don't show rename and delete operations
+            as they will require redirect
+        templates (list[str]): list of templates
 
     Returns:
-        str: returned html
+        list[dict]: list of menu elements.
+        Each element has:
+            - title
+            - url
+            - (optionally) mode: 'fastop' if we want to use service file operation api
+            - (optionally) get_dst: true if we want to prompt the user for destination
+            - (optionally) reload: true if we want to just reload tree and not go to the url
+            - (optionally) check: if we want to ask the user the confirmation of the operation     
     """
-    rel_path = AppState.indices[vault].path
-
-    if isinstance(tree, FileIndex):
-        tree = tree.get_tree()
-        root = True
+    if is_dir:
+        curdir_curfile = {'curdir': key}
     else:
-        root = False
+        curfile = key
+        if key.count('/') == 0:
+            curdir = '.'
+        else:
+            curdir = key.rsplit('/', 1)[0]
+        curdir_curfile = {'curdir': curdir, 'curfile': curfile}
 
-    html = f"<ul class=\"list-unstyled\" style=\"padding-left:{level * 3}px;\">"
+    menu = []
+    if is_dir:
+        menu.append({
+            'title': '📂 Open folder',
+            'url': url_for('get_folder', vault=vault, subpath=key)
+        })
+        menu.append({
+            'title':
+            '📄 Create empty file',
+            'url':
+            url_for('fastfileop', vault=vault, op='file', **curdir_curfile),
+            'mode':
+            'fastop',
+            'get_dst':
+            True,
+        })
+        menu.append({
+            'title':
+            '🗁 Create new folder',
+            'url':
+            url_for('fastfileop', vault=vault, op='folder', **curdir_curfile),
+            'mode':
+            'fastop',
+            'get_dst':
+            True,
+        })
+        for t in templates:
+            menu.append({
+                'title':
+                f'📃 New file from {t.name}',
+                'url':
+                url_for('fastfileop',
+                        vault=vault,
+                        op='template',
+                        **curdir_curfile,
+                        template=str(t)),
+                'mode':
+                'fastop',
+                'get_dst':
+                True
+            })
 
-    for name, child in tree.items():
-        if child:  # folder
-            if root:
-                url = url_for('get_folder_root', vault=vault)
-                root = False
+    else:
+        if key.endswith(('.md', '.excalidraw')):
+            menu.append({
+                'title': '👁️ Show',
+                'url': url_for('renderer', vault=vault, subpath=key)
+            })
+            menu.append({
+                'title': '✏️ Edit',
+                'url': url_for('editor', vault=vault, subpath=key)
+            })
+        menu.append({
+            'title': '📥 Download',
+            'url': url_for('get_file', vault=vault, subpath=key)
+        })
+
+    menu.append({
+        'title':
+        '🗐 Duplicate',
+        'url':
+        url_for('fastfileop', vault=vault, op='copy', **curdir_curfile),
+        'mode':
+        'fastop',
+        'get_dst':
+        True
+    })
+    if key not in tree_curfile:
+        menu.append({
+            'title':
+            '→ Rename',
+            'url':
+            url_for('fastfileop', vault=vault, op='move', **curdir_curfile),
+            'mode':
+            'fastop',
+            'get_dst':
+            True
+        })
+
+        menu.append({
+            'title':
+            '🗑️ Delete',
+            'url':
+            url_for('fastfileop', vault=vault, op='delete', **curdir_curfile),
+            'mode':
+            'fastop',
+            'check':
+            True,
+            'reload':
+            True
+        })
+
+    menu.append({
+        'title': '🗃️ File operations...',
+        'url': url_for('fileop', vault=vault, **curdir_curfile)
+    })
+
+    return menu
+
+
+def render_tree(vault: str, subpath: str) -> str:
+    """
+    A function for rendering part of the tree
+
+    Args:
+        vault (str): vault name
+        subpath (str): subpath to analyze 
+
+    Returns:
+        str: json with tree elements for FancyTree
+    """
+    templates = AppState.indices[vault].get_templates()
+    edit = edit = str(request.args.get('edit',
+                                       '0')).lower() not in ['0', '', 'false']
+    curfile = request.args.get('curfile')
+    curdir = request.args.get('curdir')
+    items = []
+    tree = AppState.indices[vault].get_tree()
+    is_root = subpath == ''
+    subpath = Path(AppState.indices[vault].path / subpath).resolve()
+    subpath_rel = subpath.relative_to(AppState.indices[vault].path)
+    tree = tree[AppState.indices[vault].path]
+    # go to the the subpath element
+    for part in list(subpath_rel.parents)[::-1][1:]:
+        tree = tree[AppState.indices[vault].path / part]
+    if not is_root:
+        tree = tree[subpath]
+    tree_curfile = set([curfile, curdir])
+    if is_root:
+        key = '.'
+        # adding root node
+        items.append({
+            "title": '<ROOT>',
+            "folder": True,
+            "lazy": False,
+            "key": key,
+            "data": {
+                'menu': get_menu(key, vault, True, tree_curfile, templates)
+            }
+        })
+
+    if tree is not None:
+        for name, child in sorted(tree.items(),
+                                  key=lambda x: (x[1] is None, x[0])):
+            key = str(subpath_rel / name.name)
+            is_dir = child is not None
+            if is_dir:
+                items.append({
+                    "title": f"{name.name}",
+                    "folder": True,
+                    "lazy": name.is_dir(),
+                    "key": key,
+                    "data": {
+                        'menu': get_menu(key, vault, True, tree_curfile,
+                                         templates)
+                    }
+                })
             else:
-                url = url_for('get_folder',
-                              vault=vault,
-                              subpath=name.relative_to(rel_path))
-
-            html += f"<li class=\"mb-1\"> <span class=\"fw-bold\"><a class=\"text-decoration-none\" href=\"{url}\">📁 {name.name}{render_tree(child, vault, edit, level=level+1)}</a></span></li>"
-        else:  # file
-
-            if edit:
-                url = url_for('editor',
-                              vault=vault,
-                              subpath=name.relative_to(rel_path))
-            else:
-                url = url_for('renderer',
-                              vault=vault,
-                              subpath=name.relative_to(rel_path))
-            html += f"<li><a href=\"{url}\" class=\"text-decoration-none\">📄 {name.name}</a></li>"
-    html += "</ul>"
-    return html
+                if edit:
+                    url = url_for('editor', vault=vault, subpath=key)
+                else:
+                    url = url_for('renderer', vault=vault, subpath=key)
+                menu = get_menu(key, vault, False, tree_curfile, templates)
+                items.append({
+                    "title": f"{name.name}",
+                    "key": key,
+                    "data": {
+                        'url': url,
+                        'menu': menu
+                    }
+                })
+    return jsonify(items)

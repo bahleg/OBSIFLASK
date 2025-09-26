@@ -7,16 +7,15 @@ import shutil
 import datetime
 from threading import Lock
 
-from flask import request
+from flask import request, abort
 from flask import render_template, redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired
 
-from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
-from obsiflask.messages import add_message
+from obsiflask.messages import add_message, type_to_int
 from obsiflask.consts import DATE_FORMAT
 from obsiflask.auth import get_user
 
@@ -130,7 +129,7 @@ def create_file_op(vault: str, form: FileOpForm) -> bool:
         return False
 
 
-def delete_file_op(vault: str, form: FileOpForm):
+def delete_file_op(vault: str, form: FileOpForm, raise_exc: bool = False):
     """
     Delete file/folder operation
 
@@ -152,6 +151,8 @@ def delete_file_op(vault: str, form: FileOpForm):
                     user=get_user())
 
     except Exception as e:
+        if raise_exc:
+            raise e
         add_message(f'Could not delete file {form.target.data}',
                     type=2,
                     vault=vault,
@@ -212,6 +213,115 @@ def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
         return False
 
 
+def render_fastop(vault: str) -> str:
+    """
+    A fast get-like API for file operations.
+    All the arguments are got from url link
+
+    Args:
+        vault (str): vault name
+
+    Returns:
+        str: html redirect 
+    """
+    try:
+        curfile = request.args.get('curfile')
+        if curfile is None:
+            curfile = request.args.get('curdir')
+
+        if curfile is None:
+            raise ValueError(f'target file not defined')
+        op = request.args.get('op')
+        if op not in ['copy', 'move', 'delete', 'file', 'folder', 'template']:
+            raise ValueError(f'Bad operation: {op}')
+
+        if op in ['copy', 'move', 'file', 'folder', 'template']:
+            dst = request.args.get('dst')
+            if dst is None:
+                raise ValueError(
+                    f'destination file for operation {op} is not defined')
+        if op in ['template']:
+            template = request.args.get('template')
+            if template is None:
+                raise ValueError(
+                    f'template file for operation {op} is not defined')
+
+        if op in ['file', 'folder']:
+            if op == 'file':
+                template = '0_no'
+                route = 'editor'
+            else:
+                template = '1_dir'
+                route = 'get_folder'
+
+            form = FileOpForm(vault=vault,
+                              operation='new',
+                              target=curfile.rstrip('/') + '/' + dst,
+                              template=template)
+            if create_file_op(vault, form):
+                return redirect(
+                    url_for(route, vault=vault, subpath=form.target.data))
+            else:
+                raise ValueError(f'Could not create file/folder {dst}')
+
+        if op == 'copy':
+            form = FileOpForm(vault=vault,
+                              operation='copy',
+                              target=curfile,
+                              destination=dst)
+            if copy_move_file(vault, form, True):
+                return redirect(
+                    url_for('editor',
+                            vault=vault,
+                            subpath=form.destination.data))
+            else:
+                raise ValueError(
+                    f'Could not perform copy from {curfile} to {dst}')
+        if op == 'template':
+            dst_real = curfile.rstrip('/') + '/' + dst
+            form = FileOpForm(vault=vault,
+                              operation='copy',
+                              target=template,
+                              destination=dst_real)
+            if copy_move_file(vault, form, True):
+                return redirect(
+                    url_for('editor',
+                            vault=vault,
+                            subpath=form.destination.data))
+            else:
+                raise ValueError(
+                    f'Could not perform copy from {template} to {dst_real}')
+        if op == 'move':
+            form = FileOpForm(vault=vault,
+                              operation='move',
+                              target=curfile,
+                              destination=dst)
+            if copy_move_file(vault, form, False):
+                return redirect(
+                    url_for('editor',
+                            vault=vault,
+                            subpath=form.destination.data))
+            else:
+                raise ValueError(
+                    f'Could not perform move from {curfile} to {dst}')
+        if op == 'delete':
+            form = FileOpForm(vault=vault,
+                              operation='delete',
+                              target=curfile,
+                              destination='')
+            delete_file_op(vault, form, True)
+            return 'ok'
+
+    except Exception as e:
+        add_message(
+            'Exception during file operation',
+            type_to_int['error'],
+            vault,
+            repr(e),
+        )
+        return abort(400)
+
+
 def render_fileop(vault: str) -> str:
     """
     Rendering logic
@@ -222,7 +332,6 @@ def render_fileop(vault: str) -> str:
     Returns:
         str: Flask-rendered page
     """
-    navtree = render_tree(AppState.indices[vault], vault, True)
     form = FileOpForm(vault)
     back_url = url_for('renderer_root', vault=vault)
 
@@ -269,12 +378,10 @@ def render_fileop(vault: str) -> str:
                     url_for('editor',
                             vault=vault,
                             subpath=form.destination.data))
-
         return redirect(back_url)
 
     return render_template('fileop.html',
                            form=form,
-                           navtree=navtree,
                            home=AppState.config.vaults[vault].home_file,
                            vault=vault,
                            back_url=back_url)

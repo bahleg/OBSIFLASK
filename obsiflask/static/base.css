@@ -1,39 +1,39 @@
 .flo-btn-group {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    gap: 10px;
-    z-index: 1000;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
 }
 
 .flo-btn {
-    background-color: var(--bs-body-color);
-    color: var(--bs-body-bg);
-    border-radius: var(--bs-border-radius);
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: background 0.2s;
+  background-color: var(--bs-body-color);
+  color: var(--bs-body-bg);
+  border-radius: var(--bs-border-radius);
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s;
 }
 
 .flo-btn:hover {
-    background-color: var(--bs-secondary-color);
-    /* подсветка из темы */
-    color: var(--bs-body-bg);
+  background-color: var(--bs-secondary-color);
+  /* подсветка из темы */
+  color: var(--bs-body-bg);
 }
 
 @media (max-width: 767.98px) {
-    .flo-btn-group {
-        padding: 4px 6px;
-        font-size: 14px;
-        top: auto;
-        bottom: 15px;
-        /* down */
-        right: 15px;
-    }
+  .flo-btn-group {
+    padding: 4px 6px;
+    font-size: 14px;
+    top: auto;
+    bottom: 15px;
+    /* down */
+    right: 15px;
+  }
 
 }
 
@@ -50,12 +50,15 @@
 }
 
 
-table, th, td {
+table,
+th,
+td {
   border: 1px solid var(--bs-border-color);
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   padding: 0.5rem 0.75rem;
 }
 
@@ -67,4 +70,64 @@ pre code {
   border-radius: var(--bs-border-radius);
   font-family: var(--bs-font-monospace);
   white-space: pre-wrap;
+}
+
+
+.fancytree-container {
+  border: none !important;
+  background-color: transparent !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  color: var(--bs-body-color) !important;
+}
+
+.fancytree-title {
+  color: var(--bs-body-color) !important;
+}
+
+.fancytree-node {
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 0.25rem !important;
+  color: var(--bs-body-color) !important;
+}
+
+.fancytree-node:hover {
+  background-color: var(--bs-primary-bg-subtle) !important;
+  color: var(--bs-primary-text) !important;
+}
+
+.fancytree-folder>span.fancytree-title::before {
+  color: var(--bs-primary) !important;
+}
+
+
+.fancytree-node:not(.fancytree-folder)>span.fancytree-title::before {
+  color: var(--bs-secondary-color) !important;
+}
+
+
+
+.fancytree-active {
+  background-color: var(--bs-primary) !important;
+  color: var(--bs-secondary-color) !important;
+}
+
+#contextMenu {
+  position: fixed; 
+  display: none;
+  background: var(--bs-body-color);
+  border: 1px solid #ccc;
+  min-width: 180px;
+  z-index: 10000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+#contextMenu a {
+  display: block;
+  padding: 6px 12px;
+  text-decoration: none;
+  color: var(--bs-primary);
+}
+#contextMenu a:hover {
+  background: var(--bs-primary);
+  color: var(--bs-secondary-color);
 }

@@ -361,8 +361,6 @@ def render_search(vault: str) -> str | Generator[str, None, None]:
 
     return render_func('search.html',
                        vault=vault,
-                       navtree=render_tree(AppState.indices[vault], vault,
-                                           True),
                        page_editor=False,
                        home=AppState.config.vaults[vault].home_file,
                        results=results,

@@ -23,7 +23,7 @@ from obsiflask.pages.index_tree import render_tree
 from obsiflask.pages.messages import render_messages
 from obsiflask.pages.excalidraw import render_excalidraw
 from obsiflask.pages.folder import render_folder
-from obsiflask.pages.fileop import render_fileop
+from obsiflask.pages.fileop import render_fileop, render_fastop
 from obsiflask.pages.base import render_base_view
 from obsiflask.graph import Graph
 from obsiflask.pages.graph import render_graph
@@ -163,9 +163,6 @@ def run(cfg: AppConfig | None = None,
         return datetime.datetime.fromtimestamp(value).strftime(
             '%Y-%m-%d %H:%M:%S')
 
-
-    
-        
     @app.route('/edit/<vault>/<path:subpath>')
     def editor(vault, subpath):
         auth_check_resut = check_rights(vault)
@@ -319,13 +316,22 @@ def run(cfg: AppConfig | None = None,
             return auth_check_resut
         return render_index()
 
-    @app.route('/tree/<vault>')
-    def tree(vault):
+    @app.route('/tree/<vault>/', defaults={'subpath': ''})
+    @app.route('/tree/<vault>/<path:subpath>')
+    def tree(vault, subpath):
         auth_check_resut = check_rights(vault)
         if auth_check_resut:
             return auth_check_resut
+        real_path = resolve_path(vault, subpath)
+        if isinstance(real_path, tuple):
+            return real_path
         AppState.indices[vault].refresh()
-        return render_tree(AppState.indices[vault], vault)
+        return render_tree(vault, subpath)
+
+    @app.route('/globaltree/<vault>')
+    def globaltree(vault):
+        from flask import render_template
+        return render_template('globaltree.html', vault=vault)
 
     @app.route('/graph/<vault>')
     def graph(vault):
@@ -367,6 +373,13 @@ def run(cfg: AppConfig | None = None,
         if auth_check_resut:
             return auth_check_resut
         return render_fileop(vault)
+
+    @app.route('/fastfileop/<vault>')
+    def fastfileop(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
+        return render_fastop(vault)
 
     if AppState.config.auth.enabled:
 
