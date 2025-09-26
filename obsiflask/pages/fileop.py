@@ -225,10 +225,11 @@ def render_fastop(vault: str) -> str:
         str: html redirect 
     """
     try:
+        curfile_dir = False
         curfile = request.args.get('curfile')
         if curfile is None:
             curfile = request.args.get('curdir')
-
+            curfile_dir = True
         if curfile is None:
             raise ValueError(f'target file not defined')
         op = request.args.get('op')
@@ -240,6 +241,15 @@ def render_fastop(vault: str) -> str:
             if dst is None:
                 raise ValueError(
                     f'destination file for operation {op} is not defined')
+            
+            # note: destination here is always local w.r.t. curfile
+            if curfile_dir:
+                dst = curfile.rstrip('/') + '/'+dst
+            else:
+                if '/' in curfile:
+                    parent = curfile.rsplit('/', 1)[0]
+                    dst = parent.rstrip('/') + '/'+dst
+
         if op in ['template']:
             template = request.args.get('template')
             if template is None:
