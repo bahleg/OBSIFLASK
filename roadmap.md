@@ -2,8 +2,7 @@
 
 Planned features to be implemented (tentative order):
 
-## Major features
-- Improved navigation tree  
+## Major features 
 - Excalidraw plugin compatibility
 - Encryption support (compatible with Meld plugin)
 - Refactored file index and graph handling
