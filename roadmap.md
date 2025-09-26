@@ -38,6 +38,7 @@ Planned features to be implemented (tentative order):
 - More user customization:
   - hotkeys
   - tabs/spaces
+  - notifications
 - Documentation
    - (doi?) 
 - twine
