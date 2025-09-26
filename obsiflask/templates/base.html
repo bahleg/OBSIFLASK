@@ -51,11 +51,11 @@
 <body>
 
 
-    <div class="d-flex" id="wrapper" style="height:100vh; overflow:hidden;">
+    <div class="d-flex" id="wrapper" style="height:100vh">
 
         <!-- Sidebar -->
         <div id="sidebar" class="bg-light border-end"
-            style="width:420px; transition: width 0.3s; display:flex; flex-direction:column;">
+            style="width:420px; transition: width 0.3s; display:flex; flex-direction:column;  min-height: 0; ">
             <div class="p-2 d-flex flex-column h-100">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     {% if page_editor %}
@@ -123,8 +123,8 @@
                 </div>
 
                 <p></p>
-                <div class="collapse show" id="navtreeCollapse">
-                    <div class="card p-3 flex-grow-1 mb-2" style="height: 100vh; overflow-x: auto; box-sizing: border-box;  overflow-y:auto;">
+                <div class="collapse show" id="navtreeCollapse" style="min-height: 0; flex: 1 1 auto; display: flex;">
+                    <div class="card p-3 flex-grow-1 mb-2" style="min-height: 0; flex-grow: 1;   overflow-x: auto; box-sizing: border-box;  overflow-y:auto;">
                        {{render_tree(vault, page_editor, curfile, curdir)}}
                     </div>
 
