@@ -1,45 +1,94 @@
 import pytest
+import json
+import re
 
-import obsiflask.pages.index_tree as index_tree
-from obsiflask.app_state import AppState
+from obsiflask.pages.index_tree import render_tree
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
 
 
-@pytest.fixture(autouse=True)
-def mock_appstate(tmp_path):
-    (tmp_path / "folder").mkdir()
-    (tmp_path / "folder" / "file.txt").touch()
-    (tmp_path / "folder" / "file.md").touch()
+@pytest.fixture
+def app(tmp_path):
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "templates").mkdir()
+    (tmp_path / "templates" / "template.md").write_text('write')
 
-    config = AppConfig(vaults={'vault1': VaultConfig(str(tmp_path))})
+    (tmp_path / "dir" / "file.md").write_text('write')
+    (tmp_path / "dir" / "file.txt").write_text('write')
+    config = AppConfig(vaults={
+        'vault':
+        VaultConfig(str(tmp_path), template_dir=(tmp_path / "templates"))
+    }, )
+
     app = run(config, True)
-    app.config['WTF_CSRF_ENABLED'] = False
-    AppState.messages[('vault1', None)] = []
     return app
 
 
-@pytest.fixture(autouse=True)
-def mock_url_for(monkeypatch):
+def test_render_tree_root(app):
+    with app.test_request_context():
+        elements = json.loads(render_tree('vault', '').data)
+        assert len(elements) == 3  # note, the order is sorted
+        assert elements[0]['title'] == '<ROOT>'
+        assert elements[0]['lazy'] == False
 
-    def fake_url_for(endpoint, **kwargs):
-        return f"/{endpoint}/{kwargs.get('subpath', '')}".rstrip("/")
+        assert elements[1]['title'] == 'dir'
+        assert elements[1]['lazy'] == True
 
-    monkeypatch.setattr(index_tree, "url_for", fake_url_for)
+        assert elements[2]['title'] == 'templates'
+        assert elements[1]['lazy'] == True
+
+        for f in elements:
+            assert f['folder'] == True
+            menu_titles = set([
+                re.sub('[^\w\s]', '', t['title']).strip().lower()
+                for t in f['data']['menu']
+            ])
+            assert menu_titles == {
+                'open folder', 'create empty file', 'create new folder',
+                'duplicate', 'rename', 'delete', 'file operations',
+                'new file from templatemd'
+            }
 
 
-def test_render_tree_with_fileindex():
-    html = index_tree.render_tree(index_tree.AppState.indices["vault1"],
-                                  "vault1")
-    assert "📁 folder" in html
-    assert "📄 file.txt" in html
-    assert "📄 file.md" in html
-    assert "/renderer/folder/file.md" in html
-    assert "/get_folder" in html
+def test_folder(app):
+    with app.test_request_context():
+        elements = json.loads(render_tree('vault', 'dir/').data)
+        assert len(elements) == 2
+        assert elements[0]['title'] == 'file.md'
+        assert elements[1]['title'] == 'file.txt'
 
+        for f in elements:
+            assert f.get('folder') != True
+            assert f.get('lazy') != True
 
-def test_render_tree_edit_mode():
-    html = index_tree.render_tree(index_tree.AppState.indices["vault1"],
-                                  "vault1",
-                                  edit=True)
-    assert "/editor/folder/file.md" in html
+        menu_titles = set([
+            re.sub('[^\w\s]', '', t['title']).strip().lower()
+            for t in elements[0]['data']['menu']
+        ])
+        assert menu_titles == {
+            'duplicate', 'rename', 'delete', 'file operations', 'download',
+            'show', 'edit'
+        }
+
+        # less options for non-md file
+        menu_titles = set([
+            re.sub('[^\w\s]', '', t['title']).strip().lower()
+            for t in elements[1]['data']['menu']
+        ])
+        assert menu_titles == {
+            'duplicate',
+            'rename',
+            'delete',
+            'file operations',
+            'download',
+        }
+    # no delete/rename for current file
+    with app.test_request_context('?curfile=dir/file.md'):
+        elements = json.loads(render_tree('vault', 'dir/').data)
+        menu_titles = set([
+            re.sub('[^\w\s]', '', t['title']).strip().lower()
+            for t in elements[0]['data']['menu']
+        ])
+        assert menu_titles == {
+            'duplicate', 'file operations', 'download', 'show', 'edit'
+        }

@@ -60,12 +60,20 @@
                         //    console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
                         //});
                     }
+                    //tree.visit(function (node) {
+                    //        console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
+                    //    });
                 })
 
 
 
 
             }
+        },
+        renderNode: function (event, data) {
+            const node = data.node;
+            const title = node.title;//(node.data && node.data.title) || node.title || node.key;
+            $(node.span).find(".fancytree-title").text(title);
         }
 
 
@@ -126,16 +134,15 @@
                             }
                             fetch(url, { method: "GET" })
                                 .then(resp => {
-                                    if (item.reload)
-                                    {
-                                       $("#tree").fancytree("getTree").reload();
+                                    if (item.reload) {
+                                        $("#tree").fancytree("getTree").reload();
                                     }
-                                    else{
-                                    if (resp.redirected) {
-                                        window.location.href = resp.url;
+                                    else {
+                                        if (resp.redirected) {
+                                            window.location.href = resp.url;
+                                        }
                                     }
-                                    }
-                                    
+
                                 });
 
 

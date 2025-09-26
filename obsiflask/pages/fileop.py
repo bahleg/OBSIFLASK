@@ -214,6 +214,16 @@ def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
 
 
 def render_fastop(vault: str) -> str:
+    """
+    A fast get-like API for file operations.
+    All the arguments are got from url link
+
+    Args:
+        vault (str): vault name
+
+    Returns:
+        str: html redirect 
+    """
     try:
         curfile = request.args.get('curfile')
         if curfile is None:

@@ -326,7 +326,7 @@ def run(cfg: AppConfig | None = None,
         if isinstance(real_path, tuple):
             return real_path
         AppState.indices[vault].refresh()
-        return render_tree(AppState.indices[vault], vault, subpath)
+        return render_tree(vault, subpath)
 
     @app.route('/globaltree/<vault>')
     def globaltree(vault):

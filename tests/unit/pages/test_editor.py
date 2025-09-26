@@ -23,8 +23,7 @@ def test_render_editor_success(flask_app):
     with flask_app.test_request_context():
         with patch("builtins.open", mock_open(read_data=fake_content)), \
             patch("obsiflask.pages.editor.preprocess", return_value="<h1>Hello World</h1>") as mock_md, \
-            patch("obsiflask.pages.editor.render_template") as mock_render, \
-            patch("obsiflask.pages.editor.render_tree", return_value="<ul></ul>"):
+            patch("obsiflask.pages.editor.render_template") as mock_render:
 
             render_editor(vault, path, real_path)
             mock_md.assert_called_once()

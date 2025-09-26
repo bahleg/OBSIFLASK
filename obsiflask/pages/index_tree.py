@@ -5,11 +5,33 @@ from pathlib import Path
 
 from flask import url_for, jsonify, request
 
-from obsiflask.file_index import FileIndex
 from obsiflask.app_state import AppState
 
 
-def get_menu(key: str, vault: str, is_dir: bool, tree_curfile, templates):
+def get_menu(key: str, vault: str, is_dir: bool, tree_curfile: list[str],
+             templates: list[str]) -> list[dict]:
+    """
+    Returns a context menu for the target file
+
+    Args:
+        key (str): file key in fancyTree
+        vault (str): vault name
+        is_dir (bool): directory of file
+        tree_curfile ( list[str]): current file and directory from the point of view of tree
+            For the tree_curfile == key we don't show rename and delete operations
+            as they will require redirect
+        templates (list[str]): list of templates
+
+    Returns:
+        list[dict]: list of menu elements.
+        Each element has:
+            - title
+            - url
+            - (optionally) mode: 'fastop' if we want to use service file operation api
+            - (optionally) get_dst: true if we want to prompt the user for destination
+            - (optionally) reload: true if we want to just reload tree and not go to the url
+            - (optionally) check: if we want to ask the user the confirmation of the operation     
+    """
     if is_dir:
         curdir_curfile = {'curdir': key}
     else:
@@ -120,42 +142,47 @@ def get_menu(key: str, vault: str, is_dir: bool, tree_curfile, templates):
     return menu
 
 
-def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
+def render_tree(vault: str, subpath: str) -> str:
     """
-    A recursive function for rendering tree
+    A function for rendering part of the tree
 
     Args:
-        tree (dict[str, dict|str]): tree object
         vault (str): vault name
-        subpath (str): str 
-        edit (bool, optional): flag if we're in editor state. Defaults to False.
-        level (int, optional): nesting level. Defaults to 0.
+        subpath (str): subpath to analyze 
 
     Returns:
-        str: returned html
+        str: json with tree elements for FancyTree
     """
-    print ('REQUEST', [subpath])
     templates = AppState.indices[vault].get_templates()
-    edit = request.args.get('edit', '0')
+    edit = edit = str(request.args.get('edit',
+                                       '0')).lower() not in ['0', '', 'false']
     curfile = request.args.get('curfile')
     curdir = request.args.get('curdir')
-    if edit not in [0, '0', '', False, 'false', 'False']:
-        edit = True
-    else:
-        edit = False
     items = []
-    if isinstance(tree, FileIndex):
-        tree = tree.get_tree()
-    #if subpath == '':
-    #is_root = subpath == ''
+    tree = AppState.indices[vault].get_tree()
+    is_root = subpath == ''
     subpath = Path(AppState.indices[vault].path / subpath).resolve()
     subpath_rel = subpath.relative_to(AppState.indices[vault].path)
-    #if not is_root:
     tree = tree[AppState.indices[vault].path]
+    # go to the the subpath element
     for part in list(subpath_rel.parents)[::-1][1:]:
-        #print ('go to ', part, 'indices', tree.keys())
         tree = tree[AppState.indices[vault].path / part]
-    #tree = tree[AppState.indices[vault].path / subpath_rel]
+    if not is_root:
+        tree = tree[subpath]
+    tree_curfile = set([curfile, curdir])
+    if is_root:
+        key = '.'
+        # adding root node
+        items.append({
+            "title": '<ROOT>',
+            "folder": True,
+            "lazy": False,
+            "key": key,
+            "data": {
+                'menu': get_menu(key, vault, True, tree_curfile, templates)
+            }
+        })
+
     if tree is not None:
         for name, child in sorted(tree.items(),
                                   key=lambda x: (x[1] is None, x[0])):
@@ -168,9 +195,8 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                     "lazy": name.is_dir(),
                     "key": key,
                     "data": {
-                        'menu':
-                        get_menu(key, vault, True, [curfile, curdir],
-                                 templates)
+                        'menu': get_menu(key, vault, True, tree_curfile,
+                                         templates)
                     }
                 })
             else:
@@ -178,8 +204,7 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                     url = url_for('editor', vault=vault, subpath=key)
                 else:
                     url = url_for('renderer', vault=vault, subpath=key)
-                menu = get_menu(key, vault, False, [curfile, curdir],
-                                templates)
+                menu = get_menu(key, vault, False, tree_curfile, templates)
                 items.append({
                     "title": f"{name.name}",
                     "key": key,
@@ -188,5 +213,4 @@ def render_tree(tree: dict[str, dict | str], vault: str, subpath: str) -> str:
                         'menu': menu
                     }
                 })
-    print (items)
     return jsonify(items)
