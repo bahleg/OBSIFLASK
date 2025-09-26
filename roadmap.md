@@ -39,6 +39,7 @@ Planned features to be implemented (tentative order):
   - hotkeys
   - tabs/spaces
   - notifications
+  - fancytree
 - Documentation
    - (doi?) 
 - twine
