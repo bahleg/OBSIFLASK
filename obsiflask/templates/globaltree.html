@@ -46,7 +46,12 @@
 
                 let targetKey = currentPath;
                 //console.log('parts', [expandParts])
+                 // Показываем лоадер, скрываем дерево
+                $("#tree").hide();
+                $("#tree").after("<div id='tree-loading'>Loading tree…</div>");
+                
                 expandPath(tree, expandParts, function () {
+                    
 
                     let node = tree.getNodeByKey(targetKey);
                     if (node) {
@@ -60,10 +65,14 @@
                         //    console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
                         //});
                     }
+                    $("#tree-loading").remove();
+                    $("#tree").show();
                     //tree.visit(function (node) {
                     //        console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
                     //    });
                 })
+
+               
 
 
 
