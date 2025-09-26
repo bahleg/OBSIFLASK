@@ -15,12 +15,12 @@
         expand_more = true;
     }
     let navtree = $("#tree").fancytree({
-        source: { url: "{{url_for('tree', vault=vault)}}/?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}" },
+        source: { url: "{{url_for('tree', vault=vault)}}?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}" },
         clickFolderMode: 2, // open folders by click
         lazyLoad: function (event, data) {
             let node = data.node;
 
-            let url = "{{ url_for('tree', vault=vault) }}/" + encodeURIComponent(node.key) + "?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}";
+            let url = "{{ url_for('tree', vault=vault) }}" + encodeURIComponent(node.key) + "?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}";
             //console.log(['lazy', url])
             data.result = { url: url };
         },
