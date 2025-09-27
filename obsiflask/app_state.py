@@ -18,6 +18,8 @@ class AppState:
     }  # user, ip -> details, datetime
     users_per_vault: dict[str, set] = {}
     user_configs: dict[str, UserConfig] = {}
+    vault_alias: dict[str, str] = {}
+    shortlinks: dict[str, dict[str, str]] = {}
 
     @staticmethod
     def inject_vars():

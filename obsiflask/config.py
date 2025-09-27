@@ -5,6 +5,7 @@ For the main config class, see AppConfig
 from dataclasses import dataclass, field
 from typing import Any
 
+
 @dataclass
 class UserConfig:
     """
@@ -141,6 +142,10 @@ class VaultConfig:
     """
     Path to vault directory. Can be local or absolute
     """
+    short_alias: str | None = None
+    """
+    If set, will use short link for the short link pages
+    """
     home_file: str = ''
     """
     If set, clicking by the label on the sidebar will open the home file.
@@ -195,7 +200,7 @@ class VaultConfig:
     """
     Take messages from server each message_fetch_time seconds
     """
-    message_fetch_limit: int = 1 
+    message_fetch_limit: int = 1
     """
     Take messages only N messages
     """
@@ -204,8 +209,17 @@ class VaultConfig:
     Save documents each autosave_time seconds
     """
     autocomplete_max_ngrams: int = 10000
+    """
+    Max ngrams to use in autocomplete
+    """
     autocomplete_ngram_order: int = 4
+    """
+    Ngram order to build an index in autocomplete
+    """
     autocomplete_max_ratio_in_key: float = .1
+    """
+    Remove frequent ngrams
+    """
 
 
 @dataclass
@@ -270,4 +284,12 @@ class AppConfig:
     """
     Flask app secret. If not set, will be generated at startup
     """
-    
+    service_dir: str | None = None
+    """
+    Directory to save service-specific files (auth databases, logs, etc)
+    If not set, will ignore 
+    """
+    shortlink_path: str = 'shortlink.json'
+    """
+    Path to save shortlink
+    """
