@@ -3,7 +3,7 @@ Version handling module
 """
 
 
-version_str = '0.15.0'
+version_str = '0.15.1'
 
 
 
