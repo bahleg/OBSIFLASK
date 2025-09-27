@@ -40,6 +40,8 @@ Planned features to be implemented (tentative order):
 - More user customization:
   - hotkeys
   - tabs/spaces
+  - notifications
+  - fancytree
 - Documentation
    - (doi?) 
 - twine
