@@ -33,6 +33,7 @@ Planned features to be implemented (tentative order):
   - Saving before turning into the view mode
   - Better autocomplete tags handling in frontmatter
   - Better mentions handling in autocomplete
+  - relative links if shortlinks
 - Sometimes autocomplete works badly, need to check
 - Large files: currently excluded from analysis
 - switch markdown preview to mde?
