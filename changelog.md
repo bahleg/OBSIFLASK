@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
 ---
+### [0.15.*] - Short links
+- Added bookmark page (only for short links now)
+- Fix of copy file behaviour 
+
 ### [0.14.*] - Tree refactoring
 - The navigation tree was rewritten
 

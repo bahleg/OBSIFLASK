@@ -28,7 +28,7 @@
         <td><a href="{{url_for('shortlink', alias=alias, link=link)}}">{{link}}</a></td>
         <td><a href="{{links[link]}}">{{links[link]}}</a></td>
         <td>
-        <a href="{{url_for('links', vault=vault, link=link)}}">Delete alias link</a>
+        <a href="{{url_for('bookmarks', vault=vault, link=link)}}">Delete alias link</a>
         </td>
       </tr>
 

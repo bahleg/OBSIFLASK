@@ -5,7 +5,7 @@ GPLv3
 Some basic functions for logging, 
 working with config and prototyping modules of the toolbox
 """
-
+import traceback
 import logging
 import logging.handlers as handlers
 from rich.logging import RichHandler
@@ -91,3 +91,17 @@ def init_logger(
 
     logger_to_init.setLevel(log_level)
     return logger_to_init
+
+
+def get_traceback(e: Exception) -> str:
+    """
+    Args:
+        e (Exception): exception to get traceback
+
+        Simple helper for getting traceback from exception
+
+    Returns:
+        str: string with traceback
+    """
+    return "".join(traceback.TracebackException.from_exception(e).format())
+

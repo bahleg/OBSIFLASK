@@ -98,6 +98,7 @@ def logic_init(cfg: AppConfig):
             vaultcfg.autocomplete_max_ratio_in_key)
 
         AppState.graphs[vault].build(dry=True, populate_hint_files=True)
+    AppState.vault_alias = {}
     for vault in cfg.vaults:
         alias = cfg.vaults[vault].short_alias
         if alias is None:
@@ -359,7 +360,7 @@ def run(cfg: AppConfig | None = None,
         return render_search(vault)
 
     @app.route('/bookmarks/<vault>', methods=['GET', 'POST'])
-    def links(vault):
+    def bookmarks(vault):
         auth_check_resut = check_rights(vault)
         if auth_check_resut:
             return auth_check_resut

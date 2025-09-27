@@ -10,6 +10,7 @@ from obsiflask.file_index import FileIndex
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.app_state import AppState
 from obsiflask.auth import get_user
+from obsiflask.utils import get_traceback
 
 _lock = Lock()
 
@@ -42,5 +43,5 @@ def make_save(path: str, content: str, index: FileIndex,
             return jsonify({"status": "ok"}), 200
         except Exception as e:
             add_message(f'Cannot save file: {path.name}: {e}',
-                        type_to_int['error'], vault, repr(e), user=get_user())
+                        type_to_int['error'], vault, get_traceback(e), user=get_user())
             return f'Cannot save: {e}', 400

@@ -21,6 +21,7 @@ from networkx.algorithms.community import louvain_communities
 from obsiflask.messages import add_message
 from obsiflask.bases.filter import FieldFilter
 from obsiflask.auth import get_user_config
+from obsiflask.utils import get_traceback
 
 def is_hex_color(s: str) -> bool:
     """
@@ -119,7 +120,7 @@ def get_graph_and_legend(
                 add_message(f'problems during node filtering: {filter_filter}',
                             1,
                             vault,
-                            details=repr(e))
+                            details=get_traceback(e))
                 ids = []
         else:
             ids = [
@@ -195,7 +196,7 @@ def get_filters(vault: str, cm: Colormap,
             filters = json.loads(parse.unquote(filters))
         except Exception as e:
             add_message(f'could not parse filters {filters}', 1, vault,
-                        repr(e))
+                        get_traceback(e))
             filters = None
 
         try:
@@ -203,7 +204,7 @@ def get_filters(vault: str, cm: Colormap,
                 assert isinstance(f, dict)
         except Exception as e:
             add_message(f'could not parse filters {filters}', 1, vault,
-                        repr(e))
+                        get_traceback(e))
             filters = None
 
     if not filters:

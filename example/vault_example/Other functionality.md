@@ -31,3 +31,6 @@ Currently the only available hotkey is "Ctrl-s", which saves your markdown in ed
 # 🌗 Dark/Light mode
 
 The dark/light mode changing is available. By default OBSIFLASK uses system settings. The dark mode is automatically loaded for the corresponding bootstrap theme, see [config](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py)
+
+# 🔖 Short links
+To make the life of the user easier OBSIFLASK provides short links service. The short links are shared inside the vault.

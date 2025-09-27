@@ -17,12 +17,14 @@ Planned features to be implemented (tentative order):
 - Enhanced Bases support  
   - Links in Bases
 - Icon support  
-- Bookmarks (and permalinks)
+- Bookmarks
 - Obsidian config usage   
 - Read-only vaults or parts of vaults  
 - PWA support (tentative)  
 
 ## Minor features and fixes
+- Known minor bugs
+  - when copying a folder from edit mode, the redirect shows error message, need more correct file redirect handling
 - Cluster color settings
 - Job tracking?
 - rename by click

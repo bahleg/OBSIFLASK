@@ -18,6 +18,7 @@ from obsiflask.utils import logger
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.consts import DATE_FORMAT
 from obsiflask.auth import get_user
+from obsiflask.utils import get_traceback
 
 lock = Lock()
 
@@ -124,7 +125,7 @@ def create_file_op(vault: str, form: FileOpForm) -> bool:
         add_message(f'Could not create file {form.target.data}',
                     type=2,
                     vault=vault,
-                    details=repr(e),
+                    details=get_traceback(e),
                     user=get_user())
         return False
 
@@ -156,7 +157,7 @@ def delete_file_op(vault: str, form: FileOpForm, raise_exc: bool = False):
         add_message(f'Could not delete file {form.target.data}',
                     type=2,
                     vault=vault,
-                    details=repr(e),
+                    details=get_traceback(e),
                     user=get_user())
 
 
@@ -181,7 +182,9 @@ def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
         dst = AppState.indices[vault].path / Path(form.destination.data)
         with lock:
             if path.is_dir():
-                dst.mkdir(parents=True, exist_ok=True)
+                if dst.exists():
+                    dst = dst / path.name
+                dst.parent.mkdir(parents=True, exist_ok=True)
             else:
                 dst.parent.mkdir(parents=True, exist_ok=True)
             if copy:
@@ -205,11 +208,12 @@ def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
         return True
     except Exception as e:
         logger.error(f'problem during file {op_label} {path.name}: {e}')
-        add_message(f'Could not {op_label} file {form.target.data}',
-                    type=2,
-                    vault=vault,
-                    details=repr(e),
-                    user=get_user())
+        add_message(
+            f'Could not {op_label} file {form.target.data} to {form.destination.data}',
+            type=2,
+            vault=vault,
+            details=get_traceback(e),
+            user=get_user())
         return False
 
 
@@ -241,14 +245,14 @@ def render_fastop(vault: str) -> str:
             if dst is None:
                 raise ValueError(
                     f'destination file for operation {op} is not defined')
-            
+
             # note: destination here is always local w.r.t. curfile
             if curfile_dir:
-                dst = curfile.rstrip('/') + '/'+dst
+                dst = curfile.rstrip('/') + '/' + dst
             else:
                 if '/' in curfile:
                     parent = curfile.rsplit('/', 1)[0]
-                    dst = parent.rstrip('/') + '/'+dst
+                    dst = parent.rstrip('/') + '/' + dst
 
         if op in ['template']:
             template = request.args.get('template')
@@ -327,7 +331,7 @@ def render_fastop(vault: str) -> str:
             'Exception during file operation',
             type_to_int['error'],
             vault,
-            repr(e),
+            get_traceback(e),
         )
         return abort(400)
 

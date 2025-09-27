@@ -17,6 +17,7 @@ from obsiflask.messages import add_message, type_to_int
 from obsiflask.bases.filter import FieldFilter
 from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN
 from obsiflask.auth import get_user
+from obsiflask.utils import get_traceback
 
 SEARCH_PREVIEW_CHARS = 100
 """
@@ -53,7 +54,7 @@ def generate_formula_check_results(
         add_message('Error during tag search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e),
+                    details=get_traceback(e),
                     user=get_user())
 
 
@@ -88,7 +89,7 @@ def generate_tags_check_results(
         add_message('Error during tag search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e),
+                    details=get_traceback(e),
                     user=get_user())
 
 
@@ -134,7 +135,7 @@ def generate_links_check_results(
         add_message('Error during link search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e),
+                    details=get_traceback(e),
                     user=get_user())
 
 
@@ -212,7 +213,7 @@ def generate_text_check_results(
         add_message('Error during text search',
                     type_to_int['error'],
                     vault,
-                    details=repr(e),
+                    details=get_traceback(e),
                     user=get_user())
 
 

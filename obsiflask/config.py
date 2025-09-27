@@ -289,7 +289,8 @@ class AppConfig:
     Directory to save service-specific files (auth databases, logs, etc)
     If not set, will ignore 
     """
-    shortlink_path: str = 'shortlink.json'
+    shortlink_path: str = 'shortlink_{}.json'
     """
-    Path to save shortlink
+    Path to save shortlink.
+    Must contain '{}'
     """

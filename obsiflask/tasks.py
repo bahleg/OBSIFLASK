@@ -8,8 +8,7 @@ from threading import Thread, Event
 
 from obsiflask.config import Task
 from obsiflask.messages import add_message, type_to_int
-from obsiflask.utils import logger
-
+from obsiflask.utils import logger, get_traceback
 
 def thread_wrapper(task: Task, vault: str, stop_event: Event):
     """
@@ -40,7 +39,7 @@ def thread_wrapper(task: Task, vault: str, stop_event: Event):
                 msg_type = type_to_int['error']
         except Exception as e:
             logger.error(f'Task {task} finished with exception: {e}')
-            stderr = repr(e)
+            stderr = get_traceback(e)
             msg = task.error
             msg_type = type_to_int['error']
         add_message(msg, msg_type, vault, stderr)
@@ -62,7 +61,10 @@ def run_tasks(tasks_dict: dict[str, list[Task]]) -> Event:
         for task in tasks:
             logger.info(f'running task {task}')
             thread = Thread(
-                target=partial(thread_wrapper, task=task, vault=vault, stop_event=stop_event),
+                target=partial(thread_wrapper,
+                               task=task,
+                               vault=vault,
+                               stop_event=stop_event),
                 daemon=True,
             )
             thread.start()
