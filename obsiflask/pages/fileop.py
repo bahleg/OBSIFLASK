@@ -267,10 +267,9 @@ def render_fastop(vault: str) -> str:
             else:
                 template = '1_dir'
                 route = 'get_folder'
-
             form = FileOpForm(vault=vault,
                               operation='new',
-                              target=curfile.rstrip('/') + '/' + dst,
+                              target=dst,
                               template=template)
             if create_file_op(vault, form):
                 return redirect(
@@ -292,11 +291,10 @@ def render_fastop(vault: str) -> str:
                 raise ValueError(
                     f'Could not perform copy from {curfile} to {dst}')
         if op == 'template':
-            dst_real = curfile.rstrip('/') + '/' + dst
             form = FileOpForm(vault=vault,
                               operation='copy',
                               target=template,
-                              destination=dst_real)
+                              destination=dst)
             if copy_move_file(vault, form, True):
                 return redirect(
                     url_for('editor',
@@ -304,7 +302,7 @@ def render_fastop(vault: str) -> str:
                             subpath=form.destination.data))
             else:
                 raise ValueError(
-                    f'Could not perform copy from {template} to {dst_real}')
+                    f'Could not perform copy from {template} to {dst}')
         if op == 'move':
             form = FileOpForm(vault=vault,
                               operation='move',
