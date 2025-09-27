@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form%}
+
+{% block content %}
+<div class="container">
+  <h1>Alias links</h1>
+  <h2> New link</h2>
+  {{ render_form(form) }}
+  <hr />
+
+  <br />
+  <h2> Existing links</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+
+        <th scope="col">Alias</th>
+        <th scope="col"> Link </th>
+        <th scope="col"> Delete </th>
+
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for link in links %}
+      <tr>
+        <td><a href="{{url_for('shortlink', alias=alias, link=link)}}">{{link}}</a></td>
+        <td><a href="{{links[link]}}">{{links[link]}}</a></td>
+        <td>
+        <a href="{{url_for('bookmarks', vault=vault, link=link)}}">Delete alias link</a>
+        </td>
+      </tr>
+
+      {% endfor %}
+
+    </tbody>
+  </table>
+  <script>
+    let url = new URL(window.location);
+    url.searchParams.delete("link");
+    window.history.replaceState({}, "", url);
+  </script>
+
+  {% endblock %}

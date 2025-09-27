@@ -11,7 +11,7 @@ from obsiflask.bases.view import View
 from obsiflask.bases.filter import Filter, FilterAnd, FilterOr, FieldFilter, TrivialFilter
 from obsiflask.messages import add_message
 from obsiflask.bases.grammar import FilterTransformer, grammar
-
+from obsiflask.utils import get_traceback
 
 class Base:
     """
@@ -137,7 +137,7 @@ def parse_base(real_path: str, vault: str) -> Base:
             else:
                 add_message(
                     f'Problems with formula {formula} parsing. Skipping', 1,
-                    vault, repr(e))
+                    vault, get_traceback(e))
                 func = lambda x: ''
         base.formulas[key] = func
 

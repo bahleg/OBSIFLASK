@@ -14,7 +14,7 @@ import flask_login
 from flask import Flask, g, redirect, url_for, request
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from obsiflask.utils import logger
+from obsiflask.utils import logger, resolve_service_path
 from obsiflask.app_state import AppState
 from obsiflask.hint import HintIndex
 from obsiflask.minihydra import load_config
@@ -36,7 +36,7 @@ def save_user_config(user: str, config: UserConfig):
         user (str): user name
         config (UserConfig): config to save
     """
-    cfg_dir_path = Path(AppState.config.auth.user_config_dir)
+    cfg_dir_path = resolve_service_path(Path(AppState.config.auth.user_config_dir))
     cfg_dir_path.mkdir(parents=True, exist_ok=True)
     cfg_path = cfg_dir_path / f'{user}.yml'
     OmegaConf.save(config, cfg_path)
@@ -54,7 +54,7 @@ def make_user_adjustments(user: str):
         hi: HintIndex = AppState.hints[vault]
         hi.default_files_per_user[user] = copy(hi.default_files_per_user[None])
         AppState.messages[(vault, user)] = []
-        cfg_dir_path = Path(AppState.config.auth.user_config_dir)
+        cfg_dir_path = resolve_service_path(Path(AppState.config.auth.user_config_dir))
         cfg_path = cfg_dir_path / f'{user}.yml'
         config = None
         if cfg_path.exists():
@@ -128,12 +128,13 @@ def get_db(create_ok: bool = False) -> sqlite3.Connection:
             'problems with context. It is expected when creating a db. Ignore it'
         )
         context = False
-    exists = Path(AppState.config.auth.db_path).exists()
+    path = resolve_service_path(AppState.config.auth.db_path)
+
+    exists = path.exists()
     if not exists:
         if not create_ok:
-            raise ValueError(
-                f'Could not find auth db: {AppState.config.auth.db_path}')
-    db = sqlite3.connect(AppState.config.auth.db_path)
+            raise ValueError(f'Could not find auth db: {path}')
+    db = sqlite3.connect(path)
     db.row_factory = sqlite3.Row
     if context:
         g.db = db
@@ -211,7 +212,8 @@ def try_create_db():
     """
     Creates a new db with a root user
     """
-    exists = Path(AppState.config.auth.db_path).exists()
+    path = resolve_service_path(AppState.config.auth.db_path)
+    exists = path.exists()
     if not exists:
         with _lock:
             db = get_db(True)

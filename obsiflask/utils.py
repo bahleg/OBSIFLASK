@@ -5,10 +5,13 @@ GPLv3
 Some basic functions for logging, 
 working with config and prototyping modules of the toolbox
 """
-
+import traceback
 import logging
 import logging.handlers as handlers
 from rich.logging import RichHandler
+from pathlib import Path
+
+from obsiflask.app_state import AppState
 
 MAX_LOG_SIZE = 100 * 1024 * 1024
 """Maximal log size. After exceeding the limit, will be updated according rolling strategy.
@@ -20,8 +23,25 @@ Default obsidian-flask logger
 """
 
 
+def resolve_service_path(s: str) -> Path:
+    """
+    Returns a path w.r.t. AppState.config.service_dir if set
+    Otherwise returns a pure path
+
+    Args:
+        s (str): path to resolve
+
+    Returns:
+        Path: resolved path
+    """
+    if AppState.config.service_dir is None:
+        return Path(s)
+    else:
+        return Path(AppState.config.service_dir) / s
+
+
 def init_logger(
-    file_path: str | None = None,
+    file_path: Path | None = None,
     use_rich: bool = True,
     remove_other_handlers: bool = True,
     log_level: str = "DEBUG",
@@ -31,7 +51,7 @@ def init_logger(
     Makes a logger for a toolbox.
 
     Args:
-        file_path (str | None): if set, creates a file with logs, defaults to None
+        file_path (Path | None): if set, creates a file with logs, defaults to None
         use_rich (bool): if set, will use rich colors in logs, defaults to True
         remove_other_handlers (bool): if set, will delete all other handlers, defaults to True
         log_level (str): logging level
@@ -71,3 +91,17 @@ def init_logger(
 
     logger_to_init.setLevel(log_level)
     return logger_to_init
+
+
+def get_traceback(e: Exception) -> str:
+    """
+    Args:
+        e (Exception): exception to get traceback
+
+        Simple helper for getting traceback from exception
+
+    Returns:
+        str: string with traceback
+    """
+    return "".join(traceback.TracebackException.from_exception(e).format())
+

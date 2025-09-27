@@ -14,7 +14,7 @@ from obsiflask.utils import logger
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.consts import COVER_KEY, wikilink, hashtag, MAX_FILE_SIZE_MARKDOWN
-
+from obsiflask.utils import get_traceback
 
 class FileInfo:
 
@@ -74,7 +74,7 @@ class FileInfo:
                     parsed, _ = parse(text)
                 except Exception as e:
                     add_message(f'bad properties for file {self.vault_path}',
-                                type_to_int['warning'], self.vault, repr(e))
+                                type_to_int['warning'], self.vault, get_traceback(e))
                     parsed = {}
                 self.frontmatter = parsed
                 tags = parsed.get('tags', [])
@@ -162,5 +162,5 @@ class FileInfo:
                 add_message(f'Field problems: {args}. Ignoring it',
                             1,
                             vault=self.vault,
-                            details=repr(e))
+                            details=get_traceback(e))
                 return None

@@ -13,6 +13,7 @@ from obsiflask.auth import get_user, get_user_config
 
 lock = Lock()
 
+
 def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     """
     Render editor function
@@ -32,7 +33,10 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
                 text = inp.read()
     except Exception as e:
         add_message(f'attempt to load non-text file: {path}',
-                    type_to_int['error'], vault, repr(e), user=get_user())
+                    type_to_int['error'],
+                    vault,
+                    repr(e),
+                    user=get_user())
         text = None
     if text is None:
         return redirect(url_for('renderer', vault=vault, subpath=path))

@@ -10,7 +10,7 @@ from flask_favicon import FlaskFavicon
 
 from obsiflask.config import AppConfig
 from obsiflask.minihydra import load_entrypoint_config
-from obsiflask.utils import init_logger
+from obsiflask.utils import init_logger, resolve_service_path
 from obsiflask.pages.editor import render_editor
 from obsiflask.pages.file import get_file as page_get_file
 from obsiflask.pages.index import render_index
@@ -35,6 +35,7 @@ from obsiflask.pages.auth import render_login, render_logout
 from obsiflask.pages.root import render_root
 from obsiflask.pages.sessions import render_sessions
 from obsiflask.pages.user import render_user
+from obsiflask.pages.bookmarks import render_links, load_links
 
 
 def check_vault(vault: str) -> tuple[str, int] | None:
@@ -79,7 +80,6 @@ def resolve_path(vault: str, subpath: str) -> Path | tuple[str, int]:
 
 
 def logic_init(cfg: AppConfig):
-    AppState.config = cfg
     for vault in cfg.vaults:
         AppState.messages[(vault, None)] = []
     # app resources
@@ -98,7 +98,15 @@ def logic_init(cfg: AppConfig):
             vaultcfg.autocomplete_max_ratio_in_key)
 
         AppState.graphs[vault].build(dry=True, populate_hint_files=True)
-
+    AppState.vault_alias = {}
+    for vault in cfg.vaults:
+        alias = cfg.vaults[vault].short_alias
+        if alias is None:
+            alias = vault
+        if alias in AppState.vault_alias:
+            raise ValueError(f'duplicate alias: {alias}')
+        AppState.vault_alias[alias] = vault
+    load_links()
     AppState.inject_vars()
 
 
@@ -120,7 +128,11 @@ def run(cfg: AppConfig | None = None,
     # Config and logger initialization
     if cfg is None:
         cfg: AppConfig = load_entrypoint_config(AppConfig)
-    logger = init_logger(cfg.log_path, log_level=cfg.log_level)
+    AppState.config = cfg
+    if cfg.service_dir:
+        Path(cfg.service_dir).mkdir(parents=True, exist_ok=True)
+    logger = init_logger(resolve_service_path(cfg.log_path),
+                         log_level=cfg.log_level)
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
     logger.debug('initialization')
@@ -346,6 +358,28 @@ def run(cfg: AppConfig | None = None,
         if auth_check_resut:
             return auth_check_resut
         return render_search(vault)
+
+    @app.route('/bookmarks/<vault>', methods=['GET', 'POST'])
+    def bookmarks(vault):
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
+        return render_links(vault)
+
+    @app.route('/a/<alias>/', defaults={'link': ''})
+    @app.route('/a/<alias>/<link>')
+    def shortlink(alias, link):
+        if alias not in AppState.vault_alias:
+            return "Bad vault alias", 400
+        vault = AppState.vault_alias[alias]
+        auth_check_resut = check_rights(vault)
+        if auth_check_resut:
+            return auth_check_resut
+        if link.strip() == '':
+            return redirect(url_for('renderer_root', vault=vault))
+        if link not in AppState.shortlinks[vault]:
+            return "Bad fast link", 400
+        return redirect(AppState.shortlinks[vault][link])
 
     @app.route('/messages/<vault>')
     def messages(vault):
