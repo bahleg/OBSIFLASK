@@ -224,7 +224,7 @@ class VaultConfig:
     """
     This key is used to perform obfuscation of the markdown notes
     """
-    obfuscation_suffix = '.obf'
+    obfuscation_suffix: str = '.obf'
     """
     The docs with the subsuffix (like ".obf.md") will be automatically obfuscate-deobfuscate
     """

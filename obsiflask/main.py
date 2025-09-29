@@ -36,6 +36,7 @@ from obsiflask.pages.root import render_root
 from obsiflask.pages.sessions import render_sessions
 from obsiflask.pages.user import render_user
 from obsiflask.pages.bookmarks import render_links, load_links
+from obsiflask.obfuscate import init_obfuscation
 
 
 def check_vault(vault: str) -> tuple[str, int] | None:
@@ -152,12 +153,14 @@ def run(cfg: AppConfig | None = None,
 
     flaskFavicon = FlaskFavicon()
     flaskFavicon.init_app(app)
+
     flaskFavicon.register_favicon(
         str(Path(__file__).resolve().parent / 'static/logo_small.png'),
         'default')
 
     Bootstrap5(app)
     add_auth_to_app(app)
+    init_obfuscation()
 
     if disable_csrf:
         logger.warning(
@@ -287,7 +290,7 @@ def run(cfg: AppConfig | None = None,
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
-        return page_get_file(real_path)
+        return page_get_file(real_path, vault)
 
     @app.route('/folder/<vault>/<path:subpath>')
     def get_folder(vault, subpath):

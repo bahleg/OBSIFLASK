@@ -10,11 +10,11 @@ from flask import render_template, redirect, url_for
 import frontmatter
 from markupsafe import Markup
 
-from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.file_index import FileIndex
 from obsiflask.utils import logger
 from obsiflask.consts import wikilink, re_tag_embed, hashtag
+from obsiflask.obfuscate import obfuscate_read
 
 _lock = Lock()
 
@@ -203,8 +203,12 @@ def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
         str: preprocessed document
     """
     with _lock:
-        with open(full_path) as inp:
-            text = inp.read()
+        with open(full_path, 'rb') as inp:
+            full_path = Path(full_path)
+            need_obfuscate = AppState.config.vaults[
+                vault].obfuscation_suffix in full_path.suffixes
+            text = obfuscate_read(inp, vault, need_obfuscate)
+
     markdown = mistune.create_markdown(escape=False,
                                        plugins=[
                                            'table', 'strikethrough',

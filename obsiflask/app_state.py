@@ -19,6 +19,7 @@ class AppState:
     user_configs: dict[str, UserConfig] = {}
     vault_alias: dict[str, str] = {}
     shortlinks: dict[str, dict[str, str]] = {}
+    obfuscate_keys: dict[str, bytes] = {}
 
     @staticmethod
     def inject_vars():
