@@ -20,7 +20,8 @@ Planned features to be implemented (tentative order):
 - Bookmarks
 - Obsidian config usage   
 - Read-only vaults or parts of vaults  
-- PWA support (tentative)  
+- PWA support (tentative)
+- ai plugins
 
 ## Minor features and fixes
 - Known minor bugs
