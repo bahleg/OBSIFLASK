@@ -36,7 +36,8 @@ def obfuscate_read(stream, vault: str, obfuscate: bool = False) -> str:
         result = json.loads(stream.read())
         nonce = b64decode(result['nonce'])
         cipher = ChaCha20.new(key=make_key(
-            AppState.config.vaults[vault].obfuscation_key), nonce=nonce)
+            AppState.config.vaults[vault].obfuscation_key),
+                              nonce=nonce)
         ciphertext = b64decode(result['ciphertext'])
         plaintext = cipher.decrypt(ciphertext).decode('utf-8')
         return plaintext
