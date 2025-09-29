@@ -2,7 +2,6 @@
 A class to represent static variables used across the project
 """
 from datetime import datetime
-
 from obsiflask.config import AppConfig, UserConfig
 from obsiflask.version import get_version
 
@@ -28,4 +27,3 @@ class AppState:
         """
         AppState.injected_vars_jinja['config'] = AppState.config
         AppState.injected_vars_jinja['user_configs'] = AppState.user_configs
-        

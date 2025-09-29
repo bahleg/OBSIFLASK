@@ -220,6 +220,14 @@ class VaultConfig:
     """
     Remove frequent ngrams
     """
+    obfuscation_key: str = "${oc.env:OBSIFLASK_OBF_KEY,'abc'}"
+    """
+    This key is used to perform obfuscation of the markdown notes
+    """
+    obfuscation_suffix = '.obf'
+    """
+    The docs with the subsuffix (like ".obf.md") will be automatically obfuscate-deobfuscate
+    """
 
 
 @dataclass
@@ -239,7 +247,7 @@ class AuthConfig:
     """
     The name for the root user
     """
-    default_root_pass: str = 'root'
+    default_root_pass: str = "${oc.env:OBSIFLASK_AUTH,'root'}"
     """
     The initial password for the root user
     """
