@@ -220,7 +220,7 @@ class VaultConfig:
     """
     Remove frequent ngrams
     """
-    obfuscation_key: str = "${oc.env:OBSIFLASK_OBF_KEY,'abc'}"
+    obfuscation_key: str = "abc"
     """
     This key is used to perform obfuscation of the markdown notes
     """

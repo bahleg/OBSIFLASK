@@ -4,6 +4,17 @@ properties:
   formula.form:
     displayName: mypropr
 views:
+  - type: cards
+    name: cards
+    filters:
+      and:
+        - file.folder.contains("many_digits")
+        - "!cover.isEmpty()"
+    order:
+      - file.name
+    sort:
+      - property: tags
+        direction: ASC
   - type: table
     name: Table
     filters:
@@ -39,17 +50,6 @@ views:
       - next
       - prev
       - third
-    sort:
-      - property: tags
-        direction: ASC
-  - type: cards
-    name: cards
-    filters:
-      and:
-        - file.folder.contains("many_digits")
-        - "!cover.isEmpty()"
-    order:
-      - file.name
     sort:
       - property: tags
         direction: ASC

@@ -107,6 +107,15 @@ Example of embedding a digit base:
 Non-image and non-base files are rendered as download links. Example:
 ![[non-md-file.txt]]
 
+# 🥸 Obfuscation
+
+OBSIFLASK supports basic obfuscation for text and binary documents.  
+The text obfuscation uses a repeating-key XOR, which is **not** cryptographically secure — **do not** rely on it to protect sensitive notes. Use it only for light obfuscation. Its main advantage is that it’s **git-friendly**: small edits to a document produce only small changes in the encoded file, so diffs remain useful. This makes it handy when you want to avoid storing plain text in a Git repository.
+
+To obfuscate a document, give it the `.obf` extension (see the example document). You can also use a command `obsiflask-deobfuscate` to de-obfuscate the documents outside the OBSIFLASK.
+
+The obfuscation functionality requires a key. It can be set for each vault using `obfuscation_key` in the [config](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py). By default its vaule is `abc`.
+
 # ✒️ Excalidraw
 
 [Excalidraw](https://excalidraw.com/) is a tool for creating drawings and canvas-style diagrams.
