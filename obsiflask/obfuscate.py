@@ -9,11 +9,10 @@ from obsiflask.app_state import AppState
 
 MAGIC_PHRASE = b'OBF'
 SALT_LENGTH = 16
-DEFAULT_SALT = b'obsiflask-salt-d'
 
 
 def make_key(password: str,
-             salt: bytes = DEFAULT_SALT,
+             salt: bytes,
              iterations: int = 200_000,
              dklen: int = 32) -> bytes:
 
@@ -42,25 +41,31 @@ def repeating_key_xor_decrypt(ct: bytes, key: bytes) -> bytes:
     return pt
 
 
-def obf_open(file_name: str, vault: str, method: str):
+def obf_open(file_name: str, vault: str, method: str, obfuscation_mode: str = 'auto', key: str | None = None):
+    assert obfuscation_mode in ['obfuscate', 'raw', 'auto']
     assert method in ['r', 'rb', 'w', 'wb']
-    if AppState.config.vaults[vault].obfuscation_suffix not in Path(
-            file_name).suffixes:
+    if obfuscation_mode == 'auto':
+        obfscate = AppState.config.vaults[vault].obfuscation_suffix not in Path(
+            file_name).suffixes
+    else:
+        obfscate = (obfuscation_mode == 'obfuscate')
+    if obfscate:
         return open(file_name, method)
     if method in ['rb', 'wb']:
-        return ObfuscationBinaryFile(file_name, method, vault)
+        return ObfuscationBinaryFile(file_name, method, vault, key)
     else:
-        return ObfuscationTextFile(file_name, method, vault)
+        return ObfuscationTextFile(file_name, method, vault, key)
 
 
 class ObfuscationTextFile(object):
 
-    def __init__(self, file_name: Path | str, method, vault: str):
+    def __init__(self, file_name: Path | str, method, vault: str, key:str | None = None):
+        self.key = key or AppState.config.vaults[vault].obfuscation_key
         if Path(file_name).exists():
-            self._read_header(file_name, vault)
+            self._read_header(file_name)
         else:
             self.salt = os.urandom(SALT_LENGTH)
-        self.key = make_key(AppState.config.vaults[vault].obfuscation_key,
+        self.key = make_key(self.key,
                             self.salt)
         assert method in ['r', 'w']
         fixed_method = method
@@ -70,7 +75,7 @@ class ObfuscationTextFile(object):
             fixed_method = 'wb'
 
         self.file_obj = open(file_name, fixed_method)
-        
+
         if fixed_method == 'rb':
             header_length = len(MAGIC_PHRASE) + 1 + SALT_LENGTH
             self.file_obj.seek(header_length)
@@ -78,7 +83,7 @@ class ObfuscationTextFile(object):
             self._write_header()
         self.method = method
 
-    def _read_header(self, file_name: Path | str, vault: str):
+    def _read_header(self, file_name: Path | str):
         header_length = len(MAGIC_PHRASE) + 1 + SALT_LENGTH
         with open(file_name, 'rb') as inp:
             header = inp.read(header_length)
@@ -96,7 +101,7 @@ class ObfuscationTextFile(object):
         result = repeating_key_xor_decrypt(self.file_obj.read(), self.key)
         return result.decode('utf-8')
 
-    def write(self, content: str | bytes):
+    def write(self, content: str):
         content = content.encode('utf-8')
         self.file_obj.write(repeating_key_xor_encrypt(content, self.key))
 
@@ -109,7 +114,7 @@ class ObfuscationTextFile(object):
 
 class ObfuscationBinaryFile(object):
 
-    def __init__(self, file_name: Path | str, method, vault: str):
+    def __init__(self, file_name: Path | str, method, vault: str, key : str | None = None):
         assert method in ['rb', 'wb']
         if method == 'rb':
             fixed_method = 'r'
@@ -117,24 +122,34 @@ class ObfuscationBinaryFile(object):
             fixed_method = 'w'
         self.file_obj = open(file_name, fixed_method)
         self.method = method
-        self.key = make_key(AppState.config.vaults[vault].obfuscation_key)
+        self.vault = vault
+        self.key = key or AppState.config.vaults[self.vault].obfuscation_key
 
-    def read(self) -> str:
+    def read(self) -> bytes:
         result = json.loads(self.file_obj.readline())
+        assert result['version'] == 0
         nonce = b64decode(result['nonce'])
         content = b64decode(result['content'])
-        cipher = ChaCha20.new(key=self.key, nonce=nonce)
+        salt = b64decode(result['salt'])
+        key = make_key(self.key,
+                       salt)
+        cipher = ChaCha20.new(key=key, nonce=nonce)
         plaintext = cipher.decrypt(content)
         return plaintext
 
     def write(self, content: bytes):
-        cipher = ChaCha20.new(key=self.key)
+        salt = os.urandom(16)
+        key = make_key(self.key,
+                       salt)
+        cipher = ChaCha20.new(key=key)
         ciphertext = b64encode(cipher.encrypt(content)).decode('utf-8')
         nonce = b64encode(cipher.nonce).decode('utf-8')
         self.file_obj.write(
             json.dumps({
                 'content': ciphertext,
-                'nonce': nonce
+                'nonce': nonce,
+                'salt': b64encode(salt).decode('utf-8'),
+                'version': 0
             }) + '\n')
 
     def __enter__(self):
