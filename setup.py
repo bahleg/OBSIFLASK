@@ -20,7 +20,12 @@ setup(
     url="https://github.com/bahleg/OBSIFLASK",
     packages=find_packages(),
     install_requires=requirements,
-    entry_points={"console_scripts": ["obsiflask=obsiflask.main:run"]},
+    entry_points={
+        "console_scripts": [
+            "obsiflask=obsiflask.main:run",
+            "obsiflask-deobfuscate=obsiflask.obfuscate:deobfuscate_cmd"
+        ]
+    },
     include_package_data=True,
     package_data={
         "obsiflask": [
