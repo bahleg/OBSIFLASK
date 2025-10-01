@@ -10,6 +10,7 @@ from flask import render_template, abort
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
+from obsiflask.obfuscate import obf_open
 
 default_excalidraw = """{
   "type": "excalidraw",
@@ -44,7 +45,7 @@ def render_excalidraw(vault: str, path: str, real_path: str) -> str:
     text = None
     try:
         with lock:
-            with open(real_path) as inp:
+            with obf_open(real_path, vault) as inp:
                 text = inp.read()
                 if len(text.strip()) == 0:
                     text = default_excalidraw

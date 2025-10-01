@@ -11,7 +11,7 @@ from obsiflask.messages import add_message, type_to_int
 from obsiflask.app_state import AppState
 from obsiflask.auth import get_user
 from obsiflask.utils import get_traceback
-from obsiflask.obfuscate import obfuscate_write
+from obsiflask.obfuscate import obf_open
 
 _lock = Lock()
 
@@ -36,10 +36,8 @@ def make_save(path: str, content: str, index: FileIndex,
         try:
             exists = Path(path).exists()
             parent.mkdir(parents=True, exist_ok=True)
-            with open(path, 'wb') as f:
-                need_obfuscate = AppState.config.vaults[
-                    vault].obfuscation_suffix in path.suffixes
-                obfuscate_write(f, content, vault, need_obfuscate)
+            with obf_open(path, vault, 'w') as f:
+                f.write(content)
 
             if not exists:
                 index.refresh()

@@ -10,7 +10,7 @@ from obsiflask.pages.renderer import preprocess
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.auth import get_user, get_user_config
-from obsiflask.obfuscate import obfuscate_read
+from obsiflask.obfuscate import obf_open
 
 lock = Lock()
 
@@ -30,10 +30,8 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     text = None
     try:
         with lock:
-            with open(real_path, 'rb') as inp:
-                need_obfuscate = AppState.config.vaults[
-                    vault].obfuscation_suffix in Path(real_path).suffixes
-                text = obfuscate_read(inp, vault, need_obfuscate)
+            with obf_open(real_path, vault, 'r') as inp:
+                text = inp.read()
 
     except Exception as e:
         add_message(f'attempt to load non-text file: {path}',

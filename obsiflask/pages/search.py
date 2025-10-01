@@ -18,6 +18,7 @@ from obsiflask.bases.filter import FieldFilter
 from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN
 from obsiflask.auth import get_user
 from obsiflask.utils import get_traceback
+from obsiflask.obfuscate import obf_open
 
 SEARCH_PREVIEW_CHARS = 100
 """
@@ -193,7 +194,7 @@ def generate_text_check_results(
                 logger.warning(
                     f'skipping {file.vault_path} due to size limit {MAX_FILE_SIZE_MARKDOWN/1024/1024} MB'
                 )
-            with open(file.real_path) as inp:
+            with obf_open(file.real_path, vault) as inp:
                 text = inp.read()
                 if ignore_case:
                     text = text.lower()

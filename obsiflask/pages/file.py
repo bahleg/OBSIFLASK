@@ -6,7 +6,6 @@ from tempfile import mkstemp
 from flask import send_file
 
 from obsiflask.app_state import AppState
-from obsiflask.obfuscate import obfuscate_read
 
 
 def get_file(real_path: str, vault: str):
@@ -22,7 +21,7 @@ def get_file(real_path: str, vault: str):
                 real_path).suffixes:
             tmp = mkstemp()[1]
             with open(real_path, 'rb') as inp:
-                bts = obfuscate_read(inp, vault, True, True)
+                bts = inp.read()
             with open(tmp, 'wb') as out:
                 out.write(bts)
             file = tmp

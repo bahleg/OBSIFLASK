@@ -15,6 +15,7 @@ from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.consts import COVER_KEY, wikilink, hashtag, MAX_FILE_SIZE_MARKDOWN
 from obsiflask.utils import get_traceback
+from obsiflask.obfuscate import obf_open
 
 class FileInfo:
 
@@ -49,7 +50,7 @@ class FileInfo:
                 self.read = True
                 return
             try:
-                with open(self.real_path) as inp:
+                with obf_open(self.real_path, self.vault) as inp:
                     text = inp.read()
                 matches = wikilink.finditer(text)
 
