@@ -13,7 +13,8 @@ Planned features to be implemented (tentative order):
 - Local graphs
 - File upload functionality
 - Better logic for loggers
-- Improved Git integration  
+- Improved Git integration
+- obfuscation plugin for obsidian
 - Enhanced Bases support  
   - Links in Bases
 - Icon support  
