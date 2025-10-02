@@ -108,8 +108,8 @@ def obf_open(file_name: str,
     assert obfuscation_mode in ['obfuscate', 'raw', 'auto']
     assert method in ['r', 'rb', 'w', 'wb']
     if obfuscation_mode == 'auto':
-        obfscate = AppState.config.vaults[
-            vault].obfuscation_suffix in Path(file_name).suffixes
+        obfscate = AppState.config.vaults[vault].obfuscation_suffix in Path(
+            file_name).suffixes
     else:
         obfscate = (obfuscation_mode == 'obfuscate')
     if not obfscate:
@@ -140,7 +140,7 @@ class ObfuscationTextFile(object):
             key (str | None, optional): obfuscation key. If not set, will use a key from the vault config. Defaults to None.
         """
         self.key = key or AppState.config.vaults[vault].obfuscation_key
-        self._read_header(file_name)    
+        self._read_header(file_name)
         self.key = make_key(self.key, self.salt)
         assert method in ['r', 'w']
         fixed_method = method
@@ -175,9 +175,12 @@ class ObfuscationTextFile(object):
                 self.salt = os.urandom(SALT_LENGTH)
                 return
             if len(header) < header_length:
-                raise ValueError('Incorrect header for obfuscated file')
+                raise ValueError(
+                    f'Incorrect header for obfuscated file {file_name}')
 
-            assert MAGIC_PHRASE == header[:len(MAGIC_PHRASE)]
+            assert MAGIC_PHRASE == header[:len(
+                MAGIC_PHRASE
+            )], f'Incorrect header for obfuscated file {file_name}'
             assert header[len(MAGIC_PHRASE)] == 0  # for future versions
             self.salt = header[-SALT_LENGTH:]
 

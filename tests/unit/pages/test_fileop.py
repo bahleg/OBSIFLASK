@@ -1,10 +1,7 @@
 from flask import Flask
 import pytest
 
-from obsiflask.pages.fileop import FileOpForm, render_fastop
-from obsiflask.app_state import AppState
-from obsiflask.config import AppConfig, VaultConfig
-from obsiflask.main import run
+from obsiflask.pages.fileop import render_fastop
 
 ### FASTOP
 
@@ -100,9 +97,3 @@ def test_template_success(client):
     assert "/editor" in resp.location
 
 
-def _make_app(tmp_path):
-    config = AppConfig(vaults={'vault1': VaultConfig(str(tmp_path))})
-    app = run(config, True)
-    app.config['WTF_CSRF_ENABLED'] = False
-    AppState.messages[('vault1', None)] = []
-    return app
