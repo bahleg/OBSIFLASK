@@ -23,6 +23,7 @@ Planned features to be implemented (tentative order):
 - Read-only vaults or parts of vaults  
 - PWA support (tentative)
 - ai plugins
+- obsidian links
 
 ## Minor features and fixes
 - Known minor bugs
