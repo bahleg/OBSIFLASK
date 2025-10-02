@@ -25,6 +25,7 @@ Planned features to be implemented (tentative order):
 - ai plugins
 - obsidian links
 
+
 ## Minor features and fixes
 - Known minor bugs
   - when copying a folder from edit mode, the redirect shows error message, need more correct file redirect handling
@@ -33,6 +34,7 @@ Planned features to be implemented (tentative order):
 - Cluster color settings
 - Job tracking?
 - rename by click
+- refactor renderer
 - UI refactoring  
   - Disable trags parsing in code blocks
   - Saving before turning into the view mode
