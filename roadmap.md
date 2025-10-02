@@ -24,6 +24,7 @@ Planned features to be implemented (tentative order):
 - PWA support (tentative)
 - ai plugins
 - obsidian links
+- map plugins
 
 
 ## Minor features and fixes
