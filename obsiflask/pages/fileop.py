@@ -3,16 +3,20 @@ The module provides a logic for frontend handling for file operations
 """
 
 import datetime
+from pathlib import Path
 
 from flask import request, abort
 from flask import render_template, redirect, url_for
+from werkzeug.utils import secure_filename
 
+from obsiflask.auth import get_user
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.consts import DATE_FORMAT
 from obsiflask.utils import get_traceback
 from obsiflask.fileop import copy_move_file, create_file_op, delete_file_op, FileOpForm
-
+from obsiflask.obfuscate import obf_open
+from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN, TEXT_FILES_SFX
 
 
 def render_fastop(vault: str) -> str:
@@ -132,6 +136,40 @@ def render_fastop(vault: str) -> str:
         return abort(400)
 
 
+def upload_files(vault: str, form: FileOpForm):
+    try:
+        if len(form.files.data) == 0:
+            raise ValueError('Nothing to upload')
+        if len(form.files.data
+               ) > AppState.config.vaults[vault].max_files_to_upload:
+            raise ValueError(
+                f'Too many files: {len(form.files.data)}. Max allowed: {AppState.config.vaults[vault].max_files_to_upload}'
+            )
+        target = AppState.indices[vault].path / form.target.data
+        if target.exists() and not target.is_dir():
+            raise ValueError('Target path must be a directory')
+
+        target.parent.mkdir(parents=True, exist_ok=True)
+        for f in form.files.data:
+            fname = secure_filename(f.filename)
+            
+            if not form.obfuscate.data:
+
+
+        add_message(f'Files uploaded into {form.target.data}',
+                    type_to_int['info'],
+                    vault,
+                    user=get_user())
+        return True
+    except Exception as e:
+        add_message(f'Error during files uploading: {e}',
+                    type_to_int['error'],
+                    vault,
+                    get_traceback(e),
+                    user=get_user())
+        return False
+
+
 def render_fileop(vault: str) -> str:
     """
     Rendering logic
@@ -188,6 +226,12 @@ def render_fileop(vault: str) -> str:
                     url_for('editor',
                             vault=vault,
                             subpath=form.destination.data))
+        elif form.operation.data == 'upload':
+            if upload_files(vault, form):
+                return redirect(
+                    url_for('get_folder',
+                            vault=vault,
+                            subpath=form.target.data))
         return redirect(back_url)
 
     return render_template('fileop.html',

@@ -17,15 +17,22 @@
     const opSelect = document.getElementById("operation");
     const templateList = document.getElementById("template").parentElement;
     const destWrapper = document.getElementById("destination").parentElement;
+    const files = document.getElementById("files").parentElement;
+    const obfuscate = document.getElementById("obfuscate").parentElement;
+    
     const formEl = document.querySelector("form");
 
-    function toggleDestination() {
+    function toggleVisibility() {
       templateList.style.display = (opSelect.value === "new") ? "block" : "none";
       destWrapper.style.display = (opSelect.value === "copy" || opSelect.value === "move") ? "block" : "none";
+      files.style.display = (opSelect.value === "upload") ? "block" : "none";
+      obfuscate.style.display = (opSelect.value === "obfuscate") ? "block" : "none";
+
     }
 
-    toggleDestination();
-    opSelect.addEventListener("change", toggleDestination);
+
+    toggleVisibility();
+    opSelect.addEventListener("change", toggleVisibility);
 
     // on delete -> submit
     formEl.addEventListener("submit", function (e) {
