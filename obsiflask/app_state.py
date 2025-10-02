@@ -9,7 +9,7 @@ from obsiflask.version import get_version
 class AppState:
     indices: dict[str, "FileIndex"] = {}  # obsiflask.file_index
     config: AppConfig | None = None
-    messages: dict[tuple[str, str], list["sMessage"]] = {}  # obsiflask.messages
+    messages: dict[tuple[str, str], list["Message"]] = {}  # obsiflask.messages
     injected_vars_jinja: dict = {'version': get_version()}
     graphs: dict[str, "Graph"] = {}  # obsiflask.graph
     hints: dict[str, "HintIndex"] = {}
