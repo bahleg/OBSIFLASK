@@ -21,10 +21,9 @@ Each digit has a tag (`even` or `odd`), and some nodes also contain links to nei
 Example: see [[1.md]].
 
 The [[base.base| base]] demonstrates multiple views:
-- all nodes containing the `next` property
-- nodes tagged as `even` only
 - a card view with 3 nodes where the `cover` property is explicitly set
-
+-  all nodes containing the `next` property
+-  nodes tagged as `even` only
 
 Bases can also be embedded into a page — see [[Files editing and rendering]].
 

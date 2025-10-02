@@ -29,3 +29,10 @@ re_tag_embed = re.compile(r'!\[\[([^\]]+)\]\]')
 Regex for embedded links
 """
 DATE_FORMAT = '%Y-%m-%d'
+"""
+Format of date
+"""
+TEXT_FILES_SFX = {'.md', '.excalidraw'}
+"""
+Suffixes for markdown-like files
+"""

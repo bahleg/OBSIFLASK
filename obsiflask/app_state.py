@@ -2,7 +2,6 @@
 A class to represent static variables used across the project
 """
 from datetime import datetime
-
 from obsiflask.config import AppConfig, UserConfig
 from obsiflask.version import get_version
 
@@ -20,6 +19,7 @@ class AppState:
     user_configs: dict[str, UserConfig] = {}
     vault_alias: dict[str, str] = {}
     shortlinks: dict[str, dict[str, str]] = {}
+    obfuscate_keys: dict[str, bytes] = {}
 
     @staticmethod
     def inject_vars():
@@ -28,4 +28,3 @@ class AppState:
         """
         AppState.injected_vars_jinja['config'] = AppState.config
         AppState.injected_vars_jinja['user_configs'] = AppState.user_configs
-        

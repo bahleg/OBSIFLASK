@@ -3,6 +3,7 @@ import types
 
 import pytest
 
+from obsiflask.config import AppConfig, VaultConfig, BaseConfig
 from obsiflask.app_state import AppState
 from obsiflask.bases.file_info import FileInfo
 
@@ -21,6 +22,8 @@ class DummyBaseConfig:
     def __init__(self, error_on_field_parse=False, cache_time=1000):
         self.error_on_field_parse = error_on_field_parse
         self.cache_time = cache_time
+        self.obfuscation_key = 'abc'
+        self.obfuscation_suffix = '.obf'
 
 
 class DummyConfig:
@@ -34,9 +37,12 @@ def setup_appstate(tmp_path, monkeypatch):
     vault = "v1"
     vault_path = tmp_path
     AppState.indices = {vault: DummyIndex(vault_path)}
-    AppState.config = DummyConfig()
-    AppState.config.vaults[vault] = types.SimpleNamespace(
-        base_config=DummyBaseConfig())
+    AppState.config = AppConfig({
+        vault:
+        VaultConfig(tmp_path,
+                    base_config=BaseConfig(error_on_field_parse=False,
+                                           cache_time=1000))
+    })
     yield
 
 
