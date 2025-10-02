@@ -20,17 +20,23 @@ Planned features to be implemented (tentative order):
 - Bookmarks
 - Obsidian config usage   
 - Read-only vaults or parts of vaults  
-- PWA support (tentative)  
+- PWA support (tentative)
+- ai plugins
 
 ## Minor features and fixes
 - Known minor bugs
   - when copying a folder from edit mode, the redirect shows error message, need more correct file redirect handling
+  - Cards are displayed differently in Obsidian and OBSIFLASK, see the example vault
+  - Search results generator: looks like it provides all results at once 
 - Cluster color settings
 - Job tracking?
 - rename by click
 - UI refactoring  
   - Disable trags parsing in code blocks
   - Saving before turning into the view mode
+  - Better autocomplete tags handling in frontmatter
+  - Better mentions handling in autocomplete
+  - relative links if shortlinks
 - Sometimes autocomplete works badly, need to check
 - Large files: currently excluded from analysis
 - switch markdown preview to mde?
