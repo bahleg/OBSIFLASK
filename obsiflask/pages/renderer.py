@@ -52,6 +52,23 @@ def plugin_mermaid(md):
     md.renderer.block_code = block_code
 
 
+
+def plugin_heading_anchor(md):
+    """Плагин, который добавляет id и якорь к заголовкам."""
+
+    renderer = md.renderer
+
+    if not hasattr(renderer, "heading_anchor_orig"):
+        # сохраняем оригинальный метод
+        renderer.heading_anchor_orig = renderer.heading
+
+        def heading(text, level):
+            slug = re.sub(r'[^\w]+', '-', (Markup.escape(text).lower()))
+            return f'<h{level} id="{slug}">{text} <a href="#{slug}" class="anchor">#</a></h{level}>\n'
+
+        renderer.heading = heading
+
+
 def parse_frontmatter(text: str, name: str, vault: str) -> str:
     """
     Frontmatter processor.
@@ -209,7 +226,7 @@ def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
                                        plugins=[
                                            'table', 'strikethrough',
                                            'task_lists', 'mark',
-                                           plugin_mermaid, 'url', 'math'
+                                           plugin_mermaid, plugin_heading_anchor, 'url', 'math'
                                        ])
     text = parse_hashtags(text, vault)
     text = parse_frontmatter(text, Path(full_path).name, vault)
