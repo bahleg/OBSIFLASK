@@ -8,6 +8,7 @@ from obsiflask.config import AppConfig, VaultConfig
 
 @pytest.fixture
 def app():
+    raise NotImplementedError()
     AppState.config = AppConfig({'vault': VaultConfig('/tmp')})
     return Flask(__name__)
 

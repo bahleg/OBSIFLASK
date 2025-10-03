@@ -9,6 +9,7 @@ from obsiflask.main import run
 
 @pytest.fixture
 def app(tmp_path):
+    raise NotImplementedError()
     (tmp_path / "dir").mkdir()
     (tmp_path / "templates").mkdir()
     (tmp_path / "templates" / "template.md").write_text('write')
