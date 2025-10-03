@@ -4,6 +4,7 @@ Logic for markdown rendering
 import re
 from pathlib import Path
 from threading import Lock
+from urllib import parse
 
 import mistune
 from flask import render_template, redirect, url_for
@@ -52,7 +53,6 @@ def plugin_mermaid(md):
     md.renderer.block_code = block_code
 
 
-
 def plugin_heading_anchor(md):
     """Плагин, который добавляет id и якорь к заголовкам."""
 
@@ -62,7 +62,7 @@ def plugin_heading_anchor(md):
         renderer.heading_anchor_orig = renderer.heading
 
         def heading(text, level):
-            slug = re.sub(r'[^\w]+', '-', (Markup.escape(text).lower()))
+            slug = parse.quote_plus(text)
             return f'<h{level} id="{slug}">{text} <a href="#{slug}" style="text-decoration:none; font-size:small" class="anchor">🔗</a></h{level}>\n'
 
         renderer.heading = heading
@@ -225,7 +225,8 @@ def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
                                        plugins=[
                                            'table', 'strikethrough',
                                            'task_lists', 'mark',
-                                           plugin_mermaid, plugin_heading_anchor, 'url', 'math'
+                                           plugin_mermaid,
+                                           plugin_heading_anchor, 'url', 'math'
                                        ])
     text = parse_hashtags(text, vault)
     text = parse_frontmatter(text, Path(full_path).name, vault)
