@@ -136,30 +136,41 @@ def render_fastop(vault: str) -> str:
         return abort(400)
 
 
-def upload_files(vault: str, form: FileOpForm):
+def upload_files(vault: str, form: FileOpForm) -> bool:
     try:
-        if len(form.files.data) == 0:
-            raise ValueError('Nothing to upload')
-        if len(form.files.data
-               ) > AppState.config.vaults[vault].max_files_to_upload:
-            raise ValueError(
-                f'Too many files: {len(form.files.data)}. Max allowed: {AppState.config.vaults[vault].max_files_to_upload}'
-            )
         target = AppState.indices[vault].path / form.target.data
-        if target.exists() and not target.is_dir():
-            raise ValueError('Target path must be a directory')
-
         target.parent.mkdir(parents=True, exist_ok=True)
+        errors = []
         for f in form.files.data:
-            fname = secure_filename(f.filename)
-            
+            fname = Path(f.filename)
             if not form.obfuscate.data:
+                f.save(target / fname)
+            else:
+                if AppState.config.vaults[vault].obfuscation_suffix in Path(fname).suffixes:
+                    errors.append(f'File {fname} already has an obfuscation. Skiping.')
+                    continue
+                bytes = f.read()
+                fname = Path(fname).stem + AppState.config.vaults[vault].obfuscation_suffix + Path(fname).suffix
+                if Path(fname).suffix in TEXT_FILES_SFX:
+                    content = bytes.decode('utf-8')
+                    with obf_open(target / fname, vault, 'w') as out:
+                        out.write(content)
+                else:
+                    with obf_open(target / fname, vault, 'wb') as out:
+                        out.write(content)
 
-
-        add_message(f'Files uploaded into {form.target.data}',
-                    type_to_int['info'],
-                    vault,
-                    user=get_user())
+               
+        if len(errors) == 0: 
+            add_message(f'Files uploaded into {form.target.data}',
+                        type_to_int['info'],
+                        vault,
+                        user=get_user())
+        else:
+            add_message(f'Files uploaded into {form.target.data} with errors',
+                        type_to_int['warning'],
+                        vault,
+                        user=get_user(), details='\n'.join(errors))
+            return False 
         return True
     except Exception as e:
         add_message(f'Error during files uploading: {e}',

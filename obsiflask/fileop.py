@@ -60,7 +60,7 @@ class FileOpForm(FlaskForm):
         self.target.description = f"""Use \"{AppState.config.vaults[vault].obfuscation_suffix}.md\" as a file suffix for obfuscated text. 
 You can also add or remove  "{AppState.config.vaults[vault].obfuscation_suffix}\" suffix when copying/moving files to obfuscate-deobfuscate data."""
         self.files.description = f'Maximum: {AppState.config.vaults[vault].max_files_to_upload} files of {AppState.config.vaults[vault].max_file_size_mb} MB'
-        self.obfuscate.description = f'If set, will also add \"{AppState.config.vaults[vault].obfuscation_suffix}\" suffix into the filename'
+        self.obfuscate.description = f'(If set, will also add \"{AppState.config.vaults[vault].obfuscation_suffix}\" suffix into the filename)'
 
     def validate(self, **kwargs):
         rv = FlaskForm.validate(self, **kwargs)  # checking fields at first
@@ -93,9 +93,32 @@ You can also add or remove  "{AppState.config.vaults[vault].obfuscation_suffix}\
                 self.destination.errors.append(
                     'Cannot copy/move directory to file')
                 return False
+        if self.operation.data == 'upload':
+            real_files = [f for f in self.files.data if f and f.filename]
+            if len(real_files) == 0:
+                self.files.errors.append('Nothing to upload')
+                return False
+            target = AppState.indices[self.vault].path / self.target.data
+            if target.exists() and not target.is_dir():
+                self.target.errors.append('Target path must be a directory')
+                return False
 
+            if len(self.files.data) > AppState.config.vaults[
+                    self.vault].max_files_to_upload:
+                self.files.errors.append(
+                    f'Too many files: {len(self.files.data)}. Max allowed: {AppState.config.vaults[self.vault].max_files_to_upload}'
+                )
+            for f in self.files.data:
+                f.seek(0, 2)
+                size = f.tell()
+                f.seek(0)
+                if size > AppState.config.vaults[
+                        self.vault].max_file_size_mb * 1024 * 1024:
+                    self.files.errors.append(
+                        f'file size of {f.filename} is larger than allowed {AppState.config.vaults[self.vault].max_file_size_mb} MB'
+                    )
+                    return False
         return True
-
 
 
 def create_file_op(vault: str, form: FileOpForm) -> bool:

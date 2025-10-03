@@ -228,7 +228,7 @@ class VaultConfig:
     """
     The docs with the subsuffix (like ".obf.md") will be automatically obfuscate-deobfuscate
     """
-    max_files_to_upload: int = 1
+    max_files_to_upload: int = 10
     """
     Maximum files to upload at one time
     """
