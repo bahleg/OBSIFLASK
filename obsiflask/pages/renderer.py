@@ -59,12 +59,11 @@ def plugin_heading_anchor(md):
     renderer = md.renderer
 
     if not hasattr(renderer, "heading_anchor_orig"):
-        # сохраняем оригинальный метод
         renderer.heading_anchor_orig = renderer.heading
 
         def heading(text, level):
             slug = re.sub(r'[^\w]+', '-', (Markup.escape(text).lower()))
-            return f'<h{level} id="{slug}">{text} <a href="#{slug}" class="anchor">#</a></h{level}>\n'
+            return f'<h{level} id="{slug}">{text} <a href="#{slug}" style="text-decoration:none; font-size:small" class="anchor">🔗</a></h{level}>\n'
 
         renderer.heading = heading
 
