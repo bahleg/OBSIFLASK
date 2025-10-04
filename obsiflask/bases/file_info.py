@@ -61,7 +61,7 @@ class FileInfo:
                         self.real_path,
                         True,
                         escape=False,
-                        relative=False)
+                        relative=False, wrt_anchor=False)
                     if link:
                         self._links.add(link)
 

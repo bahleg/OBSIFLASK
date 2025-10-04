@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
 ---
+### [0.17.*] - File uploading
+- Added file uploading form
+- Minor UI improvements:
+  - Deobfuscate-and-download button in the index tree
+  - Anchors in headings
+  - wiki links w.r.t. sections
+
 ### [0.16.*] - Obfuscation
 - Added obfuscation functionality 
 

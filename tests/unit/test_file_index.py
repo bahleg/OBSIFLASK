@@ -61,3 +61,20 @@ def test_resolve_wikilink_md_without_ext(sample_vault):
                                sample_vault / "dummy.md",
                                resolve_markdown_without_ext=True)
     assert "note1.md" in link
+
+
+def test_resolve_wikilink_with_anchor(sample_vault):
+    fi = FileIndex(str(sample_vault), template_dir=None, vault="default")
+    fi.refresh()
+
+    link = fi.resolve_wikilink("note1#header",
+                               sample_vault / "dummy.md",
+                               resolve_markdown_without_ext=True,
+                               wrt_anchor=True)
+    assert "note1.md#header" in link
+
+    link = fi.resolve_wikilink("note1#header",
+                               sample_vault / "dummy.md",
+                               resolve_markdown_without_ext=True,
+                               wrt_anchor=False)
+    assert "note1.md" in link

@@ -1,7 +1,12 @@
 from flask import Flask
 import pytest
+from unittest.mock import MagicMock
 
-from obsiflask.pages.fileop import render_fastop
+from obsiflask.app_state import AppState
+from obsiflask.main import run
+from obsiflask.config import AppConfig, VaultConfig
+from obsiflask.pages.fileop import render_fastop, upload_files, FileOpForm
+from obsiflask.obfuscate import obf_open
 
 ### FASTOP
 
@@ -97,3 +102,61 @@ def test_template_success(client):
     assert "/editor" in resp.location
 
 
+# UPLOAD
+@pytest.fixture
+def app(tmp_path):
+    root = tmp_path
+    (root / "subdir").mkdir()
+
+    config = AppConfig(vaults={'vault1': VaultConfig(str(tmp_path))})
+    app = run(config, True)
+    app.config['WTF_CSRF_ENABLED'] = False
+    AppState.messages[('vault1', None)] = []
+    return app
+
+
+def test_upload(tmp_path, app):
+
+    class FileMock:
+
+        def __init__(self, fname, content):
+            self.filename = fname
+            self.content = content
+
+        def save(self, dst):
+            with open(dst, 'wb') as out:
+                out.write(self.content)
+
+        def read(self):
+            return self.content
+
+    with app.test_request_context():
+        # simple loading
+        form = FileOpForm('vault1')
+        form.operation.data = 'upload'
+        form.target.data = 'subdir'
+        form.files.data = [
+            FileMock('fname1.md', b'test1'),
+            FileMock('fname2.md', b'test2')
+        ]
+
+        assert upload_files('vault1', form=form)
+        with open(tmp_path / 'subdir' / 'fname1.md') as inp:
+            assert inp.read() == 'test1'
+        with open(tmp_path / 'subdir' / 'fname2.md') as inp:
+            assert inp.read() == 'test2'
+
+        # obfuscation loading
+        form.obfuscate.data = True
+        form.files.data[1].filename = 'fname2.bin'
+        assert upload_files('vault1', form=form)
+        with obf_open(tmp_path / 'subdir' / 'fname1.obf.md', 'vault1') as inp:
+            assert inp.read() == 'test1'
+        with obf_open(tmp_path / 'subdir' / 'fname2.obf.bin',
+                      'vault1',
+                      method='rb') as inp:
+            assert inp.read() == b'test2'
+        # test with obfuscation files skipping
+        form.files.data = [FileMock('fname.obf.md', b'test1')]
+        assert not upload_files('vault1', form=form)
+        assert not (tmp_path / 'subdir' / 'fname.obf.md').exists()

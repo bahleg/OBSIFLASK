@@ -11,7 +11,6 @@ Planned features to be implemented (tentative order):
 - Navigation/header links
 - Command palette  
 - Local graphs
-- File upload functionality
 - Better logic for loggers
 - Improved Git integration
 - obfuscation plugin for obsidian

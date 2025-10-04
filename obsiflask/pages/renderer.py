@@ -4,6 +4,7 @@ Logic for markdown rendering
 import re
 from pathlib import Path
 from threading import Lock
+from urllib import parse
 
 import mistune
 from flask import render_template, redirect, url_for
@@ -50,6 +51,21 @@ def plugin_mermaid(md):
         return orig_block_code(code, info)
 
     md.renderer.block_code = block_code
+
+
+def plugin_heading_anchor(md):
+    """Плагин, который добавляет id и якорь к заголовкам."""
+
+    renderer = md.renderer
+
+    if not hasattr(renderer, "heading_anchor_orig"):
+        renderer.heading_anchor_orig = renderer.heading
+
+        def heading(text, level):
+            slug = parse.quote(text)
+            return f'<h{level} id="{slug}">{text} <a href="#{slug}" style="text-decoration:none; font-size:small" class="anchor">🔗</a></h{level}>\n'
+
+        renderer.heading = heading
 
 
 def parse_frontmatter(text: str, name: str, vault: str) -> str:
@@ -105,18 +121,30 @@ def make_link(link: re.Match, path: Path, index: FileIndex) -> str:
     name = link.group(1).strip()
     if not alias:
         alias = name
+        if '#' in name:
+            suffix = name.rsplit('#', 1)[1]
+            if suffix:
+                alias = suffix
     if '/' in alias:
         alias = alias.split('/')[-1]
     if '.md' in alias:
         alias = alias.replace('.md', '')
-
     link = index.resolve_wikilink(name, path, True)
 
     if link:
         return f'[{alias}]({link})'
     logger.warning(f'link with [[ {name} |{alias} ]] not found')
-    return f"???{alias}???"
-
+    if str(Path(path).parent) in ['', '.']:
+        local_path = Path(path)
+    else:
+        local_path = Path(path).relative_to(index.path)
+    
+    if '#' in name:
+        name = name.rsplit('#')[0]
+    if not name.endswith('.md'):
+        name = name+'.md'
+    return f'[*NOT FOUND* **{alias}** *NOT FOUND*]({url_for('fastfileop', op='file', curfile=local_path, dst=name, vault=index.vault)})'
+    
 
 def parse_embedding(text: str, full_path: Path, index: FileIndex,
                     vault: str) -> str:
@@ -209,7 +237,8 @@ def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
                                        plugins=[
                                            'table', 'strikethrough',
                                            'task_lists', 'mark',
-                                           plugin_mermaid, 'url', 'math'
+                                           plugin_mermaid,
+                                           plugin_heading_anchor, 'url', 'math'
                                        ])
     text = parse_hashtags(text, vault)
     text = parse_frontmatter(text, Path(full_path).name, vault)

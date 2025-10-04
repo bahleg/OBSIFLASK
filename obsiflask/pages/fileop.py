@@ -3,16 +3,20 @@ The module provides a logic for frontend handling for file operations
 """
 
 import datetime
+from pathlib import Path
 
 from flask import request, abort
 from flask import render_template, redirect, url_for
+from werkzeug.utils import secure_filename
 
+from obsiflask.auth import get_user
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.consts import DATE_FORMAT
 from obsiflask.utils import get_traceback
 from obsiflask.fileop import copy_move_file, create_file_op, delete_file_op, FileOpForm
-
+from obsiflask.obfuscate import obf_open
+from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN, TEXT_FILES_SFX
 
 
 def render_fastop(vault: str) -> str:
@@ -132,6 +136,64 @@ def render_fastop(vault: str) -> str:
         return abort(400)
 
 
+def upload_files(vault: str, form: FileOpForm) -> bool:
+    """
+    Uploads files into the system
+
+    Args:
+        vault (str): vault name
+        form (FileOpForm): form
+
+    Returns:
+        bool: if True, the uploading finished successfully
+    """
+    try:
+        target = AppState.indices[vault].path / form.target.data
+        target.parent.mkdir(parents=True, exist_ok=True)
+        errors = []
+        for f in form.files.data:
+            fname = Path(f.filename)
+            if not form.obfuscate.data:
+                f.save(target / fname)
+            else:
+                if AppState.config.vaults[vault].obfuscation_suffix in Path(
+                        fname).suffixes:
+                    errors.append(
+                        f'File {fname} already has an obfuscation. Skiping.')
+                    continue
+                bytes = f.read()
+                fname = Path(fname).stem + AppState.config.vaults[
+                    vault].obfuscation_suffix + Path(fname).suffix
+                if Path(fname).suffix in TEXT_FILES_SFX:
+                    content = bytes.decode('utf-8')
+                    with obf_open(target / fname, vault, 'w') as out:
+                        out.write(content)
+                else:
+                    with obf_open(target / fname, vault, 'wb') as out:
+                        out.write(bytes)
+
+        if len(errors) == 0:
+            add_message(f'Files uploaded into {form.target.data}',
+                        type_to_int['info'],
+                        vault,
+                        user=get_user())
+        else:
+            add_message(f'Files uploaded into {form.target.data} with errors',
+                        type_to_int['warning'],
+                        vault,
+                        user=get_user(),
+                        details='\n'.join(errors))
+            return False
+        return True
+    except Exception as e:
+        add_message(f'Error during files uploading: {e}',
+                    type_to_int['error'],
+                    vault,
+                    get_traceback(e),
+                    user=get_user())
+        return False
+
+
 def render_fileop(vault: str) -> str:
     """
     Rendering logic
@@ -188,6 +250,12 @@ def render_fileop(vault: str) -> str:
                     url_for('editor',
                             vault=vault,
                             subpath=form.destination.data))
+        elif form.operation.data == 'upload':
+            if upload_files(vault, form):
+                return redirect(
+                    url_for('get_folder',
+                            vault=vault,
+                            subpath=form.target.data))
         return redirect(back_url)
 
     return render_template('fileop.html',

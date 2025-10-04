@@ -8,8 +8,9 @@ from threading import Lock
 import os
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField
+from wtforms import StringField, SelectField, SubmitField, BooleanField, MultipleFileField
 from wtforms.validators import DataRequired
+from flask_wtf.file import FileSize
 
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
@@ -30,7 +31,8 @@ class FileOpForm(FlaskForm):
                             choices=[('new', '📄 New file'),
                                      ('delete', '🗑️ Delete file'),
                                      ('copy', '🗐 Copy file'),
-                                     ('move', '➜ Move file')])
+                                     ('move', '➜ Move file'),
+                                     ('upload', '⬆️ Upload file(s)')])
     target = StringField('Target file', validators=[DataRequired()])
     """
     here target is the mfile to manipulate
@@ -38,9 +40,17 @@ class FileOpForm(FlaskForm):
     template = SelectField('File type/Template to use',
                            choices=[('0_no', '📄 empty file'),
                                     ('1_dir', ('📁 New folder'))])
-    destination = StringField('Destination')
+    destination = StringField('Destination', validators=[FileSize(max_size=1)])
     """
     the auxiliary field. used only for copy/move operations
+    """
+    files = MultipleFileField("Files to upload")
+    """
+    files that can be uploaded into the vault
+    """
+    obfuscate = BooleanField('Obfuscate files when uploading', default=False)
+    """
+    If set, will perform obfscation and change the suffix
     """
     ok = SubmitField()
 
@@ -49,6 +59,8 @@ class FileOpForm(FlaskForm):
         self.vault = vault
         self.target.description = f"""Use \"{AppState.config.vaults[vault].obfuscation_suffix}.md\" as a file suffix for obfuscated text. 
 You can also add or remove  "{AppState.config.vaults[vault].obfuscation_suffix}\" suffix when copying/moving files to obfuscate-deobfuscate data."""
+        self.files.description = f'Maximum: {AppState.config.vaults[vault].max_files_to_upload} files of {AppState.config.vaults[vault].max_file_size_mb} MB'
+        self.obfuscate.description = f'(If set, will also add \"{AppState.config.vaults[vault].obfuscation_suffix}\" suffix into the filename)'
 
     def validate(self, **kwargs):
         rv = FlaskForm.validate(self, **kwargs)  # checking fields at first
@@ -81,7 +93,31 @@ You can also add or remove  "{AppState.config.vaults[vault].obfuscation_suffix}\
                 self.destination.errors.append(
                     'Cannot copy/move directory to file')
                 return False
+        if self.operation.data == 'upload':
+            real_files = [f for f in self.files.data if f and f.filename]
+            if len(real_files) == 0:
+                self.files.errors.append('Nothing to upload')
+                return False
+            target = AppState.indices[self.vault].path / self.target.data
+            if target.exists() and not target.is_dir():
+                self.target.errors.append('Target path must be a directory')
+                return False
 
+            if len(self.files.data) > AppState.config.vaults[
+                    self.vault].max_files_to_upload:
+                self.files.errors.append(
+                    f'Too many files: {len(self.files.data)}. Max allowed: {AppState.config.vaults[self.vault].max_files_to_upload}'
+                )
+            for f in self.files.data:
+                f.seek(0, 2)
+                size = f.tell()
+                f.seek(0)
+                if size > AppState.config.vaults[
+                        self.vault].max_file_size_mb * 1024 * 1024:
+                    self.files.errors.append(
+                        f'file size of {f.filename} is larger than allowed {AppState.config.vaults[self.vault].max_file_size_mb} MB'
+                    )
+                    return False
         return True
 
 
