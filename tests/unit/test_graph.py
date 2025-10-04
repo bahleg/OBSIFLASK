@@ -3,7 +3,6 @@ import pytest
 from obsiflask.graph import Graph, GraphRepr
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
-from obsiflask.hint import HintIndex
 from obsiflask.main import run
 
 
@@ -16,13 +15,15 @@ def app(tmp_path):
 
     config.vaults['vault1'].graph_config.cache_time = 100000
     AppState.messages[('vault1', None)] = []
-    # создаём фиктивные markdown файлы
+    # create mock markdown
     file_paths = []
     for name in ["file1.md", "file2.md", "file3.md"]:
         f = tmp_path / name
         f.write_text(f"# {name}\nSome content")
         file_paths.append(f)
     (tmp_path / "tagged.md").write_text('this is #tag')
+    (tmp_path / "link.md"
+     ).write_text('this is a [[file1#head| link to a section if file1.md]]')
     app = run(config, True)
 
     return app
@@ -35,8 +36,8 @@ def test_graph_build_basic(app):
         result = graph.build(rebuild=True)
 
         assert isinstance(result, GraphRepr)
-        assert len(result.node_labels) == 5  # files + 1 tag
-        assert result.edges.shape[0] == 1  # 1 tag
+        assert len(result.node_labels) == 6  # files + 1 tag
+        assert result.edges.shape[0] == 2  # link and tag
         assert all(isinstance(h, str) for h in result.href)
 
 

@@ -9,12 +9,12 @@ from obsiflask.main import run
 
 @pytest.fixture
 def app(tmp_path):
-    raise NotImplementedError()
     (tmp_path / "dir").mkdir()
     (tmp_path / "templates").mkdir()
     (tmp_path / "templates" / "template.md").write_text('write')
 
     (tmp_path / "dir" / "file.md").write_text('write')
+    (tmp_path / "dir" / "file.obf.md").write_text('write')
     (tmp_path / "dir" / "file.txt").write_text('write')
     config = AppConfig(vaults={
         'vault':
@@ -54,9 +54,10 @@ def test_render_tree_root(app):
 def test_folder(app):
     with app.test_request_context():
         elements = json.loads(render_tree('vault', 'dir/').data)
-        assert len(elements) == 2
+        assert len(elements) == 3
         assert elements[0]['title'] == 'file.md'
-        assert elements[1]['title'] == 'file.txt'
+        assert elements[1]['title'] == 'file.obf.md'
+        assert elements[2]['title'] == 'file.txt'
 
         for f in elements:
             assert f.get('folder') != True
@@ -71,10 +72,25 @@ def test_folder(app):
             'show', 'edit'
         }
 
-        # less options for non-md file
+        # download deobfuscated options for obf file
         menu_titles = set([
             re.sub('[^\w\s]', '', t['title']).strip().lower()
             for t in elements[1]['data']['menu']
+        ])
+        assert menu_titles == {
+            'edit', 'show',
+            'duplicate',
+            'rename',
+            'delete',
+            'file operations',
+            'download',
+            'download with deobfuscation'
+        }
+
+        # less options for non-md file
+        menu_titles = set([
+            re.sub('[^\w\s]', '', t['title']).strip().lower()
+            for t in elements[2]['data']['menu']
         ])
         assert menu_titles == {
             'duplicate',

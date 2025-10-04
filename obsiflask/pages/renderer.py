@@ -131,8 +131,11 @@ def make_link(link: re.Match, path: Path, index: FileIndex) -> str:
     if link:
         return f'[{alias}]({link})'
     logger.warning(f'link with [[ {name} |{alias} ]] not found')
-    local_path = Path(path).relative_to(index.path)
-
+    if str(Path(path).parent) in ['', '.']:
+        local_path = Path(path)
+    else:
+        local_path = Path(path).relative_to(index.path)
+    
     if '#' in name:
         name = name.rsplit('#')[0]
     if not name.endswith('.md'):

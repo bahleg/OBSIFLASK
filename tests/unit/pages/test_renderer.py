@@ -1,22 +1,26 @@
-import io
 import re
 import pytest
 from pathlib import Path
-from types import SimpleNamespace
-from markupsafe import Markup
 
+from flask import Flask
 import obsiflask.pages.renderer as md
+from obsiflask.app_state import AppState
+from obsiflask.config import AppConfig, VaultConfig
+from obsiflask.main import run
 
 
 class DummyIndex:
 
     def __init__(self, path="/vault"):
         self.path = Path(path)
+        self.vault = 'vault'
 
     def resolve_wikilink(self, name, file_path, create=False, **kwargs):
         # very simplified fake resolver
         if name == "Exists":
             return "resolved/exists.md"
+        if name == "Exists#header":
+            return "resolved/exists.md#header"
         if name == "Image":
             return "image.png"
         if name == "Remote":
@@ -27,6 +31,15 @@ class DummyIndex:
             return "resolved/Image.png"
 
         return None
+
+
+@pytest.fixture
+def app(tmp_path):
+    config = AppConfig(vaults={'vault': VaultConfig(str(tmp_path))})
+    AppState.indices['vault'] = DummyIndex()
+    app = run(config, True)
+
+    return app
 
 
 def test_url_for_tag():
@@ -78,11 +91,19 @@ def test_make_link_found():
     assert "[Alias](resolved/exists.md)" == out
 
 
-def test_make_link_not_found(capsys):
+def test_make_link_anchor_found():
+    regex = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
+    m = regex.search("[[Exists#header|Alias]]")
+    out = md.make_link(m, Path("dummy.md"), DummyIndex())
+    assert "[Alias](resolved/exists.md#header)" == out
+
+
+def test_make_link_not_found(app, capsys):
     regex = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]")
     m = regex.search("[[Missing]]")
-    out = md.make_link(m, Path("dummy.md"), DummyIndex())
-    assert "???Missing???" in out
+    with app.test_request_context():
+        out = md.make_link(m, Path("dummy.md"), DummyIndex())
+    assert out == '[*NOT FOUND* **Missing** *NOT FOUND*](/fastfileop/vault?op=file&curfile=dummy.md&dst=Missing.md)'
 
 
 def test_parse_embedding_image(monkeypatch):
@@ -121,7 +142,7 @@ def test_preprocess_with_frontmatter(tmp_path):
     file = tmp_path / "note.md"
     file.write_text("---\ntitle: demo\n---\n\n[[Exists]] text")
     idx = DummyIndex()
-    html = md.preprocess(file, idx, "vault1")
+    html = md.preprocess(file, idx, "vault")
     assert "<html" not in html  # mistune doesn’t wrap in full html
     assert "Properties" in html
     assert "<a" in html
