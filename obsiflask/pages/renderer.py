@@ -121,6 +121,10 @@ def make_link(link: re.Match, path: Path, index: FileIndex) -> str:
     name = link.group(1).strip()
     if not alias:
         alias = name
+        if '#' in name:
+            suffix = name.rsplit('#', 1)[1]
+            if suffix:
+                alias = suffix
     if '/' in alias:
         alias = alias.split('/')[-1]
     if '.md' in alias:
