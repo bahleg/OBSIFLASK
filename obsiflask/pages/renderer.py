@@ -129,7 +129,6 @@ def make_link(link: re.Match, path: Path, index: FileIndex) -> str:
         alias = alias.split('/')[-1]
     if '.md' in alias:
         alias = alias.replace('.md', '')
-
     link = index.resolve_wikilink(name, path, True)
 
     if link:

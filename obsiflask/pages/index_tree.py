@@ -98,7 +98,8 @@ def get_menu(key: str, vault: str, is_dir: bool, tree_curfile: list[str],
             'title': '📥 Download',
             'url': url_for('get_file', vault=vault, subpath=key)
         })
-        if AppState.config.vaults[vault].obfuscation_suffix in Path(key).suffixes:
+        if AppState.config.vaults[vault].obfuscation_suffix in Path(
+                key).suffixes:
             menu.append({
                 'title':
                 '🥸 Download with deobfuscation',
