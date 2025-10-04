@@ -62,7 +62,7 @@ def plugin_heading_anchor(md):
         renderer.heading_anchor_orig = renderer.heading
 
         def heading(text, level):
-            slug = parse.quote_plus(text)
+            slug = parse.quote(text)
             return f'<h{level} id="{slug}">{text} <a href="#{slug}" style="text-decoration:none; font-size:small" class="anchor">🔗</a></h{level}>\n'
 
         renderer.heading = heading
@@ -131,8 +131,14 @@ def make_link(link: re.Match, path: Path, index: FileIndex) -> str:
     if link:
         return f'[{alias}]({link})'
     logger.warning(f'link with [[ {name} |{alias} ]] not found')
-    return f"???{alias}???"
+    local_path = Path(path).relative_to(index.path)
 
+    if '#' in name:
+        name = name.rsplit('#')[0]
+    if not name.endswith('.md'):
+        name = name+'.md'
+    return f'[*NOT FOUND* **{alias}** *NOT FOUND*]({url_for('fastfileop', op='file', curfile=local_path, dst=name, vault=index.vault)})'
+    
 
 def parse_embedding(text: str, full_path: Path, index: FileIndex,
                     vault: str) -> str:

@@ -139,7 +139,8 @@ class FileIndex:
                          path: Path,
                          resolve_markdown_without_ext: bool = False,
                          escape=True,
-                         relative: bool = True) -> str | None:
+                         relative: bool = True,
+                         wrt_anchor: bool = True) -> str | None:
         """
         Tries to resolve the wikilink
 
@@ -159,7 +160,11 @@ class FileIndex:
 
         if name.startswith('http://') or name.startswith('https://'):
             return name
+        anchor = None
         name = name.strip()
+        if '#' in name:
+            name, anchor = name.rsplit('#', 1)
+            
         path = path.parent
         link = None
         # local first
@@ -197,8 +202,12 @@ class FileIndex:
                 link = str(os.path.relpath(link, self.path))
             if link:
                 if escape:
-                    return parse.quote(link)
+                    link = parse.quote(link)
+                    if wrt_anchor and anchor:
+                        link = link+'#'+parse.quote(anchor)
+                    return link
                 else:
                     return str(link)
+                
         logger.warning(f'could not infer link: {name}')
         return None
