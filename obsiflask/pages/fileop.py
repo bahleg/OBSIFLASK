@@ -170,7 +170,7 @@ def upload_files(vault: str, form: FileOpForm) -> bool:
                         out.write(content)
                 else:
                     with obf_open(target / fname, vault, 'wb') as out:
-                        out.write(content)
+                        out.write(bytes)
 
         if len(errors) == 0:
             add_message(f'Files uploaded into {form.target.data}',
