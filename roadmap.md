@@ -12,7 +12,8 @@ Planned features to be implemented (tentative order):
 - Command palette  
 - Local graphs
 - Better logic for loggers
-- Improved Git integration  
+- Improved Git integration
+- obfuscation plugin for obsidian
 - Enhanced Bases support  
   - Links in Bases
 - Icon support  
@@ -21,6 +22,9 @@ Planned features to be implemented (tentative order):
 - Read-only vaults or parts of vaults  
 - PWA support (tentative)
 - ai plugins
+- obsidian links
+- map plugins
+
 
 ## Minor features and fixes
 - Known minor bugs
@@ -30,6 +34,7 @@ Planned features to be implemented (tentative order):
 - Cluster color settings
 - Job tracking?
 - rename by click
+- refactor renderer
 - UI refactoring  
   - Disable trags parsing in code blocks
   - Saving before turning into the view mode
