@@ -15,8 +15,8 @@ from obsiflask.messages import add_message, type_to_int
 from obsiflask.consts import DATE_FORMAT
 from obsiflask.utils import get_traceback
 from obsiflask.fileop import copy_move_file, create_file_op, delete_file_op, FileOpForm
-from obsiflask.obfuscate import obf_open
-from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN, TEXT_FILES_SFX
+from obsiflask.encrypt.obfuscate import obf_open
+from obsiflask.consts import TEXT_FILES_SFX
 
 
 def render_fastop(vault: str) -> str:

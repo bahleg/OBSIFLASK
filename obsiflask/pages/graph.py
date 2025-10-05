@@ -164,13 +164,16 @@ def get_graph_and_legend(
     deg = [0] * len(out_labels)
     for _, to_ in filtered_edges:
         deg[to_] += 1
-    deg_max = max(deg)
-    deg_min = min(deg)
-    if deg_max == deg_min:
-        sizes = [50] * len(out_labels)
+    if len(deg) == 0:
+        sizes = []
     else:
-        denom = deg_max - deg_min
-        sizes = [1 + (d - deg_min) / denom * 99 for d in deg]
+        deg_max = max(deg)
+        deg_min = min(deg)
+        if deg_max == deg_min:
+            sizes = [50] * len(out_labels)
+        else:
+            denom = deg_max - deg_min
+            sizes = [1 + (d - deg_min) / denom * 99 for d in deg]
 
     out_graph = GraphRenderingRepresentation(out_labels, filtered_edges,
                                              out_href, out_colors, sizes)

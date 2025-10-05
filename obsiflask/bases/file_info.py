@@ -15,7 +15,7 @@ from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.consts import COVER_KEY, wikilink, hashtag, MAX_FILE_SIZE_MARKDOWN
 from obsiflask.utils import get_traceback
-from obsiflask.obfuscate import obf_open
+from obsiflask.encrypt.obfuscate import obf_open
 
 class FileInfo:
 

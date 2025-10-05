@@ -22,7 +22,7 @@ It supports multiple vaults, multi-user mode, search and navigation, background 
 - 🔎 **Advanced search** — exact search, regex, fuzzy search, tag search, link search, and filter-based search  
 - 📝 **Task scheduler** — run periodic shell tasks per vault with logs and messages  
 - ⚡ **Graph visualization** — global graph rendering, filtering, tag coloring, clustering  
-
+- 🔐 **Encryption & Obfuscation** — hide or protect sensitive content using Meld-compatible encryption or lightweight obfuscation  
 ---
 
 ## 📦 Getting Started

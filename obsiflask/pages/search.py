@@ -18,7 +18,7 @@ from obsiflask.bases.filter import FieldFilter
 from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN
 from obsiflask.auth import get_user
 from obsiflask.utils import get_traceback
-from obsiflask.obfuscate import obf_open
+from obsiflask.encrypt.obfuscate import obf_open
 
 SEARCH_PREVIEW_CHARS = 100
 """

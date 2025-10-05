@@ -6,7 +6,7 @@ from obsiflask.app_state import AppState
 from obsiflask.main import run
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.pages.fileop import render_fastop, upload_files, FileOpForm
-from obsiflask.obfuscate import obf_open
+from obsiflask.encrypt.obfuscate import obf_open
 
 ### FASTOP
 

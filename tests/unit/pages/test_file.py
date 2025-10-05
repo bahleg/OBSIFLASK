@@ -4,7 +4,7 @@ from flask import Flask
 from obsiflask.pages.file import get_file
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
-from obsiflask.obfuscate import obf_open
+from obsiflask.encrypt.obfuscate import obf_open
 
 
 @pytest.fixture
@@ -42,13 +42,13 @@ def test_get_file_obfuscate(app, tmp_path):
     with obf_open(tmp_path / 'test.obf.md', 'vault', 'w') as out:
         out.write('test')
     with app.test_request_context():
-        response = get_file(tmp_path/str('test.obf.md'), 'vault')
+        response = get_file(tmp_path / str('test.obf.md'), 'vault')
 
         data = b"".join(response.response)
         assert data != b'test'
 
     with app.test_request_context('?deobfuscate=1'):
-        response = get_file(str(tmp_path/'test.obf.md'), 'vault')
+        response = get_file(str(tmp_path / 'test.obf.md'), 'vault')
 
         data = b"".join(response.response)
         assert data == b'test'

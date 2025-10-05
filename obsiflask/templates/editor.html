@@ -13,6 +13,9 @@
 <div id="save-status">(saved)</div>
 
 <div class="flo-btn-group">
+  <a class="flo-btn" title="Encrypt message" id="flo-encrypt-btn" href="#"><i
+      class="bi bi-key"></i></a>
+
   <a class="flo-btn" title="Autocomplete" id="flo-autocomplete-btn"><i class="bi bi-alphabet"></i></a>
 
   <a class="flo-btn" title="Save" id="flo-save-btn"><i class="bi bi-floppy"></i></a>
@@ -262,11 +265,14 @@
 
 <script>
   // disable cache when returning to the page
-window.addEventListener("pageshow", function (event) {
-  if (event.persisted) {
-    window.location.reload();
-  }
-});
+  window.addEventListener("pageshow", function (event) {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  });
 </script>
-
+<script src="{{ url_for('static', filename='encrypt.js') }}"></script>
+<script>
+  document.getElementById("flo-encrypt-btn").addEventListener("click", encodeMeld);
+</script>
 {% endblock %}

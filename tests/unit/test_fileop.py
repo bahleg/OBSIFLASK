@@ -2,7 +2,7 @@ from obsiflask.fileop import FileOpForm, create_file_op, delete_file_op, copy_mo
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-from obsiflask.obfuscate import obf_open
+from obsiflask.encrypt.obfuscate import obf_open
 
 
 def _make_app(tmp_path):
