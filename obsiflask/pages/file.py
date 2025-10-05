@@ -6,7 +6,7 @@ from tempfile import mkstemp
 from flask import send_file, request
 
 from obsiflask.app_state import AppState
-from obsiflask.obfuscate import obf_open
+from obsiflask.encrypt.obfuscate import obf_open
 from obsiflask.consts import TEXT_FILES_SFX
 
 

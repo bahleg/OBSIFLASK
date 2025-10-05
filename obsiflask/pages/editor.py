@@ -10,7 +10,7 @@ from obsiflask.pages.renderer import preprocess
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.auth import get_user, get_user_config
-from obsiflask.obfuscate import obf_open
+from obsiflask.encrypt.obfuscate import obf_open
 
 lock = Lock()
 

@@ -16,7 +16,7 @@ from obsiflask.app_state import AppState
 from obsiflask.file_index import FileIndex
 from obsiflask.utils import logger, get_traceback
 from obsiflask.consts import wikilink, re_tag_embed, hashtag
-from obsiflask.obfuscate import obf_open
+from obsiflask.encrypt.obfuscate import obf_open
 from obsiflask.encrypt.meld_decrypt import read_encoded_data
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.auth import get_user

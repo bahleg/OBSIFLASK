@@ -23,7 +23,8 @@ setup(
     entry_points={
         "console_scripts": [
             "obsiflask=obsiflask.main:run",
-            "obsiflask-deobfuscate=obsiflask.obfuscate:deobfuscate_cmd"
+            "obsiflask-deobfuscate=obsiflask.encrypt.obfuscate:deobfuscate_cmd",
+            "obsiflask-decrypt=obsiflask.encrypt.meld_decrypt:main"
         ]
     },
     include_package_data=True,

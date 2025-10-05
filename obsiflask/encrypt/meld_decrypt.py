@@ -32,7 +32,7 @@ def derive_key(password: str, salt: bytes) -> bytes:
         backend=default_backend()).derive(password.encode())
 
 
-def decrypt_from_bytes(encrypted_bytes: bytes, password: str) -> str:
+def decrypt_from_bytes(encrypted_bytes: bytes, password: str, exit: bool = True) -> str:
     if len(encrypted_bytes) < (VECTOR_SIZE + SALT_SIZE + TAG_SIZE):
         print("ERROR: Encrypted data is too short to be valid!")
         sys.exit(1)
@@ -52,7 +52,9 @@ def decrypt_from_bytes(encrypted_bytes: bytes, password: str) -> str:
             encrypted_text_bytes) + decryptor.finalize()
         return decrypted_bytes.decode()
 
-    except Exception:
+    except Exception as e:
+        if not exit:
+            raise e
         print("ERROR: Decrypting data failed!")
         print(f"- Vector (IV): {vector.hex()}")
         print(f"- Salt:        {salt.hex()}")
@@ -63,7 +65,7 @@ def decrypt_from_bytes(encrypted_bytes: bytes, password: str) -> str:
         sys.exit(1)
 
 
-def read_encoded_data(file_path: str) -> bytes:
+def read_encoded_data(file_path: str, exit: bool = True) -> bytes:
     try:
         with open(file_path, "r") as file:
             data = json.load(file)
@@ -74,16 +76,23 @@ def read_encoded_data(file_path: str) -> bytes:
             return base64.b64decode(data.get("encodedData").strip())
 
     except base64.binascii.Error as e:
+        if not exit:
+            raise e
         print(f"ERROR: Decoding Base64 failed: {e}")
     except json.JSONDecodeError as e:
+        if not exit:
+            raise e
         print(
             f"ERROR: Parsing JSON from '{file_path}' (line {e.lineno}, column {e.colno}) failed: {e.msg} "
         )
     except Exception as e:
+        if not exit:
+            raise e
         print(
             f"ERROR: Parsing 'encodedData' field from '{file_path}' failed: {e}"
         )
-    sys.exit(1)
+    if exit:
+        sys.exit(1)
 
 
 def main():

@@ -36,7 +36,7 @@ from obsiflask.pages.root import render_root
 from obsiflask.pages.sessions import render_sessions
 from obsiflask.pages.user import render_user
 from obsiflask.pages.bookmarks import render_links, load_links
-from obsiflask.obfuscate import init_obfuscation
+from obsiflask.encrypt.obfuscate import init_obfuscation
 
 
 def check_vault(vault: str) -> tuple[str, int] | None:

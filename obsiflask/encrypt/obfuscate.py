@@ -150,7 +150,6 @@ class ObfuscationTextFile(object):
             fixed_method = 'wb'
 
         self.file_obj = open(file_name, fixed_method)
-
         if fixed_method == 'rb':
             header_length = len(MAGIC_PHRASE) + 1 + SALT_LENGTH
             self.file_obj.seek(header_length)

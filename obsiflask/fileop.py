@@ -17,7 +17,7 @@ from obsiflask.utils import logger
 from obsiflask.messages import add_message
 from obsiflask.auth import get_user
 from obsiflask.utils import get_traceback
-from obsiflask.obfuscate import obf_open
+from obsiflask.encrypt.obfuscate import obf_open
 from obsiflask.consts import MAX_FILE_SIZE_MARKDOWN, TEXT_FILES_SFX
 
 lock = Lock()
