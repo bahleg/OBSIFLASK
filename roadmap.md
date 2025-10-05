@@ -4,7 +4,6 @@ Planned features to be implemented (tentative order):
 
 ## Major features 
 - Excalidraw plugin compatibility
-- Encryption support (compatible with Meld plugin)
 - Refactored file index and graph handling
 - Spell checking 
 - Tag list view  
@@ -32,6 +31,7 @@ Planned features to be implemented (tentative order):
   - Cards are displayed differently in Obsidian and OBSIFLASK, see the example vault
   - Search results generator: looks like it provides all results at once 
 - Cluster color settings
+- Meld-like full note encryption
 - Job tracking?
 - rename by click
 - refactor renderer

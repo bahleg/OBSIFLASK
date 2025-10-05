@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
 ---
+### [0.18.*] - Encrpytion
+- Added an encrpytion functionality, compatitible with Meld
+
 ### [0.17.*] - File uploading
 - Added file uploading form
 - Minor UI improvements:
