@@ -32,7 +32,7 @@ DATE_FORMAT = '%Y-%m-%d'
 """
 Format of date
 """
-TEXT_FILES_SFX = {'.md', '.excalidraw'}
+TEXT_FILES_SFX = {'.md', '.excalidraw', '.mdenc'}
 """
 Suffixes for markdown-like files
 """

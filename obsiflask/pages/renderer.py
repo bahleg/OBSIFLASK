@@ -1,6 +1,7 @@
 """
 Logic for markdown rendering
 """
+import json
 import re
 from pathlib import Path
 from threading import Lock
@@ -13,12 +14,15 @@ from markupsafe import Markup
 
 from obsiflask.app_state import AppState
 from obsiflask.file_index import FileIndex
-from obsiflask.utils import logger
+from obsiflask.utils import logger, get_traceback
 from obsiflask.consts import wikilink, re_tag_embed, hashtag
 from obsiflask.obfuscate import obf_open
-
+from obsiflask.encrypt.meld_decrypt import read_encoded_data
+from obsiflask.messages import add_message, type_to_int
+from obsiflask.auth import get_user
 _lock = Lock()
 
+meld_code = re.compile('🔐β(.+?)🔐', re.MULTILINE)
 
 def url_for_tag(vault: str, tag: str) -> str:
     """
@@ -145,6 +149,16 @@ def make_link(link: re.Match, path: Path, index: FileIndex) -> str:
         name = name+'.md'
     return f'[*NOT FOUND* **{alias}** *NOT FOUND*]({url_for('fastfileop', op='file', curfile=local_path, dst=name, vault=index.vault)})'
     
+def parse_encryption(text: str) -> str:
+    matches = meld_code.finditer(text)
+    offset = 0
+    buf = []
+    for m_id, m in enumerate(matches):
+        buf.append(text[offset:m.span()[0]])
+        buf.append(f'<a href="#" onclick="decodeMeld(\'{m.group(1)}\'); return false;">🔐</a>')
+        offset = m.span()[1]
+    buf.append(text[offset:])
+    return ''.join(buf)
 
 def parse_embedding(text: str, full_path: Path, index: FileIndex,
                     vault: str) -> str:
@@ -242,6 +256,7 @@ def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
                                        ])
     text = parse_hashtags(text, vault)
     text = parse_frontmatter(text, Path(full_path).name, vault)
+    text = parse_encryption(text)
     text = parse_embedding(text, full_path, index, vault)
     offset = 0
     matches = wikilink.finditer(text)
@@ -254,6 +269,22 @@ def preprocess(full_path: Path, index: FileIndex, vault: str) -> str:
     html = markdown(''.join(buf))
     return html
 
+def preprocess_mdenc(path: str, real_path: str, vault: str)-> str:
+    try:
+        with open(real_path, "r") as file:
+            data = json.load(file)
+            if data["version"] != "2.0":
+                raise ValueError("Only v2.0 supported!")
+            if "encodedData" not in data:
+                raise ValueError("Missing 'encodedData' key in JSON file")
+                
+            return f'<a href="#" onclick="decodeMeld(\'{data["encodedData"]}\'); return false;">🔐</a>'
+    except Exception as e:
+        add_message(f'could not parse encrypted message from {path}: {e}', type=type_to_int['error'], 
+                    vault=vault, details=get_traceback(e), user=get_user())
+
+
+        
 
 def render_renderer(vault: str, path: str, real_path: Path) -> str:
     """
@@ -269,12 +300,22 @@ def render_renderer(vault: str, path: str, real_path: Path) -> str:
     """
     if str(path).endswith('.base'):
         return redirect(url_for('base', vault=vault, subpath=path))
-    if str(path).endswith('.excalidraw'):
+    elif str(path).endswith('.excalidraw'):
         return redirect(url_for('excalidraw', vault=vault, subpath=path))
-    if Path(real_path).exists() and Path(real_path).is_dir():
+    elif Path(real_path).exists() and Path(real_path).is_dir():
         return redirect(url_for('get_folder', vault=vault, subpath=path))
-    if not str(path).endswith('.md'):
+    elif str(path).endswith('.mdenc'):
+        return render_template('renderer.html',
+                           markdown_text=preprocess_mdenc(path, real_path, vault),
+                           path=path,
+                           vault=vault,
+                           is_editor=False,
+                           home=AppState.config.vaults[vault].home_file,
+                           curdir=Path(path).parent,
+                           curfile=path)
+    elif not str(path).endswith('.md'):
         return redirect(url_for('get_file', vault=vault, subpath=path))
+    
     return render_template('renderer.html',
                            markdown_text=preprocess(real_path,
                                                     AppState.indices[vault],
