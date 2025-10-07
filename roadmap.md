@@ -23,6 +23,7 @@ Planned features to be implemented (tentative order):
 - ai plugins
 - obsidian links
 - map plugins
+- zotero
 - features mentioned in [this issue](https://github.com/bahleg/OBSIFLASK/issues/26)
 
 
