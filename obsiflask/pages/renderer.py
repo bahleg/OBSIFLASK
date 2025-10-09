@@ -58,7 +58,7 @@ def plugin_mermaid(md):
 
 
 def plugin_heading_anchor(md):
-    """Плагин, который добавляет id и якорь к заголовкам."""
+    """Adds anchor and id to headers"""
 
     renderer = md.renderer
 

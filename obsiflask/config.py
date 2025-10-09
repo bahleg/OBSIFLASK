@@ -268,6 +268,10 @@ class AuthConfig:
     """
     Path to save user configs
     """
+    session_cookie_name: str = 'session'
+    """
+    A cookie name for credential data storage
+    """
 
 
 @dataclass
