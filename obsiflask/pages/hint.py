@@ -34,6 +34,10 @@ taglist_start_pattern = re.compile(r'^\s*tags:\s*$')
 """
 Pattern like "tags: 
 """
+embed_pattern = re.compile(r'[!]\[\[[^\]]*$')
+"""
+Embedding pattern
+"""
 
 
 def make_short(s: str) -> str:
@@ -76,7 +80,7 @@ def context_hint(vault: str, context: str) -> list[dict]:
     results = sorted(file_results + tags_results, key=lambda x:
                      (-x[1], x[2]))[:MAX_HINT]
     found_span = len(found_text)
-    
+
     if len(results) == 0:
         return simple_hint(vault, found_span)
     return [{'text': r[0], 'erase': found_span} for r in results]
@@ -178,8 +182,8 @@ def double_brackets_hint(vault: str, context: str) -> list[dict]:
         return None
     found_text = found.group()
     default_files = [
-        r for r in list(AppState.hints[vault].default_files_per_user[get_user()])
-        [:MAX_HINT // 2]
+        r for r in list(AppState.hints[vault].default_files_per_user[
+            get_user()])[:MAX_HINT // 2]
     ]
     default_files_set = set(default_files)
     default_files_add = []
@@ -207,6 +211,51 @@ def double_brackets_hint(vault: str, context: str) -> list[dict]:
     } for r in file_results]
 
 
+def embed_hint(vault: str, context: str) -> list[dict]:
+    """
+    Tries to show the user most probable hints the embeddings
+
+    Args:
+        vault (str): vault name
+        context (str): context of the hint
+
+    Returns:
+        list[dict]: resulting hints
+    """
+    found = embed_pattern.search(context)
+    if found is None:
+        return None
+    found_text = found.group()
+    default_files = [
+        r for r in list(AppState.hints[vault].default_files_per_user[
+            get_user()])[:MAX_HINT // 2]
+    ]
+    default_files_set = set(default_files)
+    default_files_add = []
+    for r in default_files:  # actually, the check should be
+        short = r.split('/')[-1]
+        if short not in default_files_set:
+            default_files_add.append(short)
+            default_files_set.add(short)
+    default_files = default_files_add + default_files
+    if len(found_text) == 3:  # only '![['
+        return [{'text': r + ']]', 'erase': 0} for r in default_files]
+
+    file_results, _ = AppState.hints[vault].string_all_file_index.search(
+        found_text[3:])
+    file_results = file_results[:MAX_HINT]
+    found_text_len = len(found_text) - 3
+    if len(file_results) == 0:
+        return [{
+            'text': r + ']]',
+            'erase': found_text_len
+        } for r in default_files]
+    return [{
+        'text': r[0] + ']]',
+        'erase': found_text_len
+    } for r in file_results]
+
+
 def simple_hint(vault: str, erase_num: int = 0) -> list[dict]:
     """
     Tries to show default hints for the user 
@@ -223,16 +272,14 @@ def simple_hint(vault: str, erase_num: int = 0) -> list[dict]:
     for t in AppState.hints[vault].default_tags[:MAX_HINT // 3]:
         result.append({'text': '#' + t, 'erase': erase_num})
     files_added = set()
-    for f in list(
-            AppState.hints[vault].default_files_per_user[get_user()])[:MAX_HINT //
-                                                                3]:
+    for f in list(AppState.hints[vault].default_files_per_user[
+            get_user()])[:MAX_HINT // 3]:
         short = f.split('/')[-1]
         if short not in files_added:
             files_added.add(short)
             result.append({'text': short, 'erase': erase_num})
-    for f in list(
-            AppState.hints[vault].default_files_per_user[get_user()])[:MAX_HINT //
-                                                                3]:
+    for f in list(AppState.hints[vault].default_files_per_user[
+            get_user()])[:MAX_HINT // 3]:
         if f not in files_added:
             result.append({'text': f, 'erase': erase_num})
     return result
@@ -255,7 +302,8 @@ def get_hint(vault: str, context: str) -> list[dict[str]]:
     """
     result = None
     for hinter in [
-            hashtag_hint, double_brackets_hint, taglist_hint, context_hint
+            hashtag_hint, embed_hint, double_brackets_hint, taglist_hint,
+            context_hint
     ]:
         result = hinter(vault, context)
         if result is not None:

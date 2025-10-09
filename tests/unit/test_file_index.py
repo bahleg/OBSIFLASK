@@ -3,7 +3,7 @@ import pytest
 from obsiflask.file_index import FileIndex
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
-
+from obsiflask.hint import HintIndex
 
 @pytest.fixture
 def sample_vault(tmp_path):
@@ -16,6 +16,7 @@ def sample_vault(tmp_path):
     (subdir / "note3.md").write_text("# note3")
     config = AppConfig(vaults={'default': VaultConfig(str(tmp_path))})
     AppState.config = config
+    AppState.hints['default'] = HintIndex(3, 3, 1.0)
     return vault
 
 

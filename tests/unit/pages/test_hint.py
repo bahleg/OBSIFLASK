@@ -7,6 +7,7 @@ from obsiflask.auth import register_user, get_users
 from obsiflask.main import run
 
 
+
 @pytest.fixture
 def app(tmp_path):
     config = AppConfig(vaults={
@@ -17,8 +18,10 @@ def app(tmp_path):
     (tmp_path / "dir").mkdir()
     (tmp_path / "dir" / "test.md").write_text("hello world #mylongtag")
     (tmp_path / "dir" / "test2.md").write_text("hello world #anothertag")
+    (tmp_path / "dir" / "logo.png").write_text("binary content")
 
     app = run(config, True)
+    AppState.indices['vault'].refresh()
     return app
 
 
@@ -174,6 +177,36 @@ def test_links(app):
     assert len(result) == 2
     assert set([result[0]['text']]) == {'test.md]]'}
     assert set([result[1]['text']]) == {'dir/test.md]]'}
+
+
+def test_embed(app):
+    result = (get_hint('vault', '![['))
+    for r in result:
+        assert r['short'] == r['text']
+        assert r['erase'] == 0
+    assert len(result) == 4
+    assert set([result[0]['text'],
+                result[1]['text']]) == {'test.md]]', 'test2.md]]'}
+    assert set([result[2]['text'],
+                result[3]['text']]) == {'dir/test.md]]', 'dir/test2.md]]'}
+
+    result = (get_hint('vault', '![[ABCD'))
+    for r in result:
+        assert r['short'] == r['text']
+        assert r['erase'] == 4
+    assert len(result) == 4
+    assert set([result[0]['text'],
+                result[1]['text']]) == {'test.md]]', 'test2.md]]'}
+    assert set([result[2]['text'],
+                result[3]['text']]) == {'dir/test.md]]', 'dir/test2.md]]'}
+
+    result = (get_hint('vault', '![[logo.'))
+    for r in result:
+        assert r['short'] == r['text']
+        assert r['erase'] == len('logo.')
+    assert len(result) == 2
+    assert set([result[0]['text']]) == {'logo.png]]'}
+    assert set([result[1]['text']]) == {'dir/logo.png]]'}
 
 
 def test_context_hints(app):

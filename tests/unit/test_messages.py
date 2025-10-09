@@ -27,8 +27,9 @@ def app_auth(tmp_path):
         vaults={'vault1': VaultConfig(str(tmp_path), message_list_size=3)},
         auth=AuthConfig(enabled=True, db_path=db_path))
     AppState.messages[('vault1', None)] = []
+    AppState.hints = {} # some bug with shared resources. To be investigated further
     app = run(config, True)
-
+    
     register_user('user', 'pass', [])
     register_user('user2', 'pass', ['vault1'])
 
