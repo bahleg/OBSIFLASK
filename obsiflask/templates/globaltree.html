@@ -15,7 +15,7 @@
         expand_more = true;
     }
     let navtree = $("#tree").fancytree({
-        source: { url: "{{url_for('tree', vault=vault)}}?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}" },
+        source: { url: "{{url_for('tree', vault=vault, subpath=current_dir)}}?edit={{page_editor}}&curfile={{current_path}}&curdir={{current_dir}}&global=1" },
         clickFolderMode: 2, // open folders by click
         lazyLoad: function (event, data) {
             let node = data.node;
@@ -36,43 +36,24 @@
                 let tree = data.tree;
                 let parts = currentPath.split("/");
 
-                let expandParts = []
-                if (expand_more) {
-                    expandParts = parts;
-                }
-                else {
-                    expandParts = parts.slice(0, -1);
-                }
-
                 let targetKey = currentPath;
                 //console.log('parts', [expandParts])
-                 // Показываем лоадер, скрываем дерево
-                $("#tree").hide();
-                $("#tree").after("<div id='tree-loading'>Loading tree…</div>");
-                
-                expandPath(tree, expandParts, function () {
-                    
+                // Показываем лоадер, скрываем дерево
 
-                    let node = tree.getNodeByKey(targetKey);
-                    if (node) {
-                        node.setFocus(true);
-                        node.setSelected(true);
-                        node.makeVisible();
 
-                    } else {
-                        console.log("Node not found:", [targetKey]);
-                        //tree.visit(function (node) {
-                        //    console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
-                        //});
-                    }
-                    $("#tree-loading").remove();
-                    $("#tree").show();
-                    //tree.visit(function (node) {
-                    //        console.log("KEY:", [node.key], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
-                    //    });
-                })
+                let node = tree.getNodeByKey(targetKey);
+                if (node) {
+                    node.setFocus(true);
+                    node.setSelected(true);
+                    node.makeVisible();
 
-               
+                } else {
+                    console.log("Node not found:", [targetKey]);
+                    tree.visit(function (node) {
+                        console.log("KEY:", [node.key], [node], "TITLE:", node.title, "FOLDER:", node.folder, "LAZY:", node.lazy);
+                    });
+                }
+
 
 
 
@@ -87,29 +68,6 @@
 
 
     });
-
-    function expandPath(tree, parts, callback) {
-        if (!parts.length) {
-            if (callback) callback();
-            return;
-        }
-        let current = "";
-        let queue = [...parts]; // copy
-
-        function step() {
-            if (!queue.length) {
-                if (callback) callback();
-                return;
-            }
-            current = current ? current + "/" + queue.shift() : queue.shift();
-            let node = tree.getNodeByKey(current);
-            //console.log('subexpanding', current)
-            if (node) {
-                node.setExpanded(true).done(step);
-            }
-        }
-        step();
-    }
 
     $("#tree").on("contextmenu", function (event) {
         let node = $.ui.fancytree.getNode(event.target);

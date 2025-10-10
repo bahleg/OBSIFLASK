@@ -18,15 +18,16 @@ def app(tmp_path):
     (tmp_path / "dir" / "file.txt").write_text('write')
     config = AppConfig(vaults={
         'vault':
-        VaultConfig(str(tmp_path), template_dir=(tmp_path / "templates"))
-    }, )
+        VaultConfig(str(tmp_path), template_dir=(tmp_path / "templates")), 
+       
+    }, log_level='INFO', )
 
     app = run(config, True)
     return app
 
 
 def test_render_tree_root(app):
-    with app.test_request_context():
+    with app.test_request_context('?global=1'):
         elements = json.loads(render_tree('vault', '').data)
         assert len(elements) == 3  # note, the order is sorted
         assert elements[0]['title'] == '<ROOT>'

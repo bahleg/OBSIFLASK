@@ -150,63 +150,46 @@ def get_menu(key: str, vault: str, is_dir: bool, tree_curfile: list[str],
     return menu
 
 
-def render_tree(vault: str, subpath: str) -> str:
+def get_tree_items(tree: dict, items: list, subpath_rel: Path, vault: str,
+                   tree_curfile: set[str], templates: str, edit: bool,
+                   request_subpath: Path) -> list | None:
     """
-    A function for rendering part of the tree
+    Helper to build an index tree
 
     Args:
+        tree (dict): tree from FileIndex
+        items (list): item buffer to populate
+        subpath_rel (Path): relative subpath, w.r.t. tree
         vault (str): vault name
-        subpath (str): subpath to analyze 
+        tree_curfile (set[str]): current file in the tree
+        templates (str): path to templates
+        edit (bool): bool flag if we are in editor mode
+        request_subpath (Path): original subpath (w.r.t. real filesystem)
 
-    Returns:
-        str: json with tree elements for FancyTree
+    returns list of children or None (it couldn't find element to add children)
     """
-    templates = AppState.indices[vault].get_templates()
-    edit = edit = str(request.args.get('edit',
-                                       '0')).lower() not in ['0', '', 'false']
-    curfile = request.args.get('curfile')
-    curdir = request.args.get('curdir')
-    items = []
-    tree = AppState.indices[vault].get_tree()
-    is_root = subpath == ''
-    subpath = Path(AppState.indices[vault].path / subpath).resolve()
-    subpath_rel = subpath.relative_to(AppState.indices[vault].path)
-    tree = tree[AppState.indices[vault].path]
-    # go to the the subpath element
-    for part in list(subpath_rel.parents)[::-1][1:]:
-        tree = tree[AppState.indices[vault].path / part]
-    if not is_root:
-        tree = tree[subpath]
-    tree_curfile = set([curfile, curdir])
-    if is_root:
-        key = '.'
-        # adding root node
-        items.append({
-            "title": '<ROOT>',
-            "folder": True,
-            "lazy": False,
-            "key": key,
-            "data": {
-                'menu': get_menu(key, vault, True, tree_curfile, templates)
-            }
-        })
-
+    result = None
     if tree is not None:
         for name, child in sorted(tree.items(),
                                   key=lambda x: (x[1] is None, x[0])):
             key = str(subpath_rel / name.name)
             is_dir = child is not None
             if is_dir:
+                lazy = not (request_subpath.is_relative_to(name))
                 items.append({
                     "title": f"{name.name}",
                     "folder": True,
-                    "lazy": name.is_dir(),
+                    "lazy": name.is_dir() and lazy,
                     "key": key,
                     "data": {
                         'menu': get_menu(key, vault, True, tree_curfile,
                                          templates)
                     }
                 })
+                if not lazy:
+                    items[-1]['expanded'] = True
+                    items[-1]['children'] = []
+                    result = items[-1]['children']
             else:
                 if edit:
                     url = url_for('editor', vault=vault, subpath=key)
@@ -221,4 +204,69 @@ def render_tree(vault: str, subpath: str) -> str:
                         'menu': menu
                     }
                 })
+    return result
+
+
+def render_tree(vault: str, subpath: str) -> str:
+    """
+    A function for rendering part of the tree
+
+    Args:
+        vault (str): vault name
+        subpath (str): subpath to analyze 
+
+    Returns:
+        str: json with tree elements for FancyTree
+    """
+    is_global = request.args.get('global')
+    templates = AppState.indices[vault].get_templates()
+    edit = str(request.args.get('edit', '0')).lower() not in ['0', '', 'false']
+    curfile = request.args.get('curfile')
+    curdir = request.args.get('curdir')
+    items = []
+    tree = AppState.indices[vault].get_tree()
+    is_root = subpath == ''
+    subpath = Path(AppState.indices[vault].path / subpath).resolve()
+    request_path = Path(subpath)
+    subpath_rel = subpath.relative_to(AppState.indices[vault].path)
+    tree = tree[AppState.indices[vault].path]
+    tree_curfile = set([curfile, curdir])
+
+    if is_root or is_global:
+        key = '.'
+        # adding root node
+        items.append({
+            "title": '<ROOT>',
+            "folder": True,
+            "lazy": False,
+            "key": key,
+            "data": {
+                'menu': get_menu(key, vault, True, tree_curfile, templates)
+            }
+        })
+    children = None
+    if is_global:
+        children = get_tree_items(tree, items, Path(''), vault, tree_curfile,
+                                  templates, edit, request_path)
+        if children is None:
+            children = items
+    # go to the the subpath element
+    global_subpath = Path('')
+
+    for part in list(subpath_rel.parents)[::-1][1:]:
+        global_subpath = part
+        tree = tree[AppState.indices[vault].path / part]
+        if is_global:
+            children = get_tree_items(tree, children, global_subpath, vault,
+                                      tree_curfile, templates, edit,
+                                      request_path)
+            if children is None:
+                children = items
+    if not is_root:
+        tree = tree[subpath]
+    if children is None:
+        children = items
+    if (is_root and not is_global) or not is_root:
+        get_tree_items(tree, children, subpath_rel, vault, tree_curfile,
+                       templates, edit, request_path)
     return jsonify(items)
