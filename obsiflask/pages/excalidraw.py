@@ -4,13 +4,23 @@ The module describes rendering logic for Excalidraw editor page
 
 from pathlib import Path
 from threading import Lock
+import re
+import json
 
-from flask import render_template, abort
+from flask import render_template, abort, request, redirect, url_for
+from lzstring import LZString
 
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
-from obsiflask.utils import logger
+from obsiflask.utils import logger, get_traceback
 from obsiflask.encrypt.obfuscate import obf_open
+from obsiflask.messages import add_message, type_to_int
+from obsiflask.auth import get_user
+
+re_spaces = re.compile('\s+', re.MULTILINE|re.DOTALL)
+codeblock_json = re.compile('```json(.*?)```', re.MULTILINE|re.DOTALL)
+codeblock_compressed_json = re.compile('```compressed-json(.*?)```',
+                                       re.MULTILINE|re.DOTALL)
 
 default_excalidraw = """{
   "type": "excalidraw",
@@ -30,6 +40,54 @@ default_excalidraw = """{
 lock = Lock()
 
 
+def handle_open(vault: str, real_path: str, is_plugin_based: bool):
+    load_problems = ''
+    with lock:
+        with obf_open(real_path, vault) as inp:
+            text = inp.read()
+    if len(text.strip()) == 0:
+        logger.warning(
+            f'Exalidraw content is empty for {real_path}. Ignore if the file is created now',
+        )
+
+        text = default_excalidraw
+    elif is_plugin_based:
+        json_match = codeblock_json.search(text)
+        if json_match:
+            text = json_match.group(1)
+        else:
+            compressed_json_match = codeblock_compressed_json.search(re_spaces.sub('', text))
+            if compressed_json_match:
+                try:
+                    lz = LZString()
+                    text = lz.decompressFromBase64(
+                        compressed_json_match.group(1))
+                except Exception as e:
+                    add_message('Could not decompress text',
+                                type_to_int['error'],
+                                vault,
+                                get_traceback(e),
+                                user=get_user())
+            else:
+                add_message('Bad format for excalidraw.md',
+                            type_to_int['error'],
+                            vault,
+                            text,
+                            user=get_user())
+                text = default_excalidraw
+    try:
+        json.loads(text)
+    except Exception as e:
+
+        add_message('Exalidraw content is not json',
+                    type_to_int['error'],
+                    vault,
+                    get_traceback(e),
+                    user=get_user())
+        text = default_excalidraw
+    return text
+
+
 def render_excalidraw(vault: str, path: str, real_path: str) -> str:
     """
   Rendering logic
@@ -42,13 +100,14 @@ def render_excalidraw(vault: str, path: str, real_path: str) -> str:
   Returns:
       str: html rendered code
   """
+    if request.method == 'PUT':
+        if path.endswith('.excalidraw'):
+            return redirect(url_for('save_file', vault=vault, subpath=path))
+
     text = None
     try:
-        with lock:
-            with obf_open(real_path, vault) as inp:
-                text = inp.read()
-                if len(text.strip()) == 0:
-                    text = default_excalidraw
+        plugin = path.endswith('.excalidraw.md')
+        text = handle_open(vault, real_path, plugin)
 
     except Exception as e:
         logger.warning(f'attempt to load non-text file: {real_path}: {e}')
