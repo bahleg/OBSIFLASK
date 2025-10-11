@@ -142,11 +142,15 @@ class HintIndex:
         # initially populated by popular files, see graph.py
 
         self.default_tags: list[str] = []
-        # most popular tags for user
+        # most popular tags for userf
 
         # indicies for autocomplete
         self.string_file_index = NaiveStringIndex(ngram_order, max_ngrams,
                                                   max_ratio_in_ngram)
+
+        self.string_all_file_index = NaiveStringIndex(ngram_order, max_ngrams,
+                                                      max_ratio_in_ngram)
+
         self.string_tag_index = NaiveStringIndex(ngram_order, max_ngrams,
                                                  max_ratio_in_ngram)
 

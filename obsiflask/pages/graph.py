@@ -13,7 +13,6 @@ from cmap import Colormap
 from flask import render_template, request
 import networkx as nx
 
-from obsiflask.pages.index_tree import render_tree
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger
 from obsiflask.graph import GraphRepr
@@ -22,6 +21,7 @@ from obsiflask.messages import add_message
 from obsiflask.bases.filter import FieldFilter
 from obsiflask.auth import get_user_config
 from obsiflask.utils import get_traceback
+
 
 def is_hex_color(s: str) -> bool:
     """
@@ -69,9 +69,9 @@ def select_color(cmap: Colormap, already: set):
 
 
 def get_graph_and_legend(
-        vault: str,  graph_data: GraphRepr,
-        filters: list[dict[str, Any]], used_colors: set[str],
-        include_tags: bool, cm: Colormap, backlinks: bool,
+        vault: str, graph_data: GraphRepr, filters: list[dict[str, Any]],
+        used_colors: set[str], include_tags: bool, cm: Colormap,
+        backlinks: bool,
         tag_color: str) -> tuple[list, GraphRenderingRepresentation]:
     """
     Gets a graph and corresponding legend for it
@@ -279,18 +279,14 @@ def render_graph(vault: str) -> str:
     else:
         backlinks = False
 
-    nodespacing = request.args.get(
-        'nodespacing'
-    ) or AppState.config.vaults[vault].graph_config.default_graph_node_spacing
-    stiffness = request.args.get(
-        'stiffness'
-    ) or AppState.config.vaults[vault].graph_config.default_graph_edge_stiffness
-    edgelength = request.args.get(
-        'edgelength'
-    ) or AppState.config.vaults[vault].graph_config.default_graph_edge_length
-    compression = request.args.get(
-        'compression'
-    ) or AppState.config.vaults[vault].graph_config.default_graph_compression
+    nodespacing = request.args.get('nodespacing') or AppState.config.vaults[
+        vault].graph_config.default_graph_node_spacing
+    stiffness = request.args.get('stiffness') or AppState.config.vaults[
+        vault].graph_config.default_graph_edge_stiffness
+    edgelength = request.args.get('edgelength') or AppState.config.vaults[
+        vault].graph_config.default_graph_edge_length
+    compression = request.args.get('compression') or AppState.config.vaults[
+        vault].graph_config.default_graph_compression
 
     cm = Colormap(get_user_config().graph_cmap)
     used_colors = set()
@@ -310,10 +306,9 @@ def render_graph(vault: str) -> str:
         tag_color = select_color(cm, used_colors)
 
     graph_data = AppState.graphs[vault].build(refresh)
-    legend, out_graph = get_graph_and_legend(vault, graph_data,
-                                             filters, used_colors,
-                                             include_tags, cm, backlinks,
-                                             tag_color)
+    legend, out_graph = get_graph_and_legend(vault, graph_data, filters,
+                                             used_colors, include_tags, cm,
+                                             backlinks, tag_color)
     filtered_edges = out_graph.edges
 
     fast = len(out_graph.node_labels) > AppState.config.vaults[vault].graph_config.fast_graph_max_nodes\

@@ -204,7 +204,7 @@ def run(cfg: AppConfig | None = None,
         else:
             return redirect(url_for('get_folder_root', vault=vault))
 
-    @app.route('/excalidraw/<vault>/<path:subpath>')
+    @app.route('/excalidraw/<vault>/<path:subpath>',  methods=['GET', 'PUT'])
     def excalidraw(vault, subpath):
         auth_check_resut = check_rights(vault)
         if auth_check_resut:

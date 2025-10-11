@@ -11,7 +11,7 @@ Check an example of the obfuscated note [[obfuscated.obf.md| here]] (won't work 
 
 ## 🔐 Encryption
 
-**OBSIFLASK** provides partial support for encryption compatible with the [Meld Encrypt Obsidian plugin](https://github.com/meld-encrypt/meld-encrypt)
+**OBSIFLASK** provides partial support for encryption compatible with the [Meld Encrypt Obsidian plugin](https://github.com/meld-cp/obsidian-encrypt)
 
 You can **encrypt and decrypt inline text** in Markdown nodes, as well as decrypt fully encrypted `.mdenc` files.  
 (Full-file encryption and re-encryption are not supported yet.)
@@ -35,5 +35,5 @@ Both methods serve to hide content, but they differ in purpose, compatibility, a
 | **Cryptographic strength** | Very weak (simple reversible transformation)           | Moderate to strong (depends on password and plugin configuration)  |
 | **Git-friendliness**       | Small text changes produce small diffs in encoded form | Even minor edits cause large binary-like diffs                     |
 | **Purpose**                | Superficial content hiding                             | Real encryption for confidentiality                                |
-| **Decoding location**      | Server-side (handled by OBSIFLASK)                     | Client-side (handled by Obsidian plugin or OBSIFLASK decrypt tool) |
+| **Decoding location**      | Server-side (handled by OBSIFLASK)                     | Client-side (handled by Obsidian plugin or OBSIFLASK) |
 | **Usage warning**          | Suitable only for lightweight protection               | Use at your own risk, but secure enough for typical use cases      |

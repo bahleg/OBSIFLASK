@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
 ---
+### [0.19.*] - Better Excalidraw support and UI fixes
+- Basic compatiblity with Obsidian Excalidraw plugin
+- Autocomplete hints for embedding links
+- Graph tag link fixes
+- Additional config field for auth cookies (useful if you have multiple services at one server)
+ 
 ### [0.18.*] - Encrpytion
 - Added an encrpytion functionality, compatitible with Meld
 

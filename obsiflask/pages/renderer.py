@@ -58,7 +58,7 @@ def plugin_mermaid(md):
 
 
 def plugin_heading_anchor(md):
-    """Плагин, который добавляет id и якорь к заголовкам."""
+    """Adds anchor and id to headers"""
 
     renderer = md.renderer
 
@@ -300,7 +300,7 @@ def render_renderer(vault: str, path: str, real_path: Path) -> str:
     """
     if str(path).endswith('.base'):
         return redirect(url_for('base', vault=vault, subpath=path))
-    elif str(path).endswith('.excalidraw'):
+    elif str(path).endswith('.excalidraw') or str(path).endswith('.excalidraw.md'):
         return redirect(url_for('excalidraw', vault=vault, subpath=path))
     elif Path(real_path).exists() and Path(real_path).is_dir():
         return redirect(url_for('get_folder', vault=vault, subpath=path))

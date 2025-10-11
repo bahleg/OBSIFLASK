@@ -90,9 +90,11 @@ class FileIndex:
             self._templates = list(self.template_dir.glob('*md'))
 
         self._files = list(self.path.glob('**/*'))
-        self._files = [f for f in self._files
-                       if not any(part.startswith('.') for part in f.parts)]  # ignore hidden
-        
+        self._files = [
+            f for f in self._files
+            if not any(part.startswith('.') for part in f.parts)
+        ]  # ignore hidden
+
         self._file_set = set(self._files)
 
         self._name_to_path = {}
@@ -105,6 +107,11 @@ class FileIndex:
                 self._name_to_path[shortname].add(file.parent)
         self.last_time = time.time()
         self.tree = self.build_tree()
+        files_to_add = list(
+            set([str(f.relative_to(self.path)) for f in self._files])
+            | set([str(f.name) for f in self._files]))
+        AppState.hints[self.vault].string_all_file_index.update_index(
+            files_to_add)
 
     def check_refresh(self):
         """
@@ -164,7 +171,7 @@ class FileIndex:
         name = name.strip()
         if '#' in name:
             name, anchor = name.rsplit('#', 1)
-            
+
         path = path.parent
         link = None
         # local first
@@ -204,10 +211,10 @@ class FileIndex:
                 if escape:
                     link = parse.quote(link)
                     if wrt_anchor and anchor:
-                        link = link+'#'+parse.quote(anchor)
+                        link = link + '#' + parse.quote(anchor)
                     return link
                 else:
                     return str(link)
-                
+
         logger.warning(f'could not infer link: {name}')
         return None

@@ -114,4 +114,4 @@ Non-image and non-base files are rendered as download links. Example:
 OBSIFLASK can open `.excalidraw` files directly.  
 Example: [[excalidrawexample.excalidraw]]
 
-Note: There is also [a great Obsidian plugin for excalidraw](https://github.com/zsviczian/obsidian-excalidraw-plugin). It is not currently compatible with OBSIFLASK, but support is planned in the future.
+It's also compatible to the [Obsidian plugin for excalidraw](https://github.com/zsviczian/obsidian-excalidraw-plugin), supporting save/open operations for both [[excalidraw_plugin_example.excalidraw.md| uncompressed]] and [[excalidraw_plugin_example_compressed.excalidraw.md| compressed]] files. These files must have an `.excalidraw.md` file extension.

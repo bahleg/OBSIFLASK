@@ -66,7 +66,7 @@
 
   function saveDocument() {
 
-    fetch('{{ url_for("save_file", vault=vault, subpath=path) }}', {
+    fetch('{{ url_for("excalidraw", vault=vault, subpath=path) }}', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: JSON.stringify(sanitizeExcalidrawData(currentData)) })

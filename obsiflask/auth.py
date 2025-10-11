@@ -291,6 +291,7 @@ def add_auth_to_app(app: Flask):
     """
     if not AppState.config.auth.enabled:
         return
+    app.config['SESSION_COOKIE_NAME'] = AppState.config.auth.session_cookie_name
     try_create_db()
     app.teardown_appcontext(close_db)
     login_manager = flask_login.LoginManager()
