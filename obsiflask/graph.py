@@ -108,10 +108,11 @@ class Graph:
                     else:
                         tag_id = len(node_labels)
                         node_labels.append('#' + tag)
-
-                        used_tags[tag] = tag_id
-                        links.append((file_id, tag_id))
                         hrefs.append(url_for_tag(self.vault, tag))
+                        used_tags[tag] = tag_id
+
+                    links.append((file_id, tag_id))
+
             assert len(
                 links
             ) < 2**16 - 1, "currently graphs with higher number of edges are not supported"
