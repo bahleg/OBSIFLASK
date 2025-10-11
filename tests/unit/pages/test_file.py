@@ -41,13 +41,13 @@ def test_get_file_nonexistent_file(app):
 def test_get_file_obfuscate(app, tmp_path):
     with obf_open(tmp_path / 'test.obf.md', 'vault', 'w') as out:
         out.write('test')
-    with app.test_request_context():
+    with app.test_request_context('?obfuscate=1'):
         response = get_file(tmp_path / str('test.obf.md'), 'vault')
 
         data = b"".join(response.response)
         assert data != b'test'
 
-    with app.test_request_context('?deobfuscate=1'):
+    with app.test_request_context():
         response = get_file(str(tmp_path / 'test.obf.md'), 'vault')
 
         data = b"".join(response.response)
