@@ -57,28 +57,84 @@ tags: [excalidraw]
 {}
 ```
 %%"""
+
+default_plugin_excalidraw_appstate = json.loads("""{"appState": {
+		"theme": "light",
+		"viewBackgroundColor": "#ffffff",
+		"currentItemStrokeColor": "#1e1e1e",
+		"currentItemBackgroundColor": "transparent",
+		"currentItemFillStyle": "solid",
+		"currentItemStrokeWidth": 2,
+		"currentItemStrokeStyle": "solid",
+		"currentItemRoughness": 1,
+		"currentItemOpacity": 100,
+		"currentItemFontFamily": 5,
+		"currentItemFontSize": 20,
+		"currentItemTextAlign": "left",
+		"currentItemStartArrowhead": null,
+		"currentItemEndArrowhead": "arrow",
+		"currentItemArrowType": "round",
+		"currentItemFrameRole": null,
+		"scrollX": 0.0,
+		"scrollY": 0.0,
+		"zoom": {
+			"value": 1
+		},
+		"currentItemRoundness": "round",
+		"gridSize": 20,
+		"gridStep": 5,
+		"gridModeEnabled": false,
+		"gridColor": {
+			"Bold": "rgba(217, 217, 217, 0.5)",
+			"Regular": "rgba(230, 230, 230, 0.5)"
+		},
+		"currentStrokeOptions": null,
+		"frameRendering": {
+			"enabled": true,
+			"clip": true,
+			"name": true,
+			"outline": true,
+			"markerName": true,
+			"markerEnabled": true
+		},
+		"objectsSnapModeEnabled": false,
+		"activeTool": {
+			"type": "freedraw",
+			"customType": null,
+			"locked": false,
+			"fromSelection": false,
+			"lastActiveTool": null
+		}
+	}}""")
+# for unknown reason plugin deosn't allow some fields from appstate saved from vanilla excalidraw,
+# so I change it into default fields
+
 lock = Lock()
 
 
 def prepare_content_to_write(vault: str, real_path: str, content: str) -> str:
     if str(real_path).endswith('.excalidraw'):
         return content
+    content = json.loads(content)
+    content['appState'] = default_plugin_excalidraw_appstate['appState']
+    content['files'] = {}
+    content = json.dumps(content, indent=4)
     with lock:
         with obf_open(real_path, vault) as inp:
             text = inp.read()
     buf = []
     json_match = codeblock_json.search(text)
     if json_match:
-        buf.append(text[:json_match.span(1)[0]]+' ')
-        buf.append(content)
+        buf.append(text[:json_match.span(1)[0]] + '\n')
+        buf.append(content + '\n')
         buf.append(text[json_match.span(1)[1]:])
         return ''.join(buf)
 
     json_match = codeblock_compressed_json.search(text)
     if json_match:
-        buf.append(text[:json_match.span(1)[0]]+' ')
+        buf.append(text[:json_match.span(1)[0]].rstrip() + '\n')
         lz = LZString()
-        buf.append(lz.compressToBase64(content))
+        buf.append(lz.compressToBase64(content) + '\n')
         buf.append(text[json_match.span(1)[1]:])
         return ''.join(buf)
     logger.warning(
@@ -149,7 +205,8 @@ def render_excalidraw(vault: str, path: str, real_path: str) -> str:
   """
     if request.method == 'PUT':
         data = request.get_json()
-        content = prepare_content_to_write(vault, real_path, data.get('content', ''))
+        content = prepare_content_to_write(vault, real_path,
+                                           data.get('content', ''))
         return make_save(real_path, content, AppState.indices[vault], vault)
     text = None
     try:
