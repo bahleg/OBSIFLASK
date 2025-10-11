@@ -113,6 +113,18 @@ lock = Lock()
 
 
 def prepare_content_to_write(vault: str, real_path: str, content: str) -> str:
+    """
+    Converts content to save from excalidraw to a proper format,
+    depending on the file extension and its previously saved content
+
+    Args:
+        vault (str): vault name
+        real_path (str): file path w.r.t. file system
+        content (str): content to save
+
+    Returns:
+        str: processed content
+    """
     if str(real_path).endswith('.excalidraw'):
         return content
     content = json.loads(content)
@@ -143,7 +155,18 @@ def prepare_content_to_write(vault: str, real_path: str, content: str) -> str:
     return default_plugin_excalidraw.format(content)
 
 
-def handle_open(vault: str, real_path: str, is_plugin_based: bool):
+def handle_open(vault: str, real_path: str, is_plugin_based: bool) -> str:
+    """
+    A helper to open file and extract excalidraw content
+
+    Args:
+        vault (str): vault name
+        real_path (str): real path, w.r.t. to ile system
+        is_plugin_based (bool): if set, will treat the file as a file from excalidraw plugin 
+
+    Returns:
+        str: extracted content (or some default content if could not open)
+    """
     with lock:
         with obf_open(real_path, vault) as inp:
             text = inp.read()
