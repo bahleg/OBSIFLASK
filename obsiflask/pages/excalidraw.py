@@ -22,6 +22,7 @@ codeblock_json = re.compile('```json(.*?)```', re.MULTILINE | re.DOTALL)
 codeblock_compressed_json = re.compile('```compressed-json(.*?)```',
                                        re.MULTILINE | re.DOTALL)
 
+
 default_excalidraw = """{
   "type": "excalidraw",
   "version": 2,
@@ -39,9 +40,15 @@ default_excalidraw = """{
 
 lock = Lock()
 
-
+def write_to_markdown(vault: str, real_path: str, content: str):
+    with obf_open(real_path, vault) as inp:
+            text = inp.read()
+    buf = []
+    json_match = codeblock_json.search(text)
+    if json_match:
+        buf.append(text[:json_match])
+        
 def handle_open(vault: str, real_path: str, is_plugin_based: bool):
-    load_problems = ''
     with lock:
         with obf_open(real_path, vault) as inp:
             text = inp.read()
