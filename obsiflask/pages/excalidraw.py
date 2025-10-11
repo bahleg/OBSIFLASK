@@ -17,10 +17,10 @@ from obsiflask.encrypt.obfuscate import obf_open
 from obsiflask.messages import add_message, type_to_int
 from obsiflask.auth import get_user
 
-re_spaces = re.compile('\s+', re.MULTILINE|re.DOTALL)
-codeblock_json = re.compile('```json(.*?)```', re.MULTILINE|re.DOTALL)
+re_spaces = re.compile('\s+', re.MULTILINE | re.DOTALL)
+codeblock_json = re.compile('```json(.*?)```', re.MULTILINE | re.DOTALL)
 codeblock_compressed_json = re.compile('```compressed-json(.*?)```',
-                                       re.MULTILINE|re.DOTALL)
+                                       re.MULTILINE | re.DOTALL)
 
 default_excalidraw = """{
   "type": "excalidraw",
@@ -56,7 +56,8 @@ def handle_open(vault: str, real_path: str, is_plugin_based: bool):
         if json_match:
             text = json_match.group(1)
         else:
-            compressed_json_match = codeblock_compressed_json.search(re_spaces.sub('', text))
+            compressed_json_match = codeblock_compressed_json.search(
+                re_spaces.sub('', text))
             if compressed_json_match:
                 try:
                     lz = LZString()
