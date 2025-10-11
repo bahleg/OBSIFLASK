@@ -20,7 +20,7 @@ def get_file(real_path: str, vault: str):
     """
     tmp = None
     try:
-        if 'deobfuscate' in request.args and AppState.config.vaults[
+        if (not 'obfuscate' in request.args) and AppState.config.vaults[
                 vault].obfuscation_suffix in Path(real_path).suffixes:
             tmp = mkstemp()[1]
             if Path(real_path).suffix in TEXT_FILES_SFX:

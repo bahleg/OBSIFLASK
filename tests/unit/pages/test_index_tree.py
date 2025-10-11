@@ -16,11 +16,13 @@ def app(tmp_path):
     (tmp_path / "dir" / "file.md").write_text('write')
     (tmp_path / "dir" / "file.obf.md").write_text('write')
     (tmp_path / "dir" / "file.txt").write_text('write')
-    config = AppConfig(vaults={
-        'vault':
-        VaultConfig(str(tmp_path), template_dir=(tmp_path / "templates")), 
-       
-    }, log_level='INFO', )
+    config = AppConfig(
+        vaults={
+            'vault':
+            VaultConfig(str(tmp_path), template_dir=(tmp_path / "templates")),
+        },
+        log_level='INFO',
+    )
 
     app = run(config, True)
     return app
@@ -79,13 +81,8 @@ def test_folder(app):
             for t in elements[1]['data']['menu']
         ])
         assert menu_titles == {
-            'edit', 'show',
-            'duplicate',
-            'rename',
-            'delete',
-            'file operations',
-            'download',
-            'download with deobfuscation'
+            'edit', 'show', 'duplicate', 'rename', 'delete', 'file operations',
+            'download', 'download wrt obfuscation'
         }
 
         # less options for non-md file
