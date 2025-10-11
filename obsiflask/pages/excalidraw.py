@@ -10,7 +10,7 @@ import json
 from flask import render_template, abort, request, redirect, url_for
 from lzstring import LZString
 
-from obsiflask.pages.index_tree import render_tree
+from obsiflask.pages.save import make_save
 from obsiflask.app_state import AppState
 from obsiflask.utils import logger, get_traceback
 from obsiflask.encrypt.obfuscate import obf_open
@@ -21,7 +21,6 @@ re_spaces = re.compile('\s+', re.MULTILINE | re.DOTALL)
 codeblock_json = re.compile('```json(.*?)```', re.MULTILINE | re.DOTALL)
 codeblock_compressed_json = re.compile('```compressed-json(.*?)```',
                                        re.MULTILINE | re.DOTALL)
-
 
 default_excalidraw = """{
   "type": "excalidraw",
@@ -38,16 +37,56 @@ default_excalidraw = """{
   "files": {}
 }"""
 
+default_plugin_excalidraw = """---
+
+excalidraw-plugin: parsed
+tags: [excalidraw]
+
+---
+==⚠  Switch to EXCALIDRAW VIEW in the MORE OPTIONS menu of this document. ⚠== You can decompress Drawing data with the command palette: 'Decompress current Excalidraw file'. For more info check in plugin settings under 'Saving'
+
+
+# Excalidraw Data
+
+## Text Elements
+(Compressed version) ^1vCotd7g
+
+%%
+## Drawing
+```json
+{}
+```
+%%"""
 lock = Lock()
 
-def write_to_markdown(vault: str, real_path: str, content: str):
-    with obf_open(real_path, vault) as inp:
+
+def prepare_content_to_write(vault: str, real_path: str, content: str) -> str:
+    if str(real_path).endswith('.excalidraw'):
+        return content
+    with lock:
+        with obf_open(real_path, vault) as inp:
             text = inp.read()
     buf = []
     json_match = codeblock_json.search(text)
     if json_match:
-        buf.append(text[:json_match])
-        
+        buf.append(text[:json_match.span(1)[0]]+' ')
+        buf.append(content)
+        buf.append(text[json_match.span(1)[1]:])
+        return ''.join(buf)
+
+    json_match = codeblock_compressed_json.search(text)
+    if json_match:
+        buf.append(text[:json_match.span(1)[0]]+' ')
+        lz = LZString()
+        buf.append(lz.compressToBase64(content))
+        buf.append(text[json_match.span(1)[1]:])
+        return ''.join(buf)
+    logger.warning(
+        f'Could not find excalidraw plugin content. Removing it. Ignore if the file is created now',
+    )
+    return default_plugin_excalidraw.format(content)
+
+
 def handle_open(vault: str, real_path: str, is_plugin_based: bool):
     with lock:
         with obf_open(real_path, vault) as inp:
@@ -109,9 +148,9 @@ def render_excalidraw(vault: str, path: str, real_path: str) -> str:
       str: html rendered code
   """
     if request.method == 'PUT':
-        if path.endswith('.excalidraw'):
-            return redirect(url_for('save_file', vault=vault, subpath=path))
-
+        data = request.get_json()
+        content = prepare_content_to_write(vault, real_path, data.get('content', ''))
+        return make_save(real_path, content, AppState.indices[vault], vault)
     text = None
     try:
         plugin = path.endswith('.excalidraw.md')
