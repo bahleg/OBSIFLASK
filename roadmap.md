@@ -3,7 +3,6 @@
 Planned features to be implemented (tentative order):
 
 ## Major features 
-- Excalidraw plugin compatibility
 - Refactored file index and graph handling
 - Spell checking 
 - Tag list view  
@@ -34,6 +33,7 @@ Planned features to be implemented (tentative order):
 - Meld-like full note encryption
 - Job tracking?
 - rename by click
+- Canvas support
 - refactor renderer
 - UI refactoring  
   - Disable trags parsing in code blocks
