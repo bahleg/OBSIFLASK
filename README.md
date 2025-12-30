@@ -26,7 +26,7 @@ It supports multiple vaults, multi-user mode, search and navigation, background 
 ---
 
 ## 📦 Getting Started
-For OBSIFLASK configuration, please see [Config file](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py).
+For OBSIFLASK configuration, please see [Config file](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py) and [example yaml file for details](example.yaml).
 
 With an example config, the server will be started at http://localhost:8000. 
 
