@@ -74,6 +74,7 @@ vaults:
     max_files_to_upload: 10
 # File size of each file in mb
     max_file_size_mb: 10
+    spellcheck: default
 # Flask parameters. Will be put into app.run(**kwargs)
 flask_params: {}
 # Path to save logs

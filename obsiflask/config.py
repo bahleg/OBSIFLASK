@@ -347,6 +347,16 @@ class VaultConfig:
         metadata={"help": "File size of each file in mb"},
     )
 
+    spellcheck: str | None = field(
+        default='default',
+        metadata={
+            "help":
+            ("spellcheck parameters: 'default' will enable browser-specific language, string with language",
+             "will use language-specific dictionary",
+             "See more details in example vault")
+        },
+    )
+
 
 @dataclass
 @dataclass
