@@ -31,7 +31,7 @@ If you want to disable it, set "spellcheck" value in the vault config set to "nu
 To set a custom language for spellcheck you can copy hunspell dictionaries into 
 the <package>/static/spellcheck directory (both ".dic" and ".aff" file) and set "spellcheck" value to the language name.
 
-**Example:** Currently, OBSIFLASK comes with Russian (ru.dic/ru.aff) and Englsih (en.dic/en.aff) pre-downloaded languages. If you want to set vault spellcheck language as English, you can set vault config value to "en":
+**Example:** Currently, OBSIFLASK [comes](https://github.com/bahleg/OBSIFLASK/tree/dev/obsiflask/static/spellcheck) with Russian (ru.dic/ru.aff) and Englsih (en.dic/en.aff) pre-downloaded languages. If you want to set vault spellcheck language as English, you can set vault config value to "en":
 ```yaml
 vaults: 
   example:
