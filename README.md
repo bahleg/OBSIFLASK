@@ -23,10 +23,13 @@ It supports multiple vaults, multi-user mode, search and navigation, background 
 - 📝 **Task scheduler** — run periodic shell tasks per vault with logs and messages  
 - ⚡ **Graph visualization** — global graph rendering, filtering, tag coloring, clustering  
 - 🔐 **Encryption & Obfuscation** — hide or protect sensitive content using [Meld-compatible encryption](https://github.com/meld-cp/obsidian-encrypt) or lightweight obfuscation  
+
+[📸 Check the obsiflask UI screenshots and visual comparison with Obsidian](gallery.md)
+
 ---
 
 ## 📦 Getting Started
-For OBSIFLASK configuration, please see [Config file](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py).
+For OBSIFLASK configuration, please see [Config file](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py) and [example yaml file for details](example.yaml).
 
 With an example config, the server will be started at http://localhost:8000. 
 

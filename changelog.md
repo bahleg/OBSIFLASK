@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
 
 ---
+### [0.20.*] - Spellcheck 
+- Added an [example of config](example.yaml) as discussed [in the issue](https://github.com/bahleg/OBSIFLASK/issues/26).
+- Added a [gallery](gallery.md)
+- Added a spellcheck 
+
 ### [0.19.*] - Better Excalidraw support and UI fixes
 - Basic compatiblity with Obsidian Excalidraw plugin
 - Autocomplete hints for embedding links

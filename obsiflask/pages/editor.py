@@ -50,13 +50,15 @@ def render_editor(vault: str, path: str, real_path: str) -> str | Response:
     except Exception:
         preview = get_user_config().editor_preview
 
-    return render_template('editor.html',
-                           markdown_text=text,
-                           path=path,
-                           vault=vault,
-                           markdown_html=markdown,
-                           page_editor=True,
-                           home=AppState.config.vaults[vault].home_file,
-                           curdir=Path(path).parent,
-                           curfile=path,
-                           preview=preview)
+    return render_template(
+        'editor.html',
+        markdown_text=text,
+        path=path,
+        vault=vault,
+        markdown_html=markdown,
+        page_editor=True,
+        home=AppState.config.vaults[vault].home_file,
+        curdir=Path(path).parent,
+        curfile=path,
+        preview=preview,
+        spellcheck=AppState.config.vaults[vault].spellcheck)

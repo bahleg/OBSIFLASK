@@ -4,7 +4,6 @@ Planned features to be implemented (tentative order):
 
 ## Major features 
 - Refactored file index and graph handling
-- Spell checking 
 - Tag list view  
 - Navigation/header links
 - Command palette  

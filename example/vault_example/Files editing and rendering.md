@@ -11,13 +11,6 @@ You can switch between the editor and the rendered view using the button in the 
 You can also disable this preview in the [config](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py).
 
 
-### Edit modes
-Currenly, OBSIFLASK allows to use two editor modes:
-* A vanilla HTML text editor
-* An editor based on [easyMDE](https://github.com/Ionaru/easy-markdown-editor).
-
-You can select one of the modes in the [config](https://github.com/bahleg/OBSIFLASK/blob/main/obsiflask/config.py).
-
 ### Autocompletion
 OBSIFLASK supports autocompletion: depending on the context, it suggests
 links, tags, or the current date as hints.
@@ -30,6 +23,20 @@ To trigger autocompletion, press <Tab> on a non-empty string or click the "abc" 
 Currently, files are automatically saved every 5 seconds.  
 Keep in mind that you should save your work manually before leaving the browser.
 
+## ✍🏻 Spellchecking
+
+By default, OBSIFLASK will use a spellcheck with the client main language.
+If you want to disable it, set "spellcheck" value in the vault config set to "null".
+
+To set a custom language for spellcheck you can copy hunspell dictionaries into 
+the <package>/static/spellcheck directory (both ".dic" and ".aff" file) and set "spellcheck" value to the language name.
+
+**Example:** Currently, OBSIFLASK [comes](https://github.com/bahleg/OBSIFLASK/tree/dev/obsiflask/static/spellcheck) with Russian (ru.dic/ru.aff) and Englsih (en.dic/en.aff) pre-downloaded languages. If you want to set vault spellcheck language as English, you can set vault config value to "en":
+```yaml
+vaults: 
+  example:
+    spellcheck: en
+```
 
 # 👁️ Markdown rendering
 

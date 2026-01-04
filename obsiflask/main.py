@@ -91,6 +91,13 @@ def logic_init(cfg: AppConfig):
                                             vault)
         AppState.graphs[vault] = Graph(vault)
         AppState.users_per_vault[vault] = set()
+        # spellcheck config check
+        if vaultcfg.spellcheck is not None and vaultcfg.spellcheck != 'default':
+            assert (Path(__file__).resolve().parent / "static" / "spellcheck" /
+                    (vaultcfg.spellcheck + '.dic')).exists()
+            assert (Path(__file__).resolve().parent / "static" / "spellcheck" /
+                    (vaultcfg.spellcheck + '.aff')).exists()
+
     for vault in cfg.vaults:
 
         AppState.hints[vault] = HintIndex(
@@ -204,7 +211,7 @@ def run(cfg: AppConfig | None = None,
         else:
             return redirect(url_for('get_folder_root', vault=vault))
 
-    @app.route('/excalidraw/<vault>/<path:subpath>',  methods=['GET', 'PUT'])
+    @app.route('/excalidraw/<vault>/<path:subpath>', methods=['GET', 'PUT'])
     def excalidraw(vault, subpath):
         auth_check_resut = check_rights(vault)
         if auth_check_resut:

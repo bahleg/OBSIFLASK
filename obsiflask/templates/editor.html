@@ -4,7 +4,15 @@
 
 <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
 <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='spell-checker.css') }}">
+<script src="{{ url_for('static', filename='spell-checker.min.js') }}"></script>
 <script src="{{ url_for('static', filename='bases_iframe.js') }}"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+
+
 <h1>Editor:
   <code><a href="{{url_for('get_folder', vault=vault, subpath=curdir)}}">{{curdir}}</a>/{{curfile.split('/')[-1]}}</code>
 </h1>
@@ -13,8 +21,7 @@
 <div id="save-status">(saved)</div>
 
 <div class="flo-btn-group">
-  <a class="flo-btn" title="Encrypt message" id="flo-encrypt-btn" href="#"><i
-      class="bi bi-key"></i></a>
+  <a class="flo-btn" title="Encrypt message" id="flo-encrypt-btn" href="#"><i class="bi bi-key"></i></a>
 
   <a class="flo-btn" title="Autocomplete" id="flo-autocomplete-btn"><i class="bi bi-alphabet"></i></a>
 
@@ -38,9 +45,31 @@
 </div>
 
 <script>
-  var easyMDE = new EasyMDE({
+  {% if not spellcheck %}
+  let spellcheck = false;
+  {% elif  spellcheck == 'default' %}
+  let spellcheck = true;
+
+  {% else %}
+  
+  let spellcheck = (x) => {
+      CodeMirrorSpellChecker({
+          codeMirrorInstance: x.codeMirrorInstance,
+          language: {
+              aff: "{{ url_for('static', filename='spellcheck/' + spellcheck + '.aff') }}",
+              dic: "{{ url_for('static', filename='spellcheck/' + spellcheck + '.dic') }}"
+          },
+         
+      });
+  };
+
+  {% endif %}
+
+
+  const easyMDE = new EasyMDE({
     element: document.getElementById("editor"),
-    spellChecker: false,
+    spellChecker: spellcheck,
+    //spellChecker: ,
     status: false,
     toolbar: [
       "bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|",
@@ -69,6 +98,9 @@
       "|", "link", "image", "|", "preview", "side-by-side", "fullscreen"
     ]
   });
+
+
+
 
   {% if not preview %}
   document.querySelector('.EasyMDEContainer').style.width = "100%";
@@ -262,6 +294,14 @@
 
 </script>
 
+
+<script>
+  // refreshing editor just to re-activate spell-checking
+  setTimeout(() => {
+    easyMDE.codemirror.setValue(easyMDE.codemirror.getValue());
+  }, 1.0);
+
+</script>
 
 <script>
   // disable cache when returning to the page
