@@ -24,4 +24,4 @@ default_user_config:
   bootstrap_theme: Litera
   theme_contrast_light: true
 auth:
-  enabled: "${oc.env:OBSIFLASK_AUTH,false}"
+  enabled: "${oc.env:OBSIFLASK_AUTH_ENABLED,false}"

@@ -3,7 +3,7 @@ Super-users (administrators) can adjust vault access and other rights for all us
 Each user can also change their visual theme and personalize settings related to the appearance of OBSIFLASK.
 
 ## 🚀 Multi-user regime demo
-To start OBSIFLASK in multi-user mode, run `OBSIFLASK_AUTH="true" python3 -m obsiflask.main ./example/config.yml`.
+To start OBSIFLASK in multi-user mode, run `OBSIFLASK_AUTH_ENABLED="true" python3 -m obsiflask.main ./example/config.yml`.
 
 If you use docker, you can run `docker run -e OBSIFLASK_AUTH="true"  -p 8000:8000 obsiflask:latest`.
 
