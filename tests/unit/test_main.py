@@ -1,4 +1,4 @@
-from obsiflask.main import run, logic_init
+from obsiflask.main import run
 from obsiflask.config import AppConfig
 
 

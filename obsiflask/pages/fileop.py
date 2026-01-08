@@ -17,7 +17,7 @@ from obsiflask.utils import get_traceback
 from obsiflask.fileop import copy_move_file, create_file_op, delete_file_op, FileOpForm
 from obsiflask.encrypt.obfuscate import obf_open
 from obsiflask.consts import TEXT_FILES_SFX
-
+from obsiflask.pages.utils import resolve_redirect_page
 
 def render_fastop(vault: str) -> str:
     """
@@ -86,9 +86,7 @@ def render_fastop(vault: str) -> str:
                               destination=dst)
             if copy_move_file(vault, form, True):
                 return redirect(
-                    url_for('editor',
-                            vault=vault,
-                            subpath=form.destination.data))
+                    url_for(resolve_redirect_page(form.destination.data, vault)))
             else:
                 raise ValueError(
                     f'Could not perform copy from {curfile} to {dst}')
@@ -98,10 +96,7 @@ def render_fastop(vault: str) -> str:
                               target=template,
                               destination=dst)
             if copy_move_file(vault, form, True):
-                return redirect(
-                    url_for('editor',
-                            vault=vault,
-                            subpath=form.destination.data))
+                return redirect(url_for(resolve_redirect_page(form.destination.data, vault)))
             else:
                 raise ValueError(
                     f'Could not perform copy from {template} to {dst}')
@@ -112,9 +107,7 @@ def render_fastop(vault: str) -> str:
                               destination=dst)
             if copy_move_file(vault, form, False):
                 return redirect(
-                    url_for('editor',
-                            vault=vault,
-                            subpath=form.destination.data))
+                    url_for(resolve_redirect_page(form.destination.data, vault)))
             else:
                 raise ValueError(
                     f'Could not perform move from {curfile} to {dst}')

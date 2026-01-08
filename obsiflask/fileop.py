@@ -268,11 +268,10 @@ def copy_move_file(vault: str, form: FileOpForm, copy: bool) -> bool:
                 dst.parent.mkdir(parents=True, exist_ok=True)
             isdir = path.is_dir()
             if copy:
-                copy_move_file_op(path, dst, vault, True)
                 if isdir:
                     shutil.copytree(path, dst)
                 else:
-                    shutil.copy(path, dst)
+                    copy_move_file_op(path, dst, vault, True)
                     AppState.hints[vault].update_file(form.destination.data,
                                                       get_user())
             else:

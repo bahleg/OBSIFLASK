@@ -37,47 +37,10 @@ from obsiflask.pages.sessions import render_sessions
 from obsiflask.pages.user import render_user
 from obsiflask.pages.bookmarks import render_links, load_links
 from obsiflask.encrypt.obfuscate import init_obfuscation
+from obsiflask.pages.utils import resolve_path, check_vault
 
 
-def check_vault(vault: str) -> tuple[str, int] | None:
-    """
-    Checks if the vault exists    
 
-    Args:
-        vault (str): vault name
-
-    Returns:
-        tuple[str, int] | None: flask-formatted return or None
-    """
-    cfg = AppState.config
-    if vault not in cfg.vaults:
-        return "Bad vault", 400
-    return None
-
-
-def resolve_path(vault: str, subpath: str) -> Path | tuple[str, int]:
-    """
-    Resolves path w.r.t. to application
-
-    Args:
-        vault (str): vault name
-        subpath (str): path relative to vault
-
-    Returns:
-        Path | tuple[str, int]: flask-formatted return or absolute path 
-    """
-    vault_resolution_result = check_vault(vault)
-    if vault_resolution_result is not None:
-        return vault_resolution_result
-
-    cfg = AppState.config
-    real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
-    if not real_path.exists():
-        return f"Bad path: {subpath}", 400
-    if not real_path.is_relative_to(
-            Path(cfg.vaults[vault].full_path).resolve()):
-        return f"Bad path: {subpath}", 400
-    return real_path
 
 
 def logic_init(cfg: AppConfig):
