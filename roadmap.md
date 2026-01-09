@@ -28,9 +28,7 @@ Planned features to be implemented (tentative order):
 
 ## Minor features and fixes
 - Known minor bugs
-  - when copying a folder from edit mode, the redirect shows error message, need more correct file redirect handling
   - Cards are displayed differently in Obsidian and OBSIFLASK, see the example vault
-  - Search results generator: looks like it provides all results at once 
 - Cluster color settings
 - Meld-like full note encryption
 - Job tracking?
