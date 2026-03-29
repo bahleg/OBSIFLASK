@@ -5,9 +5,39 @@ import os
 import time
 from pathlib import Path
 from urllib import parse
+from functools import partial 
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
+from watchdog.observers import Observer
 
 from obsiflask.utils import logger
 from obsiflask.app_state import AppState
+
+
+class FileIndexEvent(FileSystemEventHandler):
+
+    def __init__(self, callables) -> None:
+        super().__init__()
+        self.callables = callables
+
+    def myevent(self):
+        for c in self.callables:
+            c()
+
+    def on_moved(self, event) -> None:
+        print ('moved')
+        self.myevent()
+
+    def on_created(self, event) -> None:
+        print ('created')
+        self.myevent()
+
+    def on_deleted(self, event) -> None:
+        print ('deleted')
+        self.myevent()
+
+    def on_modified(self, event) -> None:
+        print ('modifie')
+        self.myevent()
 
 
 class FileIndex:
@@ -37,7 +67,9 @@ class FileIndex:
         self._file_set = set()
         self._tree = {}
         self._templates = []
-
+        self.watchdog_observer = Observer()
+        self.watchdog_observer.schedule(FileIndexEvent([self.refresh]), str(self.path), recursive=True)
+        self.watchdog_observer.start()
     def get_templates(self) -> list[Path]:
         """
         returns a list of template files
@@ -86,6 +118,7 @@ class FileIndex:
         """
         Refreshes file index
         """
+        print('refeshing')
         if self.template_dir:
             self._templates = list(self.template_dir.glob('*md'))
 
@@ -118,8 +151,7 @@ class FileIndex:
         Checks that files were indexed recently.
         If not, runs refresh()
         """
-        if time.time() - self.last_time > AppState.config.vaults[
-                self.vault].file_index_update_time:
+        if False: 
             self.refresh()
 
     def __getitem__(self, index):

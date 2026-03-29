@@ -69,6 +69,7 @@ def logic_init(cfg: AppConfig):
             vaultcfg.autocomplete_max_ratio_in_key)
 
         AppState.graphs[vault].build(dry=True, populate_hint_files=True)
+        AppState.indices[vault].refresh()
     AppState.vault_alias = {}
     for vault in cfg.vaults:
         alias = cfg.vaults[vault].short_alias
@@ -310,7 +311,6 @@ def run(cfg: AppConfig | None = None,
         real_path = resolve_path(vault, subpath)
         if isinstance(real_path, tuple):
             return real_path
-        AppState.indices[vault].refresh()
         return render_tree(vault, subpath)
 
     @app.route('/globaltree/<vault>')

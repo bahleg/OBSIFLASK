@@ -263,14 +263,6 @@ class VaultConfig:
         metadata={"help": "Description for the vault index page"},
     )
 
-    file_index_update_time: int = field(
-        default=5 * 60,
-        metadata={
-            "help":
-            ("Cache time in seconds. After that will rebuild the file index")
-        },
-    )
-
     message_list_size: int = field(
         default=100,
         metadata={
