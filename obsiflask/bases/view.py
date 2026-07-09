@@ -94,7 +94,10 @@ class View:
             result = []
             problems = []
             # order is matter, so it's not a set
-            order_list_plus_sort = self.order[:]
+            if self.order:
+                order_list_plus_sort = self.order[:]
+            else:
+                order_list_plus_sort = []
             is_numeric = {}
             for r in self.sorts:
                 order_list_plus_sort.append(r[0])
@@ -188,7 +191,8 @@ class View:
                     df = df.sort_values(columns_to_sort, ascending=asc)
                 else:
                     add_message('The view is not sorted', 1, vault)
-            df = df[final_order]
+            if len(final_order) > 0:
+                df = df[final_order]
             result = df.to_dict(orient="records")
             BaseCache.add_to_cache(vault, self.base_path, self.name, result)
             return result
