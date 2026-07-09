@@ -99,7 +99,7 @@ def parse_view(view: dict, vault: str, formulas: list[Callable],
         result.filter = parse_filter(view['filters'], vault)
     else:
         result.filter = TrivialFilter()
-    result.order = view['order']
+    result.order = view.get('order')
     if 'sort' in view:
         for s in view['sort']:
             result.sorts.append((s['property'], s['direction']))
