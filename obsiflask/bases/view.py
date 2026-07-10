@@ -94,17 +94,16 @@ class View:
             result = []
             problems = []
             # order is matter, so it's not a set
-            if self.order:
-                order_list_plus_sort = self.order[:]
-            else:
-                order_list_plus_sort = []
+            order_list_plus_sort = self.order[:]
             is_numeric = {}
             for r in self.sorts:
                 order_list_plus_sort.append(r[0])
             final_order = []
+                
             if self.type == 'cards':
                 if COVER_KEY not in order_list_plus_sort:
                     order_list_plus_sort.append(COVER_KEY)
+                
             for f in files:
                 result.append({})
                 for r in order_list_plus_sort:
@@ -158,6 +157,7 @@ class View:
                             vault,
                             '\n'.join(problems),
                             use_log=use_log)
+            
             df = pd.DataFrame(result)
             if len(df) > 0:
                 columns_to_sort = []
