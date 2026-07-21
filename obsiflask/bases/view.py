@@ -1,9 +1,10 @@
 """
 View class that represents different base views
 """
+
 from typing import Callable
 from threading import Lock
-
+from functools import partial
 import pandas as pd
 
 from obsiflask.app_state import AppState
@@ -23,7 +24,7 @@ def convert_field(x):
     A helper to represent values in tabular rendering
     """
     if x is None:
-        return float('nan')
+        return float("nan")
     if not isinstance(x, (int, float, str, bool)):
         return str(x)
     else:
@@ -35,8 +36,9 @@ class View:
     View objects represents different views in terms of Obsidian bases
     """
 
-    def __init__(self, formulas: list[Callable], properties: dict[str, dict],
-                 base_path: str):
+    def __init__(
+        self, formulas: list[Callable], properties: dict[str, dict], base_path: str
+    ):
         """
         Construvctor
 
@@ -45,8 +47,8 @@ class View:
             properties (dict[str, dict]): properties of view
             base_path (str): path w.r.t. vault
         """
-        self.type = ''
-        self.name = ''
+        self.type = ""
+        self.name = ""
         self.filter: Filter = None
         self.order: list[str] = []
         self.sorts: list[tuple[str, str]] = []
@@ -86,7 +88,8 @@ class View:
         """
         if not force_refresh:
             cached, found_in_cache = BaseCache.get_from_cache(
-                vault, self.base_path, self.name)
+                vault, self.base_path, self.name
+            )
             if found_in_cache:
                 return cached
         with self.lock:  # maybe too much
@@ -99,36 +102,45 @@ class View:
             for r in self.sorts:
                 order_list_plus_sort.append(r[0])
             final_order = []
-                
-            if self.type == 'cards':
+
+            if self.type == "cards":
                 if COVER_KEY not in order_list_plus_sort:
                     order_list_plus_sort.append(COVER_KEY)
-                
+
+            prop_names = []
+            prop_splitted = []
+            for r in order_list_plus_sort:
+                prop_name = r.replace(".", "_")
+                if r in self.properties and "displayName" in self.properties[r]:
+                    prop_name = self.properties[r]["displayName"]
+
+                prop = r.split(".")
+                prop_names.append(prop_name)
+                prop_splitted.append(prop)
+
             for f in files:
                 result.append({})
-                for r in order_list_plus_sort:
-                    prop_name = r.replace('.', '_')
-                    try:
-                        prop = r.split('.')
-                        if r in self.properties and 'displayName' in self.properties[
-                                r]:
-                            prop_name = self.properties[r]['displayName']
+                for prop, prop_name, r in zip(
+                    prop_splitted, prop_names, order_list_plus_sort
+                ):
 
-                        if prop[0] == 'formula':
+                    try:
+                        if prop[0] == "formula":
                             value = self.formulas[prop[1]](f)
                         else:
                             value = f.get_prop(prop, render=True)
                     except Exception as e:
                         if AppState.config.vaults[
-                                vault].base_config.error_on_field_parse:
+                            vault
+                        ].base_config.error_on_field_parse:
                             raise ValueError(
-                                f'could not infer value {r} from {f.vault_path}: {e}'
+                                f"could not infer value {r} from {f.vault_path}: {e}"
                             )
                         else:
                             problems.append(
-                                f'could not infer value {r} from {f.vault_path}: {e}'
+                                f"could not infer value {r} from {f.vault_path}: {e}"
                             )
-                            value = ''
+                            value = ""
                     if r in self.order and prop_name not in final_order:
                         final_order.append(prop_name)
                     value = convert_field(value)
@@ -139,7 +151,7 @@ class View:
                     if isinstance(value, str):
                         is_numeric[prop_name] = False
 
-            if self.type == 'cards' and COVER_KEY not in final_order:
+            if self.type == "cards" and COVER_KEY not in final_order:
                 final_order.append(COVER_KEY)
 
             if problems:
@@ -147,50 +159,52 @@ class View:
                 if len(problems) > MAX_VIEW_ERRORS:
                     for p in problems:
                         logger.warning(p)
-                    problems = problems[:MAX_VIEW_ERRORS] + [
-                        '...', 'See  system logs'
-                    ]
+                    problems = problems[:MAX_VIEW_ERRORS] + ["...", "See  system logs"]
                     use_log = False
 
-                add_message('problems during base rendering',
-                            1,
-                            vault,
-                            '\n'.join(problems),
-                            use_log=use_log)
-            
+                add_message(
+                    "problems during base rendering",
+                    1,
+                    vault,
+                    "\n".join(problems),
+                    use_log=use_log,
+                )
+
             df = pd.DataFrame(result)
             if len(df) > 0:
                 columns_to_sort = []
                 asc = []
                 for s in self.sorts:
-                    s = s[0].replace('.', '_'), s[1]
-                    if s[0] not in df.columns or s[1] not in ['ASC', 'DESC']:
+                    s = s[0].replace(".", "_"), s[1]
+                    if s[0] not in df.columns or s[1] not in ["ASC", "DESC"]:
                         if AppState.config.vaults[
-                                vault].base_config.error_on_yaml_parse:
-                            raise ValueError(f'Bad value for sorting: {s}')
+                            vault
+                        ].base_config.error_on_yaml_parse:
+                            raise ValueError(f"Bad value for sorting: {s}")
                         else:
                             add_message(
-                                f'problems with sorting: {s}. Skipping', 1,
-                                vault)
+                                f"problems with sorting: {s}. Skipping", 1, vault
+                            )
                             continue
                     columns_to_sort.append(s[0])
-                    asc.append(s[1] == 'ASC')
+                    asc.append(s[1] == "ASC")
                 if len(columns_to_sort) == 0:
                     column = df.columns[0]
                     columns_to_sort.append(column)
                     asc.append(True)
-                    logger.warning('using defualt sorting')
+                    logger.warning("using defualt sorting")
 
                 if len(columns_to_sort) > 0:
                     for column in is_numeric:
                         if is_numeric[column]:
                             df[column] = pd.to_numeric(
-                                df[column], errors='coerce').fillna(NAN_CONST)
+                                df[column], errors="coerce"
+                            ).fillna(NAN_CONST)
                         else:
-                            df[column] = df[column].fillna('').astype(str)
+                            df[column] = df[column].fillna("").astype(str)
                     df = df.sort_values(columns_to_sort, ascending=asc)
                 else:
-                    add_message('The view is not sorted', 1, vault)
+                    add_message("The view is not sorted", 1, vault)
             if len(final_order) > 0:
                 df = df[final_order]
             result = df.to_dict(orient="records")

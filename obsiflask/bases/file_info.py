@@ -26,9 +26,9 @@ class FileInfo:
         """
         self.vault = vault
         index_path = AppState.indices[vault].path
-        self.vault_path = Path(path).resolve().relative_to(
-            index_path.resolve())
-        self.real_path = Path(path).resolve()
+        self.vault_path = Path(path).absolute().relative_to(
+            index_path)
+        self.real_path = Path(path).absolute()
         self.read = False  # indicates that we didn't read the file content yet
         self._tags = set()
         self.frontmatter = {}
@@ -100,7 +100,7 @@ class FileInfo:
         Returns:
             str: resolved link
         """
-        value = (self.real_path.parent / value).resolve()
+        value = (self.real_path.parent / value).absolute()
 
         value = value.relative_to(AppState.indices[self.vault].path)
         return str(value)

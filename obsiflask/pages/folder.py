@@ -20,12 +20,12 @@ def render_folder(vault: str, subpath: str) -> None | str:
     Returns:
         None | str: error code or resulting rendered page
     """
-    abspath = AppState.indices[vault].path.resolve()
-    target = (abspath / subpath).resolve()
+    abspath = AppState.indices[vault].path.absolute()
+    target = (abspath / subpath).absolute()
     if abspath != target and abspath not in target.parents:
         return abort(400)
 
-    files_folders = Path(abspath / subpath).resolve().glob('*')
+    files_folders = Path(abspath / subpath).absolute().glob('*')
     folders = []
     files = []
     for f in sorted(files_folders, key=lambda x: x.name):
@@ -34,7 +34,7 @@ def render_folder(vault: str, subpath: str) -> None | str:
         else:
             folders.append((str(f.relative_to(abspath)), f.name))
     parent = Path(abspath / subpath).parent
-    if Path(abspath / subpath).resolve() == abspath:
+    if Path(abspath / subpath).absolute() == abspath:
         parent_url = url_for('get_folder_root', vault=vault)
     elif abspath in list(target.parents):
         parent_url = url_for('get_folder',

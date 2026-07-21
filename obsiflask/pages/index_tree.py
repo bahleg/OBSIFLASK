@@ -226,7 +226,7 @@ def render_tree(vault: str, subpath: str) -> str:
     items = []
     tree = AppState.indices[vault].get_tree()
     is_root = subpath == ''
-    subpath = Path(AppState.indices[vault].path / subpath).resolve()
+    subpath = Path(AppState.indices[vault].path / subpath).absolute()
     request_path = Path(subpath)
     subpath_rel = subpath.relative_to(AppState.indices[vault].path)
     tree = tree[AppState.indices[vault].path]
