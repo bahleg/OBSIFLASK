@@ -108,8 +108,8 @@ def obf_open(file_name: str,
     assert obfuscation_mode in ['obfuscate', 'raw', 'auto']
     assert method in ['r', 'rb', 'w', 'wb']
     if obfuscation_mode == 'auto':
-        obfscate = AppState.config.vaults[vault].obfuscation_suffix in Path(
-            file_name).suffixes
+        obfscate = AppState.config.vaults[vault].obfuscation_suffix in set(Path(
+            file_name).suffixes)
     else:
         obfscate = (obfuscation_mode == 'obfuscate')
     if not obfscate:

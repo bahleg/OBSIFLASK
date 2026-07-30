@@ -11,7 +11,7 @@ import numpy as np
 from flask import url_for
 
 from obsiflask.app_state import AppState
-from obsiflask.bases.file_info import FileInfo
+from obsiflask.file_info import FileInfo
 from obsiflask.utils import logger
 from obsiflask.hint import MAX_HINT
 from obsiflask.pages.renderer import url_for_tag

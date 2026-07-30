@@ -9,7 +9,7 @@ import pandas as pd
 
 from obsiflask.app_state import AppState
 from obsiflask.bases.filter import Filter
-from obsiflask.bases.file_info import FileInfo
+from obsiflask.file_info import FileInfo
 from obsiflask.messages import add_message
 from obsiflask.utils import logger
 from obsiflask.bases.cache import BaseCache
@@ -68,8 +68,7 @@ class View:
         Returns:
             list[FileInfo]: list of files
         """
-        files = [f for f in AppState.indices[vault] if f.is_file()]
-        files = [FileInfo(f, vault) for f in files]
+        files = list(AppState.indices[vault].file_to_fileinfo)
         files = [f for f in files if self.global_filter.check(f)]
         files = [f for f in files if self.filter.check(f)]
         return files

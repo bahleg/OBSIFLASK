@@ -5,7 +5,7 @@ Filtering logic for vault bases
 from lark import Lark
 
 from obsiflask.bases.grammar import FilterTransformer, grammar
-from obsiflask.bases.file_info import FileInfo
+from obsiflask.file_info import FileInfo
 from obsiflask.app_state import AppState
 from obsiflask.messages import add_message
 

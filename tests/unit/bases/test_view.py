@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 
 from obsiflask.bases.view import View, convert_field
-from obsiflask.bases.file_info import FileInfo
+from obsiflask.file_info import FileInfo
 from obsiflask.bases.filter import TrivialFilter
 from obsiflask.bases.cache import BaseCache
 from obsiflask.app_state import AppState

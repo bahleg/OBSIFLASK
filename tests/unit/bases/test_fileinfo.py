@@ -5,7 +5,7 @@ import pytest
 
 from obsiflask.config import AppConfig, VaultConfig, BaseConfig
 from obsiflask.app_state import AppState
-from obsiflask.bases.file_info import FileInfo
+from obsiflask.file_info import FileInfo
 
 
 class DummyIndex:

@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 
 from obsiflask.bases.filter import TrivialFilter, FilterAnd, FilterOr, FieldFilter
-from obsiflask.bases.file_info import FileInfo
+from obsiflask.file_info import FileInfo
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
