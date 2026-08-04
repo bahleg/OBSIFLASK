@@ -54,7 +54,7 @@ def make_file(tmp_path, content, name="note.md"):
 
 def test_get_internal_data_reads_links_and_tags(tmp_path):
     file = make_file(tmp_path, "hello [[page]] #tag1 #tag2")
-    fi = FileInfo(file, "v1")
+    fi = FileInfo(file, "v1", "v1/file.md")
     fi.get_internal_data()
     assert "tag1" in fi._tags
     assert "tag2" in fi._tags
@@ -64,7 +64,7 @@ def test_get_internal_data_reads_links_and_tags(tmp_path):
 
 def test_get_internal_data_non_md_sets_read(tmp_path):
     file = make_file(tmp_path, "binarydata", "bin.txt")
-    fi = FileInfo(file, "v1")
+    fi = FileInfo(file, "v1", "v1/file.md")
     fi.get_internal_data()
     assert fi.read is True
     assert fi._tags == set()
@@ -76,7 +76,7 @@ def test_handle_cover_resolves_relative(tmp_path):
     sub.mkdir()
     cover = sub / "cover.png"
     cover.write_text("x")
-    fi = FileInfo(cover, "v1")
+    fi = FileInfo(cover, "v1", "v1/file.md")
     result = fi.handle_cover("cover.png")
     assert result.endswith("cover.png")
     # must be relative w.r.t. vault index
@@ -85,7 +85,7 @@ def test_handle_cover_resolves_relative(tmp_path):
 
 def test_get_prop_file_variants(tmp_path):
     file = make_file(tmp_path, "# fm\n", "note.md")
-    fi = FileInfo(file, "v1")
+    fi = FileInfo(file, "v1", "v1/note.md")
     # name without render
     assert fi.get_prop(("file", "name")) == "note.md"
     # name with render → ht

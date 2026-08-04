@@ -19,15 +19,13 @@ from obsiflask.encrypt.obfuscate import obf_open
 
 class FileInfo:
 
-    def __init__(self, path: Path, vault: str):
+    def __init__(self, path: Path, vault: str, vault_path: str):
         """
         A constructor for FileInfo, a representation
         of files in vault
         """
         self.vault = vault
-        index_path = AppState.indices[vault].path
-        self.vault_path = Path(path).resolve().relative_to(
-            index_path.resolve())
+        self.vault_path = Path(vault_path)
         self.real_path = Path(path).resolve()
         self.read = False  # indicates that we didn't read the file content yet
         self._tags = set()

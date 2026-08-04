@@ -134,7 +134,8 @@ class FileIndex:
             is_dir = file.is_dir()
             if not is_dir:
                 if file.is_file():
-                    self.file_to_fileinfo[file] = FileInfo(file, self.vault)
+                    self.file_to_fileinfo[file] = FileInfo(file, self.vault, Path(file).resolve().relative_to(
+            self.path))
                             
                 shortname = str(file.name)
                 if shortname not in self._name_to_path:
