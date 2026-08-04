@@ -68,7 +68,7 @@ class View:
         Returns:
             list[FileInfo]: list of files
         """
-        files = list(AppState.indices[vault].file_to_fileinfo)
+        files = list(AppState.indices[vault].file_to_fileinfo.values())
         files = [f for f in files if self.global_filter.check(f)]
         files = [f for f in files if self.filter.check(f)]
         return files
