@@ -131,5 +131,5 @@ views: []
 """)
     base = parse_base(str(yaml_file), 'vault1')
     # should create a dummy function instead of raising
-    result = base.formulas["f1"](FileInfo(tmp_path / "test.md", "vault1"))
+    result = base.formulas["f1"](FileInfo(tmp_path / "test.md",  "vault1", "vault1/test.md"))
     assert result == ""

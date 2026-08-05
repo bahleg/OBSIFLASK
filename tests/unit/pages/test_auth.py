@@ -4,7 +4,7 @@ from flask import url_for
 
 from obsiflask.main import run
 from obsiflask.config import AppConfig, VaultConfig, AuthConfig
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -18,8 +18,8 @@ def app(tmp_path):
                         user_config_dir=tmp_path / "users"),
     )
     app = run(config, True, True)
-    return app
-
+    yield app
+    stop_observer()
 
 def test_login_success_and_redirect(app):
     with app.test_request_context():

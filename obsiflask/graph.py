@@ -66,10 +66,9 @@ class Graph:
                                       self.vault].graph_config.cache_time):
                 logger.info('using cached graph')
                 return self.result
-            files = list(AppState.indices[self.vault])
+            files = list(AppState.indices[self.vault].file_to_fileinfo.values())
             files = [
-                FileInfo(f, self.vault) for f in files
-                if f.is_file() and f.suffix == ".md"
+                f for f in files if f.real_path.suffix == ".md"
             ]
             used_tags = {}
 

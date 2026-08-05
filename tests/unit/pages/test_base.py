@@ -6,7 +6,7 @@ from obsiflask.bases.base_parser import Base, View
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -14,8 +14,8 @@ def app(tmp_path):
     config.vaults['vault1'].base_config.error_on_field_parse = False
     config.vaults['vault1'].base_config.error_on_yaml_parse = False
     AppState.messages[('vault1', None)] = []
-    return run(config, True)
-
+    yield run(config, True)
+    stop_observer()
 
 @pytest.fixture
 def dummy_base(tmp_path):

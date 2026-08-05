@@ -6,14 +6,14 @@ from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.app_state import AppState
 from obsiflask.main import run
 from obsiflask.pages.utils import resolve_redirect_page, resolve_path, check_vault
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
     config = AppConfig(vaults={'vault1': VaultConfig(str(tmp_path))}, )
     app = run(config, True, True)
-    return app
-
+    yield app
+    stop_observer()
 
 def test_check_vault(app):
     assert check_vault('vault2')[0] == "Bad vault", 400

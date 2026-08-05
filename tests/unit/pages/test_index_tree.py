@@ -5,7 +5,7 @@ import re
 from obsiflask.pages.index_tree import render_tree
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -25,8 +25,8 @@ def app(tmp_path):
     )
 
     app = run(config, True)
-    return app
-
+    yield app
+    stop_observer()
 
 def test_render_tree_root(app):
     with app.test_request_context('?global=1'):

@@ -15,7 +15,7 @@ def dummy_file(tmp_path):
     run(config, True)
     file_path = tmp_path / "test.md"
     file_path.write_text("Some content")
-    file = FileInfo(file_path, vault="vault1")
+    file = FileInfo(file_path, vault_path='vault1/test.md', vault="vault1")
     file.get_prop = MagicMock(return_value="value")
     file.vault = "vault1"
 

@@ -9,15 +9,15 @@ from obsiflask.pages.graph import (is_hex_color, make_default_filter,
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
     config = AppConfig(vaults={'vault': VaultConfig(str(tmp_path))})
     AppState.messages[('vault', None)] = []
     app = run(config, True)
-    return app
-
+    yield app
+    stop_observer()
 
 class DummyGraphRepr:
 

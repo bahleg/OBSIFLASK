@@ -7,6 +7,8 @@ import uuid
 from flask import Flask, request, jsonify, redirect, url_for
 from flask_bootstrap import Bootstrap5
 from flask_favicon import FlaskFavicon
+import atexit
+
 
 from obsiflask.config import AppConfig
 from obsiflask.minihydra import load_entrypoint_config
@@ -38,7 +40,7 @@ from obsiflask.pages.user import render_user
 from obsiflask.pages.bookmarks import render_links, load_links
 from obsiflask.encrypt.obfuscate import init_obfuscation
 from obsiflask.pages.utils import resolve_path, check_vault
-
+from obsiflask.observer import stop_observer
 
 
 
@@ -448,6 +450,7 @@ def run(cfg: AppConfig | None = None,
 
     if return_app:
         return app
+    atexit.register(stop_observer)
     app.run(**cfg.flask_params)
 
 

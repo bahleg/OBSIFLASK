@@ -11,7 +11,7 @@ from obsiflask.auth import (save_user_config, make_user_adjustments, get_user,
                             login_perform, update_user, delete_user,
                             register_user, check_password_hash, check_rights,
                             MAX_SESSION_RECORDS, add_session_record)
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -23,7 +23,8 @@ def app(tmp_path):
                                        user_config_dir=tmp_path / "users"))
     app = run(config, True)
 
-    return app
+    yield app
+    stop_observer()
 
 
 @pytest.fixture
@@ -32,8 +33,8 @@ def app_no_auth(tmp_path):
                        auth=AuthConfig(enabled=False))
     app = run(config, True)
 
-    return app
-
+    yield app
+    stop_observer()
 
 def test_save_user_config(tmp_path, app):
     cfg = UserConfig()

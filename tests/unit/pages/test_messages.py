@@ -4,7 +4,7 @@ import obsiflask.pages.messages as messages_module
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def flask_app(tmp_path):
@@ -12,8 +12,8 @@ def flask_app(tmp_path):
     app = run(config, True)
     app.config['WTF_CSRF_ENABLED'] = False
     AppState.messages[('vault1', None)] = []
-    return app
-
+    yield app
+    stop_observer()
 
 def test_render_messages_raw(flask_app, monkeypatch):
     monkeypatch.setattr(messages_module, "get_messages",

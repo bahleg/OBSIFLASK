@@ -7,34 +7,11 @@ import time
 from pathlib import Path
 from urllib import parse
 from functools import partial
-from watchdog.events import FileSystemEvent, FileSystemEventHandler
-from watchdog.observers import Observer
 
 from obsiflask.utils import logger
 from obsiflask.app_state import AppState
 from obsiflask.file_info import FileInfo
-
-class FileIndexEvent(FileSystemEventHandler):
-
-    def __init__(self, callables) -> None:
-        super().__init__()
-        self.callables = callables
-
-    def myevent(self):
-        for c in self.callables:
-            c()
-
-    def on_moved(self, event) -> None:
-        self.myevent()
-
-    def on_created(self, event) -> None:
-        self.myevent()
-
-    def on_deleted(self, event) -> None:
-        self.myevent()
-
-    def on_modified(self, event) -> None:
-        self.myevent()
+from obsiflask.observer import create_or_get_observer, FileIndexEvent
 
 
 class FileIndex:
@@ -64,11 +41,10 @@ class FileIndex:
         self._file_set = set()
         self._tree = {}
         self._templates = []
-        self.watchdog_observer = Observer()
+        self.watchdog_observer = create_or_get_observer()
         self.watchdog_observer.schedule(
             FileIndexEvent([self.refresh]), str(self.path), recursive=True
         )
-        self.watchdog_observer.start()
         self.file_to_fileinfo = {}
 
     def get_templates(self) -> list[Path]:

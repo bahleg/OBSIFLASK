@@ -7,7 +7,7 @@ from obsiflask.main import run
 from obsiflask.config import AppConfig, VaultConfig, AuthConfig
 from obsiflask.app_state import AppState
 from obsiflask.auth import register_user
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -17,8 +17,8 @@ def app(tmp_path):
     app = run(config, True)
     # adding artifical user for tracking messages
     AppState.messages[('vault1', 'user1')] = []
-    return app
-
+    yield app
+    stop_observer()
 
 @pytest.fixture
 def app_auth(tmp_path):
@@ -36,7 +36,7 @@ def app_auth(tmp_path):
     yield app
     if db_path.exists():
         db_path.unlink()
-
+    stop_observer()
 
 def test_add_message_and_retrieve(app):
     for k in AppState.messages:

@@ -6,7 +6,7 @@ from obsiflask.pages.root import (change_rights, change_vaults, check_vaults,
 from obsiflask.main import run
 from obsiflask.config import AppConfig, VaultConfig, AuthConfig
 from obsiflask.auth import register_user, get_username_info, check_password_hash
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -21,8 +21,8 @@ def app(tmp_path):
     )
     app = run(config, True, True)
     register_user('bob', 'pass', [], False)
-    return app
-
+    yield app
+    stop_observer()
 
 def test_change_rights(app):
     with app.test_request_context():

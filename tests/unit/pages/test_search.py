@@ -7,7 +7,7 @@ from obsiflask.pages import search
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def flask_app(tmp_path):
     AppState.messages[('vault1', None)] = []
     with app.app_context():
         yield app
-
+    stop_observer()
 
 @pytest.fixture
 def client(flask_app):

@@ -5,13 +5,13 @@ from obsiflask.pages.file import get_file
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.encrypt.obfuscate import obf_open
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
     AppState.config = AppConfig({'vault': VaultConfig(str(tmp_path))})
-    return Flask(__name__)
-
+    yield Flask(__name__)
+    stop_observer()
 
 def test_get_file_returns_file(tmp_path, app):
 

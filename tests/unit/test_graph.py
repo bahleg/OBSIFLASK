@@ -4,7 +4,7 @@ from obsiflask.graph import Graph, GraphRepr
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -26,7 +26,8 @@ def app(tmp_path):
      ).write_text('this is a [[file1#head| link to a section if file1.md]]')
     app = run(config, True)
 
-    return app
+    yield app
+    stop_observer()
 
 
 def test_graph_build_basic(app):

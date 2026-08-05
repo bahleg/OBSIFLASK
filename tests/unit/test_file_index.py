@@ -4,6 +4,7 @@ from obsiflask.file_index import FileIndex
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.hint import HintIndex
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def sample_vault(tmp_path):
@@ -17,8 +18,8 @@ def sample_vault(tmp_path):
     config = AppConfig(vaults={'default': VaultConfig(str(tmp_path))})
     AppState.config = config
     AppState.hints['default'] = HintIndex(3, 3, 1.0)
-    return vault
-
+    yield vault
+    stop_observer()
 
 def test_refresh_and_files(sample_vault):
     fi = FileIndex(str(sample_vault), template_dir=None, vault="default")

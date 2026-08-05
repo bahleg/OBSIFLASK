@@ -7,7 +7,7 @@ import obsiflask.pages.renderer as md
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 class DummyIndex:
 
@@ -39,8 +39,8 @@ def app(tmp_path):
     AppState.indices['vault'] = DummyIndex()
     app = run(config, True)
 
-    return app
-
+    yield app
+    stop_observer()
 
 def test_url_for_tag():
     assert md.url_for_tag('example',

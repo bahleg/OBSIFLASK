@@ -5,15 +5,15 @@ from obsiflask.pages.editor import render_editor
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def flask_app(tmp_path):
     config = AppConfig(vaults={'vault1': VaultConfig(str(tmp_path))})
     app = run(config, True)
     AppState.messages[('vault1', None)] = []
-    return app
-
+    yield app
+    stop_observer()
 
 def test_render_editor_success(flask_app):
     vault = "vault1"

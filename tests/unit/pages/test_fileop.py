@@ -7,6 +7,7 @@ from obsiflask.main import run
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.pages.fileop import render_fastop, upload_files, FileOpForm
 from obsiflask.encrypt.obfuscate import obf_open
+from obsiflask.observer import stop_observer
 
 ### FASTOP
 
@@ -47,8 +48,8 @@ def fastop_app(monkeypatch):
     def get_folder(vault, subpath):
         return ''
 
-    return app
-
+    yield app
+    stop_observer()
 
 @pytest.fixture
 def client(fastop_app):

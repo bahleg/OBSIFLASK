@@ -6,7 +6,7 @@ import pytest
 from obsiflask.config import AppConfig, VaultConfig, BaseConfig
 from obsiflask.app_state import AppState
 from obsiflask.file_info import FileInfo
-
+from obsiflask.observer import stop_observer
 
 class DummyIndex:
 
@@ -44,6 +44,7 @@ def setup_appstate(tmp_path, monkeypatch):
                                            cache_time=1000))
     })
     yield
+    stop_observer()
 
 
 def make_file(tmp_path, content, name="note.md"):

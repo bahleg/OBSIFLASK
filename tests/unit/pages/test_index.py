@@ -3,7 +3,7 @@ import pytest
 from obsiflask.pages.index import render_index
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def flask_app(tmp_path):
@@ -13,7 +13,8 @@ def flask_app(tmp_path):
     })
     app = run(config, True)
     app.config['WTF_CSRF_ENABLED'] = False
-    return app
+    yield app
+    stop_observer()
 
 
 def test_render_index(monkeypatch, flask_app):

@@ -6,7 +6,7 @@ from obsiflask.pages.bookmarks import load_links, change_and_save_links, render_
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
 from obsiflask.app_state import AppState
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -18,8 +18,8 @@ def app(tmp_path):
     }, )
 
     app = run(config, True)
-    return app
-
+    yield app
+    stop_observer()
 
 def test_load_change_and_save_links_links(app):
     AppState.shortlinks = {}

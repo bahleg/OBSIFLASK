@@ -5,15 +5,15 @@ from obsiflask.pages.save import make_save
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
     config = AppConfig(vaults={'vault1': VaultConfig(str(tmp_path))})
     app = run(config, True)
     AppState.messages[('vault1', None)] = []
-    return app
-
+    yield app
+    stop_observer()
 
 def test_make_save_existing_file(tmp_path, app):
     file_path = tmp_path / "file.txt"

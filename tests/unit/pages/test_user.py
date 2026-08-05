@@ -5,7 +5,7 @@ from obsiflask.main import run
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig, AuthConfig, UserConfig
 from obsiflask.auth import register_user, get_username_info, check_password_hash, login_perform
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -18,8 +18,8 @@ def app(tmp_path):
                         user_config_dir=tmp_path / "users"),
     )
     app = run(config, True, True)
-    return app
-
+    yield app
+    stop_observer()
 
 def test_load_form_data(app, monkeypatch):
     with app.test_request_context():

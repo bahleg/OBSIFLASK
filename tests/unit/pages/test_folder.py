@@ -4,7 +4,7 @@ from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 import obsiflask.pages.folder as folder_module
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def app(tmp_path):
@@ -18,8 +18,8 @@ def app(tmp_path):
     app = run(config, True)
     app.config['WTF_CSRF_ENABLED'] = False
     AppState.messages[('vault1', None)] = []
-    return app
-
+    yield app
+    stop_observer()
 
 def test_render_folder_ok(monkeypatch, app):
     monkeypatch.setattr(folder_module, "render_tree", lambda *a, **kw: "TREE")

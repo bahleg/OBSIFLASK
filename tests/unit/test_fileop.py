@@ -1,23 +1,25 @@
+import pytest 
+
 from obsiflask.fileop import FileOpForm, create_file_op, delete_file_op, copy_move_file, copy_move_file_op
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
 from obsiflask.encrypt.obfuscate import obf_open
+from obsiflask.observer import stop_observer
 
 
-def _make_app(tmp_path):
+@pytest.fixture
+def app(tmp_path):
     config = AppConfig(vaults={'vault1': VaultConfig(str(tmp_path))})
     app = run(config, True)
     app.config['WTF_CSRF_ENABLED'] = False
     AppState.messages[('vault1', None)] = []
-    return app
-
-
+    yield app
+    stop_observer()
 ### INTERNAL FUNCTIONS
 
 
-def test_create_empty_file(tmp_path):
-    app = _make_app(tmp_path)
+def test_create_empty_file(app, tmp_path):
     with app.app_context():
         form = FileOpForm('vault1',
                           data={
@@ -30,8 +32,7 @@ def test_create_empty_file(tmp_path):
             0] == "test.md"
 
 
-def test_create_folder(tmp_path):
-    app = _make_app(tmp_path)
+def test_create_folder(app, tmp_path):
     with app.app_context():
         form = FileOpForm('vault1',
                           data={
@@ -42,8 +43,7 @@ def test_create_folder(tmp_path):
         assert (tmp_path / "folder").is_dir()
 
 
-def test_delete_file(tmp_path):
-    app = _make_app(tmp_path)
+def test_delete_file(app, tmp_path):
     with app.app_context():
         f = tmp_path / "delete.md"
         f.write_text("hi")
@@ -52,8 +52,7 @@ def test_delete_file(tmp_path):
         assert not f.exists()
 
 
-def test_copy_move_file_copy(tmp_path):
-    app = _make_app(tmp_path)
+def test_copy_move_file_copy(app, tmp_path):
     with app.app_context():
         f = tmp_path / "a.txt"
         f.write_text("data")
@@ -68,8 +67,7 @@ def test_copy_move_file_copy(tmp_path):
             0] == "b.txt"
 
 
-def test_copy_move_file_move(tmp_path):
-    app = _make_app(tmp_path)
+def test_copy_move_file_move(app, tmp_path):
     with app.app_context():
         f = tmp_path / "c.txt"
         f.write_text("data")
@@ -85,13 +83,12 @@ def test_copy_move_file_move(tmp_path):
             0] == "d.txt"
 
 
-def test_copy_move_file_op(tmp_path):
+def test_copy_move_file_op(app, tmp_path):
     in_dir = tmp_path / "in"
     out_dir = tmp_path / "out"
     in_dir.mkdir()
     out_dir.mkdir()
-    app = _make_app(tmp_path)
-
+   
     for in_type in [
             'obf',
             'obf-bin',

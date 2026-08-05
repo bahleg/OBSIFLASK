@@ -10,15 +10,15 @@ from obsiflask.pages.excalidraw import render_excalidraw, default_excalidraw, ha
 from obsiflask.app_state import AppState
 from obsiflask.config import AppConfig, VaultConfig
 from obsiflask.main import run
-
+from obsiflask.observer import stop_observer
 
 @pytest.fixture
 def flask_app(tmp_path):
     config = AppConfig(vaults={'vault1': VaultConfig(str(tmp_path))})
     app = run(config, True)
     AppState.messages[('vault1', None)] = []
-    return app
-
+    yield app
+    stop_observer()
 
 def test_render_excalidraw_success(flask_app):
     vault = "vault1"
