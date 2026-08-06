@@ -70,8 +70,9 @@ def logic_init(cfg: AppConfig):
             vaultcfg.autocomplete_max_ngrams,
             vaultcfg.autocomplete_max_ratio_in_key)
 
-        AppState.graphs[vault].build(dry=True, populate_hint_files=True)
         AppState.indices[vault].refresh()
+        AppState.graphs[vault].build(dry=True, populate_hint_files=True)
+                
     AppState.vault_alias = {}
     for vault in cfg.vaults:
         alias = cfg.vaults[vault].short_alias

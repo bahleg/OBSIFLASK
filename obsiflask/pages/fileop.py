@@ -86,7 +86,8 @@ def render_fastop(vault: str) -> str:
                               destination=dst)
             if copy_move_file(vault, form, True):
                 return redirect(
-                    url_for(resolve_redirect_page(form.destination.data, vault)))
+                    url_for(resolve_redirect_page(form.destination.data, vault), vault=vault,
+                            subpath=form.destination.data))
             else:
                 raise ValueError(
                     f'Could not perform copy from {curfile} to {dst}')
@@ -96,7 +97,8 @@ def render_fastop(vault: str) -> str:
                               target=template,
                               destination=dst)
             if copy_move_file(vault, form, True):
-                return redirect(url_for(resolve_redirect_page(form.destination.data, vault)))
+                return redirect(url_for(resolve_redirect_page(form.destination.data, vault), vault=vault,
+                            subpath=form.destination.data))
             else:
                 raise ValueError(
                     f'Could not perform copy from {template} to {dst}')
@@ -107,7 +109,8 @@ def render_fastop(vault: str) -> str:
                               destination=dst)
             if copy_move_file(vault, form, False):
                 return redirect(
-                    url_for(resolve_redirect_page(form.destination.data, vault)))
+                    url_for(resolve_redirect_page(form.destination.data, vault), vault=vault,
+                            subpath=form.destination.data))
             else:
                 raise ValueError(
                     f'Could not perform move from {curfile} to {dst}')

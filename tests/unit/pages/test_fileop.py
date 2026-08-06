@@ -35,6 +35,9 @@ def fastop_app(monkeypatch):
                         lambda vault, form, flag: True)
     monkeypatch.setattr('obsiflask.pages.fileop.add_message',
                         lambda *a, **k: None)
+    monkeypatch.setattr('obsiflask.pages.fileop.resolve_redirect_page',
+                            lambda *a, **k: 'editor')
+        
 
     @app.route("/fastop")
     def fastop_route():

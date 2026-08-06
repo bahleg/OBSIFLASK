@@ -46,7 +46,7 @@ class FileIndex:
             FileIndexEvent([self.refresh]), str(self.path), recursive=True
         )
         self.file_to_fileinfo = {}
-
+        
     def get_templates(self) -> list[Path]:
         """
         returns a list of template files

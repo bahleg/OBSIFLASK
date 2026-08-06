@@ -39,11 +39,11 @@ def resolve_path(vault: str, subpath: str) -> Path | tuple[str, int]:
         return vault_resolution_result
 
     cfg = AppState.config
-    real_path = (Path(cfg.vaults[vault].full_path) / subpath).absolute()
+    real_path = (Path(cfg.vaults[vault].full_path) / subpath).resolve()
     if not real_path.exists():
         return f"Bad path: {subpath}", 400
     if not real_path.is_relative_to(
-            Path(cfg.vaults[vault].full_path).absolute()):
+            Path(cfg.vaults[vault].full_path).resolve()):
         return f"Bad path: {subpath}", 400
     return real_path
 

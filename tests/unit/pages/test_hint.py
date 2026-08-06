@@ -21,6 +21,7 @@ def app(tmp_path):
     (tmp_path / "dir" / "logo.png").write_text("binary content")
 
     app = run(config, True)
+
     AppState.indices['vault'].refresh()
     yield app
     stop_observer()

@@ -67,7 +67,7 @@ You can also add or remove  "{AppState.config.vaults[vault].obfuscation_suffix}\
         if not rv:
             return False
         target = (AppState.indices[self.vault].path /
-                  Path(self.target.data)).absolute()
+                  Path(self.target.data)).resolve()
         if not target.is_relative_to(AppState.indices[self.vault].path):
             self.target.errors.append(
                 'Cannot manipulate file outside the vault')
